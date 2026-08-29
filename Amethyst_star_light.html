@@ -1,0 +1,1659 @@
+<!doctype html>
+
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&amp;family=Jost:wght@200;300;400;500&amp;display=swap"
+      rel="stylesheet"
+    />
+    <title>Amethyst Star · Info View</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: #000;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        font-family: "Cormorant Garamond", serif;
+      }
+
+      .viewport {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        animation: pageFadeIn 1.15s ease-out 0.08s forwards;
+      }
+
+      .game-container {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        background: #000;
+      }
+
+      /* ===== TOP NAV ===== */
+      .top-nav {
+        position: absolute;
+        top: 3%;
+        left: 2%;
+        z-index: 30;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.65rem;
+      }
+
+      .menu-toggle-btn {
+        position: relative;
+        width: clamp(2.5rem, 3.2vw, 3.2rem);
+        height: clamp(2.5rem, 3.2vw, 3.2rem);
+        border-radius: 50%;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        box-shadow:
+          0 0 0.8vw rgba(205, 170, 255, 0.22),
+          inset 0 0 0.35vw rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .menu-toggle-btn:hover {
+        transform: scale(1.08);
+      }
+
+      .menu-toggle-btn::before {
+        content: "";
+        width: clamp(0.72rem, 0.95vw, 0.95rem);
+        height: clamp(0.72rem, 0.95vw, 0.95rem);
+        border-radius: 50%;
+        background: #d8b7ff;
+        box-shadow:
+          0 0 0.6vw rgba(205, 170, 255, 0.6),
+          0 0 1.2vw rgba(175, 95, 255, 0.35);
+      }
+
+      .menu-toggle-btn span {
+        position: absolute;
+        width: 1.1rem;
+        height: 1px;
+        border-radius: 999px;
+        background: rgba(248, 245, 255, 0.88);
+        box-shadow: 0 0 0.35vw rgba(205, 170, 255, 0.45);
+        transition:
+          transform 0.28s ease,
+          opacity 0.28s ease;
+      }
+
+      .menu-toggle-btn span:nth-child(1) {
+        transform: translateY(-0.32rem);
+      }
+
+      .menu-toggle-btn span:nth-child(2) {
+        transform: translateY(0);
+      }
+
+      .menu-toggle-btn span:nth-child(3) {
+        transform: translateY(0.32rem);
+      }
+
+      .top-nav.open .menu-toggle-btn span:nth-child(1) {
+        transform: rotate(45deg);
+      }
+
+      .top-nav.open .menu-toggle-btn span:nth-child(2) {
+        opacity: 0;
+      }
+
+      .top-nav.open .menu-toggle-btn span:nth-child(3) {
+        transform: rotate(-45deg);
+      }
+
+      .nav-menu {
+        min-width: 11.5rem;
+        padding: 0.9rem 1rem;
+        border-radius: 1.15rem;
+        margin-left: 0.15rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.72rem;
+        background: rgba(8, 4, 16, 0.36);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        box-shadow:
+          0 0 1vw rgba(185, 120, 255, 0.14),
+          0 0 1.8vw rgba(0, 0, 0, 0.22),
+          inset 0 0 0.45vw rgba(255, 255, 255, 0.07);
+        opacity: 0;
+        transform: translateY(-0.35rem) scale(0.96);
+        pointer-events: none;
+        transition:
+          opacity 0.32s ease,
+          transform 0.32s ease;
+      }
+
+      .top-nav.open .nav-menu {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+      }
+
+      .nav-link {
+        width: 100%;
+        font-size: clamp(0.78rem, 0.86vw, 0.92rem);
+        letter-spacing: 0.16em;
+        font-weight: 500;
+        color: rgba(238, 225, 255, 0.82);
+        cursor: pointer;
+        padding: 0.48rem 0.65rem;
+        border-radius: 999px;
+        transition:
+          color 0.28s ease,
+          background 0.28s ease,
+          transform 0.28s ease;
+      }
+
+      .nav-link:hover {
+        color: rgba(253, 250, 255, 0.98);
+        background: rgba(255, 255, 255, 0.07);
+        transform: translateX(3px);
+      }
+
+      /* ===== MODE TOGGLE ===== */
+      .mode-toggle {
+        position: absolute;
+        top: 3%;
+        right: 3%;
+        width: 3.35rem;
+        height: 1.72rem;
+        border-radius: 999px;
+        z-index: 20;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        transition: background 0.25s ease;
+      }
+
+      .mode-toggle.active {
+        background: rgba(58, 22, 122, 0.24);
+        border-color: rgba(210, 170, 255, 0.18);
+      }
+
+      .toggle-knob {
+        position: absolute;
+        top: 50%;
+        left: 0.18rem;
+        width: 1.28rem;
+        height: 1.28rem;
+        border-radius: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.88);
+        transition:
+          left 0.28s ease,
+          background 0.28s ease;
+      }
+
+      .mode-toggle.active .toggle-knob {
+        left: 1.88rem;
+        background: rgba(230, 210, 255, 0.95);
+      }
+
+      /* ===== MUSIC ===== */
+      .music-btn {
+        position: absolute;
+        bottom: 6%;
+        right: 4%;
+        width: clamp(2.5rem, 3.2vw, 3.2rem);
+        height: clamp(2.5rem, 3.2vw, 3.2rem);
+        border-radius: 50%;
+        z-index: 30;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        box-shadow: 0 0 0.8vw rgba(205, 170, 255, 0.25);
+        transition: all 0.3s ease;
+      }
+
+      .music-btn:hover {
+        transform: scale(1.08);
+      }
+
+      .music-inner {
+        width: clamp(0.7rem, 0.9vw, 0.9rem);
+        height: clamp(0.7rem, 0.9vw, 0.9rem);
+        border-radius: 50%;
+        background: #d8b7ff;
+        box-shadow: 0 0 0.6vw rgba(205, 170, 255, 0.6);
+        position: relative;
+        z-index: 2;
+      }
+
+      .music-label {
+        position: absolute;
+        left: 50%;
+        bottom: -1.55rem;
+        transform: translateX(-50%);
+        display: block;
+        width: max-content;
+        min-width: 6.2rem;
+        font-size: 0.9rem;
+        letter-spacing: 0.08em;
+        text-align: center;
+        white-space: nowrap;
+        color: rgba(255, 255, 255, 0.62);
+        transition: color 0.35s ease;
+      }
+
+      .music-btn.playing .music-label {
+        color: rgba(205, 170, 255, 0.9);
+      }
+
+      .music-credit {
+        position: absolute;
+        right: 0;
+        bottom: calc(100% + 0.7rem);
+        width: max-content;
+        max-width: min(15rem, 72vw);
+        padding: 0.42rem 0.58rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 0.5rem;
+        background: rgba(7, 10, 24, 0.78);
+        box-shadow: 0 0.35rem 1.1rem rgba(0, 0, 0, 0.24);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: rgba(255, 255, 255, 0.82);
+        font-family: "Jost", sans-serif;
+        font-size: clamp(0.58rem, 0.62vw, 0.7rem);
+        line-height: 1.35;
+        letter-spacing: 0.025em;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(0.35rem);
+        transition:
+          opacity 0.28s ease,
+          transform 0.28s ease,
+          visibility 0.28s;
+        pointer-events: none;
+      }
+
+      .music-credit-title {
+        display: block;
+        color: rgba(255, 255, 255, 0.96);
+        font-weight: 600;
+      }
+
+      .music-credit-artist {
+        display: block;
+        margin-top: 0.08rem;
+        color: rgba(255, 255, 255, 0.64);
+      }
+
+      .music-btn.playing .music-credit {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+      /* ===== TRANSITION OVERLAY ===== */
+      .transition-overlay {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 99999;
+        transition: opacity 0.8s ease;
+      }
+
+      .transition-overlay.show {
+        opacity: 1;
+      }
+
+      /* Constellation detail modal */
+      .constellation-detail-modal {
+        position: absolute;
+        inset: 0;
+        z-index: 60;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.35s ease;
+      }
+
+      .constellation-detail-modal.show {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .constellation-detail-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.38);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+
+      .constellation-detail-panel {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: min(62vw, 58rem);
+        height: min(82vh, 44rem);
+        transform: translate(-50%, -50%) scale(0.92);
+        border-radius: 1.35rem;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.11),
+          rgba(255, 255, 255, 0.05)
+        );
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        box-shadow:
+          0 0 2vw rgba(0, 0, 0, 0.22),
+          inset 0 0 1vw rgba(255, 255, 255, 0.08);
+        overflow: hidden;
+        transition: transform 0.35s ease;
+      }
+
+      .constellation-detail-modal.show .constellation-detail-panel {
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      .constellation-detail-close {
+        position: absolute;
+        top: 0.9rem;
+        right: 0.9rem;
+        z-index: 3;
+        width: 2.1rem;
+        height: 2.1rem;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 1.15rem;
+        backdrop-filter: blur(8px);
+      }
+
+      .constellation-detail-body {
+        display: grid;
+        grid-template-columns: 1fr 1.15fr;
+        gap: 1.4rem;
+        width: 100%;
+        height: 100%;
+        padding: 2.2rem;
+      }
+
+      .constellation-detail-image-wrap {
+        height: 100%;
+        border-radius: 1rem;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .constellation-detail-image-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .constellation-detail-text {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        min-height: 0;
+        padding-top: 3.1rem;
+      }
+
+      .constellation-detail-kicker {
+        font-size: 0.72rem;
+        letter-spacing: 0.18em;
+        color: rgba(255, 255, 255, 0.45);
+        margin-bottom: 0.8rem;
+      }
+
+      .constellation-detail-title {
+        margin: 0 0 1rem 0;
+        font-size: clamp(1.4rem, 1.8vw, 2rem);
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.95);
+      }
+
+      .constellation-detail-copy {
+        font-size: clamp(0.95rem, 1vw, 1.05rem);
+        line-height: 1.9;
+        color: rgba(255, 255, 255, 0.76);
+        overflow-y: auto;
+        max-height: min(24rem, 52vh);
+        padding-right: 0.45rem;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+      }
+
+      .constellation-detail-copy::-webkit-scrollbar {
+        width: 5px;
+      }
+
+      .constellation-detail-copy::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .constellation-detail-copy::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.18);
+        border-radius: 999px;
+      }
+
+      /* ================================================================
+       SPLIT SCREEN
+       ================================================================ */
+      .split-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 5;
+        display: flex;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 1s ease;
+      }
+
+      .split-overlay.show {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      /* ─── LEFT HALF ─── */
+      .left-half {
+        position: relative;
+        width: 50%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 0 3.8rem 0 3.2rem;
+        cursor: pointer;
+        overflow: hidden;
+        background: linear-gradient(
+          160deg,
+          #0d0411 0%,
+          #20072b 48%,
+          #0f0414 100%
+        );
+      }
+
+      .left-half::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(
+            ellipse at 62% 52%,
+            rgba(138, 51, 179, 0.16),
+            transparent 58%
+          ),
+          radial-gradient(
+            ellipse at 20% 78%,
+            rgba(99, 20, 131, 0.1),
+            transparent 44%
+          );
+        pointer-events: none;
+      }
+
+      .left-half::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(145, 75, 255, 0.04);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.35s ease;
+      }
+
+      .left-half:hover::after {
+        opacity: 1;
+      }
+
+      .left-accent-line {
+        position: absolute;
+        left: 1.6rem;
+        top: 22%;
+        bottom: 22%;
+        width: 1px;
+        background: linear-gradient(
+          to bottom,
+          transparent,
+          rgba(165, 95, 255, 0.45) 35%,
+          rgba(165, 95, 255, 0.45) 65%,
+          transparent
+        );
+      }
+
+      .left-corner-label {
+        position: absolute;
+        top: 1.6rem;
+        right: 2rem;
+        font-family: "Jost", sans-serif;
+        font-size: 0.62rem;
+        font-weight: 300;
+        letter-spacing: 0.3em;
+        color: rgba(185, 135, 255, 0.38);
+      }
+
+      .left-content {
+        position: relative;
+        z-index: 2;
+      }
+
+      .left-kicker {
+        font-family: "Jost", sans-serif;
+        font-size: clamp(0.6rem, 0.7vw, 0.72rem);
+        font-weight: 300;
+        letter-spacing: 0.34em;
+        color: rgba(185, 125, 255, 0.65);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+      }
+
+      .left-kicker::before {
+        content: "";
+        display: inline-block;
+        width: 1.8rem;
+        height: 1px;
+        background: rgba(175, 110, 255, 0.48);
+      }
+
+      .left-title {
+        font-family: "Cormorant Garamond", serif;
+        font-size: clamp(2.6rem, 4.55vw, 5.9rem);
+        font-weight: 300;
+        color: rgba(144, 109, 167, 0.95);
+        margin: 0 0 0.1em 0;
+        line-height: 0.88;
+        white-space: nowrap;
+        letter-spacing: 0.05em;
+      }
+
+      .planet-sub {
+        display: block;
+        margin-top: 1em;
+        margin-left: 0.18em;
+        font-size: 0.34em;
+        letter-spacing: 0.42em;
+        color: rgba(96, 66, 116, 0.95);
+      }
+
+      .left-subtitle {
+        font-family: "Cormorant Garamond", serif;
+        font-size: clamp(0.95rem, 1.3vw, 1.4rem);
+        font-weight: 300;
+        font-style: italic;
+        letter-spacing: 0.2em;
+        color: rgba(190, 130, 255, 0.55);
+        margin: 0.2em 0 1.8rem 0;
+      }
+
+      .left-rule {
+        width: 2.6rem;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          rgba(165, 95, 255, 0.62),
+          transparent
+        );
+        margin-bottom: 1.7rem;
+      }
+
+      .left-body {
+        font-family: "Cormorant Garamond", serif;
+        font-size: clamp(0.98rem, 1.08vw, 1.14rem);
+        font-weight: 400;
+        line-height: 2;
+        color: rgba(235, 220, 255, 0.55);
+        margin: 0 0 2rem 0;
+        max-width: none;
+      }
+
+      .left-body-line {
+        display: block;
+        white-space: nowrap;
+      }
+
+      .left-tags {
+        display: flex;
+        gap: 0.55rem;
+        flex-wrap: wrap;
+        margin-bottom: 2.4rem;
+      }
+
+      .left-tag {
+        padding: 0.28rem 0.82rem;
+        border-radius: 999px;
+        border: 1px solid rgba(165, 95, 255, 0.2);
+        background: rgba(145, 75, 255, 0.06);
+        font-family: "Jost", sans-serif;
+        font-size: clamp(0.58rem, 0.66vw, 0.68rem);
+        font-weight: 300;
+        letter-spacing: 0.22em;
+        color: rgba(195, 145, 255, 0.65);
+      }
+
+      .left-cta {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        font-family: "Jost", sans-serif;
+        font-size: clamp(0.68rem, 0.78vw, 0.8rem);
+        font-weight: 300;
+        letter-spacing: 0.24em;
+        color: rgba(225, 200, 255, 0.65);
+        transition: color 0.35s ease;
+      }
+
+      .left-cta-arrow {
+        width: 2rem;
+        height: 1px;
+        background: rgba(185, 120, 255, 0.55);
+        position: relative;
+        transition: width 0.35s ease;
+      }
+
+      .left-cta-arrow::after {
+        content: "";
+        position: absolute;
+        right: -1px;
+        top: -3px;
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+        border-left: 5px solid rgba(185, 120, 255, 0.55);
+      }
+
+      .left-half:hover .left-cta {
+        color: rgba(240, 225, 255, 0.92);
+      }
+
+      .left-half:hover .left-cta-arrow {
+        width: 3rem;
+      }
+
+      .left-bottom-hint {
+        position: absolute;
+        bottom: 1.8rem;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-family: "Jost", sans-serif;
+        font-size: 0.58rem;
+        letter-spacing: 0.28em;
+        color: rgba(205, 170, 255, 0.28);
+        animation: softBlink 3.2s ease-in-out infinite;
+      }
+
+      @keyframes softBlink {
+        0%,
+        100% {
+          opacity: 0.45;
+        }
+
+        50% {
+          opacity: 1;
+        }
+      }
+
+      /* Divider */
+      .split-divider {
+        position: absolute;
+        left: 50%;
+        top: 8%;
+        bottom: 8%;
+        width: 1px;
+        background: linear-gradient(
+          to bottom,
+          transparent,
+          rgba(165, 95, 255, 0.25) 25%,
+          rgba(165, 95, 255, 0.25) 75%,
+          transparent
+        );
+        z-index: 6;
+        pointer-events: none;
+      }
+
+      /* ─── RIGHT HALF ─── */
+      .right-half {
+        position: relative;
+        width: 50%;
+        height: 100%;
+        cursor: pointer;
+        overflow: hidden;
+        background: #000;
+      }
+
+      .right-preview-img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        transform-origin: center center;
+        animation: previewZoom 12s ease-in-out infinite alternate;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      @keyframes previewZoom {
+        from {
+          transform: scale(1);
+        }
+
+        to {
+          transform: scale(1.18);
+        }
+      }
+
+      .right-preview-vignette {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        background:
+          radial-gradient(
+            ellipse at center,
+            rgba(0, 0, 0, 0.15) 0%,
+            rgba(0, 0, 0, 0.52) 100%
+          ),
+          linear-gradient(
+            to left,
+            rgba(0, 0, 0, 0.28) 0%,
+            rgba(0, 0, 0, 0.04) 60%
+          );
+        transition: background 0.4s ease;
+      }
+
+      .right-half:hover .right-preview-vignette {
+        background:
+          radial-gradient(
+            ellipse at center,
+            rgba(0, 0, 0, 0.06) 0%,
+            rgba(0, 0, 0, 0.4) 100%
+          ),
+          linear-gradient(to left, rgba(0, 0, 0, 0.16) 0%, transparent 60%);
+      }
+
+      .right-center-hint {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.7rem;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
+        z-index: 3;
+      }
+
+      .right-half:hover .right-center-hint {
+        opacity: 1;
+      }
+
+      .right-center-icon {
+        width: 3.5rem;
+        height: 3.5rem;
+        border-radius: 50%;
+        border: 1px solid rgba(205, 170, 255, 0.18);
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: rgba(230, 210, 255, 0.7);
+      }
+
+      .right-center-label {
+        font-family: "Jost", sans-serif;
+        font-size: 0.62rem;
+        font-weight: 300;
+        letter-spacing: 0.3em;
+        color: rgba(225, 195, 255, 0.5);
+        white-space: nowrap;
+      }
+
+      /* ===== DESC CARDS OVERLAY ===== */
+      .desc-cards-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 55;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.45s ease;
+      }
+
+      .desc-cards-overlay.show {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .desc-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(3, 1, 12, 0.78);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+
+      .desc-cards-wrapper {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.8rem;
+        width: min(90vw, 74rem);
+      }
+
+      .desc-close-btn {
+        position: absolute;
+        top: -3.2rem;
+        right: 0;
+        width: 2.1rem;
+        height: 2.1rem;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.06);
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1.1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.25s ease;
+      }
+
+      .desc-close-btn:hover {
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .desc-cards-header {
+        text-align: center;
+      }
+
+      .desc-cards-kicker {
+        font-family: "Jost", sans-serif;
+        font-size: 0.64rem;
+        font-weight: 300;
+        letter-spacing: 0.32em;
+        color: rgba(190, 120, 255, 0.55);
+        margin-bottom: 0.55rem;
+      }
+
+      .desc-cards-title {
+        font-family: "Cormorant Garamond", serif;
+        font-size: clamp(1.3rem, 2vw, 2rem);
+        font-weight: 300;
+        letter-spacing: 0.14em;
+        color: rgba(246, 236, 255, 0.85);
+        margin: 0;
+      }
+
+      .desc-cards-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.4rem;
+        width: 100%;
+      }
+
+      .desc-card {
+        position: relative;
+        border-radius: 1.15rem;
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        background: rgba(7, 3, 18, 0.68);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        overflow: hidden;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        transition:
+          transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+          border-color 0.35s ease,
+          box-shadow 0.35s ease;
+        animation: cardReveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+
+      .desc-card:nth-child(1) {
+        animation-delay: 0.04s;
+      }
+
+      .desc-card:nth-child(2) {
+        animation-delay: 0.14s;
+      }
+
+      @keyframes cardReveal {
+        from {
+          opacity: 0;
+          transform: translateY(20px) scale(0.97);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      .desc-card:hover {
+        transform: translateY(-6px) scale(1.015);
+        border-color: rgba(165, 95, 255, 0.25);
+        box-shadow:
+          0 14px 48px rgba(0, 0, 0, 0.42),
+          0 0 24px rgba(165, 95, 255, 0.1);
+      }
+
+      .desc-card.locked {
+        cursor: not-allowed;
+      }
+
+      .desc-card.locked:hover {
+        transform: none;
+        border-color: rgba(255, 255, 255, 0.09);
+        box-shadow: none;
+      }
+
+      .desc-card.locked .desc-card-img,
+      .desc-card.locked:hover .desc-card-img {
+        filter: brightness(0.42) saturate(0.45) blur(2px);
+        transform: none;
+      }
+
+      .desc-card.locked .desc-card-readmore {
+        color: rgba(205, 170, 255, 0.42);
+      }
+
+      .desc-card-img-wrap {
+        position: relative;
+        overflow: hidden;
+        height: clamp(9rem, 16vw, 14rem);
+      }
+
+      .desc-card-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        filter: brightness(0.82) saturate(0.85);
+        transition:
+          filter 0.45s ease,
+          transform 0.45s ease;
+      }
+
+      .desc-card:hover .desc-card-img {
+        filter: brightness(0.95) saturate(1.06);
+        transform: scale(1.04);
+      }
+
+      .desc-card-img-wrap::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to bottom,
+          transparent 45%,
+          rgba(6, 2, 16, 0.72) 100%
+        );
+      }
+
+      .desc-card-img-badge {
+        position: absolute;
+        top: 0.85rem;
+        left: 0.85rem;
+        z-index: 2;
+        padding: 0.24rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(6px);
+        font-family: "Jost", sans-serif;
+        font-size: 0.54rem;
+        font-weight: 300;
+        letter-spacing: 0.22em;
+        color: rgba(230, 210, 255, 0.75);
+      }
+
+      .desc-card-body {
+        padding: 1.3rem 1.5rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+
+      .desc-card-kicker {
+        font-family: "Jost", sans-serif;
+        font-size: 0.58rem;
+        font-weight: 300;
+        letter-spacing: 0.3em;
+        color: rgba(190, 120, 255, 0.58);
+        margin-bottom: 0.55rem;
+      }
+
+      .desc-card-title {
+        font-family: "Cormorant Garamond", serif;
+        font-size: clamp(1.05rem, 1.3vw, 1.4rem);
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        color: rgba(246, 236, 255, 0.9);
+        margin: 0 0 0.75rem 0;
+        line-height: 1.28;
+      }
+
+      .desc-card-excerpt {
+        font-family: "Cormorant Garamond", serif;
+        font-size: clamp(0.88rem, 0.96vw, 1rem);
+        line-height: 1.75;
+        color: rgba(225, 195, 255, 0.5);
+        margin: 0 0 1.3rem 0;
+        flex: 1;
+      }
+
+      .desc-card-readmore {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        font-family: "Jost", sans-serif;
+        font-size: 0.6rem;
+        font-weight: 300;
+        letter-spacing: 0.26em;
+        color: rgba(185, 110, 255, 0.6);
+        transition:
+          gap 0.35s ease,
+          color 0.35s ease;
+      }
+
+      .desc-card-readmore-arrow {
+        width: 1.5rem;
+        height: 1px;
+        background: rgba(185, 110, 255, 0.48);
+        position: relative;
+        transition: width 0.35s ease;
+      }
+
+      .desc-card-readmore-arrow::after {
+        content: "";
+        position: absolute;
+        right: -1px;
+        top: -3px;
+        border-top: 3px solid transparent;
+        border-bottom: 3px solid transparent;
+        border-left: 4px solid rgba(185, 110, 255, 0.48);
+      }
+
+      .desc-card:hover .desc-card-readmore {
+        gap: 0.95rem;
+        color: rgba(210, 150, 255, 0.9);
+      }
+
+      .desc-card:hover .desc-card-readmore-arrow {
+        width: 2.2rem;
+      }
+
+      @media (max-width: 860px) {
+        .left-half {
+          padding: 0 2rem 0 2.4rem;
+        }
+
+        .left-title {
+          font-size: clamp(2.6rem, 10vw, 4.5rem);
+        }
+
+        .desc-cards-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .desc-cards-wrapper {
+          width: min(92vw, 30rem);
+        }
+      }
+
+      /* ===== PAGE ENTER FADE IN ===== */
+      @keyframes pageFadeIn {
+        from {
+          opacity: 0;
+        }
+
+        to {
+          opacity: 1;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .viewport {
+          opacity: 1;
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="viewport">
+      <div class="game-container">
+        <!-- TOP NAV -->
+        <div class="top-nav" id="topNav">
+          <button
+            type="button"
+            aria-label="메뉴 열기"
+            class="menu-toggle-btn"
+            id="menuToggleBtn"
+          >
+            <span></span><span></span><span></span>
+          </button>
+          <div class="nav-menu">
+            <div class="nav-link" onclick="goMenu()">메인메뉴</div>
+            <div class="nav-link" onclick="goCollectStar()">
+              COLLECT YOUR STAR
+            </div>
+          </div>
+        </div>
+        <!-- MODE TOGGLE -->
+        <div class="mode-toggle active" id="modeToggle">
+          <div class="toggle-knob"></div>
+        </div>
+        <!-- SPLIT SCREEN OVERLAY -->
+        <div class="split-overlay show">
+          <div class="left-half" id="leftHalf">
+            <div class="left-accent-line"></div>
+            <div class="left-corner-label">AMETHYST · 02</div>
+            <div class="left-content">
+              <div class="left-kicker" id="constellationHeroKicker">
+                ? · CONSTELLATION
+              </div>
+              <h1 class="left-title">
+                A M E T H Y S T
+                <span class="planet-sub">PLANET</span>
+              </h1>
+              <p class="left-subtitle">자수정 행성</p>
+              <div class="left-rule"></div>
+              <p class="left-body">
+                <span class="left-body-line"
+                  >보랏빛 에너지가 조용히 깨어납니다.</span
+                >
+                <span class="left-body-line"
+                  >은은한 빛이 우주 속으로 번져갑니다.</span
+                >
+                <span class="left-body-line"
+                  >자수정의 깊은 숨결은 고요히 흐르고,</span
+                >
+                <span class="left-body-line"
+                  >어둠 속 마음을 잔잔하게 밝혀 줍니다.</span
+                >
+              </p>
+              <div class="left-tags">
+                <span class="left-tag" id="constellationHeroTag">?</span>
+                <span class="left-tag">2월</span>
+                <span class="left-tag">직관</span>
+                <span class="left-tag">우주</span>
+              </div>
+              <div class="left-cta">
+                <div class="left-cta-arrow"></div>
+                <span>Explore Details</span>
+              </div>
+            </div>
+            <div class="left-bottom-hint">TAP TO DISCOVER</div>
+          </div>
+          <div class="split-divider"></div>
+          <div class="right-half" id="rightHalf">
+            <img
+              alt="자수정 스타 프리뷰"
+              class="right-preview-img"
+              src="Amethyst_star_image.jpg"
+            />
+            <div class="right-preview-vignette"></div>
+            <div class="right-center-hint">
+              <div class="right-center-icon">↗</div>
+              <div class="right-center-label">FULL SCREEN</div>
+            </div>
+          </div>
+        </div>
+        <!-- CONSTELLATION DETAIL MODAL -->
+        <div class="constellation-detail-modal" id="constellationDetailModal">
+          <div
+            class="constellation-detail-backdrop"
+            id="constellationDetailBackdrop"
+          ></div>
+          <div class="constellation-detail-panel">
+            <button
+              type="button"
+              aria-label="닫기"
+              class="constellation-detail-close"
+              id="constellationDetailClose"
+            >
+              ×
+            </button>
+            <div class="constellation-detail-body">
+              <div class="constellation-detail-image-wrap">
+                <img alt="" id="detailImg" src="Amethyst_star_image.jpg" />
+              </div>
+              <div class="constellation-detail-text">
+                <div class="constellation-detail-kicker" id="detailKicker">
+                  PLANET NOTE
+                </div>
+                <h3 class="constellation-detail-title" id="detailTitle">
+                  Amethyst Planet
+                </h3>
+                <div class="constellation-detail-copy" id="detailCopy"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- DESC CARDS OVERLAY -->
+        <div class="desc-cards-overlay" id="descCardsOverlay">
+          <div class="desc-backdrop" id="descBackdrop"></div>
+          <div class="desc-cards-wrapper">
+            <button type="button" class="desc-close-btn" id="descCloseBtn">
+              ×
+            </button>
+            <div class="desc-cards-header">
+              <div class="desc-cards-kicker">AMETHYST STAR · EXPLORE</div>
+              <h2 class="desc-cards-title">Discover the Universe</h2>
+            </div>
+            <div class="desc-cards-grid">
+              <div class="desc-card" id="descCard1">
+                <div class="desc-card-img-wrap">
+                  <div class="desc-card-img-badge">PLANET</div>
+                  <img
+                    alt="자수정 행성"
+                    class="desc-card-img"
+                    src="Amethyst_star_image.jpg"
+                  />
+                </div>
+                <div class="desc-card-body">
+                  <div class="desc-card-kicker">PLANET NOTE</div>
+                  <h3 class="desc-card-title">Amethyst Planet</h3>
+                  <p class="desc-card-excerpt">
+                    자수정의 보랏빛 에너지가 우주적인 스케일로 확장된
+                    세계입니다. 중심에서 퍼져나가는 직관과 빛의 흔적을
+                    시각화했습니다.
+                  </p>
+                  <div class="desc-card-readmore">
+                    <div class="desc-card-readmore-arrow"></div>
+                    <span>READ MORE</span>
+                  </div>
+                </div>
+              </div>
+              <div aria-disabled="true" class="desc-card locked" id="descCard2">
+                <div class="desc-card-img-wrap">
+                  <div class="desc-card-img-badge">CONSTELLATION</div>
+                  <img
+                    alt="물병자리"
+                    class="desc-card-img"
+                    src="물병자리-인포-2.jpg"
+                  />
+                </div>
+                <div class="desc-card-body">
+                  <div class="desc-card-kicker" id="constellationCardKicker">
+                    UNKNOWN
+                  </div>
+                  <h3 class="desc-card-title" id="constellationCardTitle">
+                    ?<br />Constellation
+                  </h3>
+                  <p class="desc-card-excerpt" id="constellationExcerpt">
+                    별자리를 찾아야 해금이 가능합니다
+                  </p>
+                  <div class="desc-card-readmore">
+                    <div class="desc-card-readmore-arrow"></div>
+                    <span id="constellationReadmoreLabel">LOCKED</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- MUSIC -->
+        <div class="music-btn" id="musicBtn">
+          <div class="music-credit" aria-live="polite">
+            <span class="music-credit-title">Space</span>
+            <span class="music-credit-artist">Music by leberch.</span>
+          </div>
+          <div class="music-inner"></div>
+          <div class="music-label">music on</div>
+        </div>
+        <div class="transition-overlay" id="transitionOverlay"></div>
+        <audio id="bgm" loop="" src="우주 음악.mp3"></audio>
+      </div>
+    </div>
+    <script>
+      // ===== CLICK SOUND =====
+      const clickSound = new Audio("ting2.mp3");
+      clickSound.preload = "auto";
+
+      function playClickSound() {
+        clickSound.pause();
+        clickSound.currentTime = 0;
+        clickSound.play().catch(() => {});
+      }
+
+      const clickSoundSelectors = [
+        "#menuToggleBtn",
+        ".nav-link",
+        "#modeToggle",
+        "#leftHalf",
+        "#rightHalf",
+        "#descCloseBtn",
+        ".desc-card",
+        "#constellationDetailClose",
+        "#musicBtn",
+      ].join(", ");
+
+      document.addEventListener(
+        "click",
+        (event) => {
+          if (!event.target.closest(clickSoundSelectors)) return;
+          playClickSound();
+        },
+        true,
+      );
+
+      const audio = document.getElementById("bgm");
+      const musicBtn = document.getElementById("musicBtn");
+      const audioLabel = document.querySelector(".music-label");
+      const toggle = document.getElementById("modeToggle");
+      const overlay = document.getElementById("transitionOverlay");
+      const topNav = document.getElementById("topNav");
+      const menuToggleBtn = document.getElementById("menuToggleBtn");
+      const leftHalf = document.getElementById("leftHalf");
+      const rightHalf = document.getElementById("rightHalf");
+      const descCardsOverlay = document.getElementById("descCardsOverlay");
+      const descBackdrop = document.getElementById("descBackdrop");
+      const descCloseBtn = document.getElementById("descCloseBtn");
+      const descCard1 = document.getElementById("descCard1");
+      const descCard2 = document.getElementById("descCard2");
+      const constellationDetailModal = document.getElementById(
+        "constellationDetailModal",
+      );
+      const constellationDetailBackdrop = document.getElementById(
+        "constellationDetailBackdrop",
+      );
+      const constellationDetailClose = document.getElementById(
+        "constellationDetailClose",
+      );
+      const detailImg = document.getElementById("detailImg");
+      const detailKicker = document.getElementById("detailKicker");
+      const detailTitle = document.getElementById("detailTitle");
+      const detailCopy = document.getElementById("detailCopy");
+      const constellationExcerpt = document.getElementById(
+        "constellationExcerpt",
+      );
+      const constellationReadmoreLabel = document.getElementById(
+        "constellationReadmoreLabel",
+      );
+      const constellationHeroKicker = document.getElementById(
+        "constellationHeroKicker",
+      );
+      const constellationHeroTag = document.getElementById(
+        "constellationHeroTag",
+      );
+      const constellationCardKicker = document.getElementById(
+        "constellationCardKicker",
+      );
+      const constellationCardTitle = document.getElementById(
+        "constellationCardTitle",
+      );
+
+      const CONSTELLATION_UNLOCK_KEY = "amethystConstellationUnlockedRouteV1";
+      const CONSTELLATION_RETURN_KEY = "amethystConstellationReturnedRouteV1";
+      const CONSTELLATION_LOCKED_COPY = "별자리를 찾아야 해금이 가능합니다";
+      const CONSTELLATION_UNLOCKED_COPY =
+        "깊은 우주를 가로지르는 물병자리의 빛. 자유로운 직관과 맑은 통찰을 은은하게 드러내는 2월의 별자리입니다.";
+      let isConstellationUnlocked = false;
+
+      function readConstellationUnlock() {
+        try {
+          return sessionStorage.getItem(CONSTELLATION_UNLOCK_KEY) === "true";
+        } catch (error) {
+          console.warn("별자리 해금 기록을 불러올 수 없습니다.", error);
+          return false;
+        }
+      }
+
+      function consumeConstellationReturn() {
+        try {
+          const returnedFromSpline =
+            sessionStorage.getItem(CONSTELLATION_RETURN_KEY) === "true";
+
+          if (returnedFromSpline) {
+            sessionStorage.setItem(CONSTELLATION_UNLOCK_KEY, "true");
+            sessionStorage.removeItem(CONSTELLATION_RETURN_KEY);
+            return true;
+          }
+
+          return false;
+        } catch (error) {
+          console.warn("별자리 복귀 상태를 확인할 수 없습니다.", error);
+          return false;
+        }
+      }
+
+      function initializeConstellationUnlockState() {
+        consumeConstellationReturn();
+        updateConstellationUnlockState();
+      }
+
+      function refreshConstellationUnlockState() {
+        consumeConstellationReturn();
+        updateConstellationUnlockState();
+      }
+
+      function resetConstellationUnlockState() {
+        try {
+          sessionStorage.removeItem(CONSTELLATION_UNLOCK_KEY);
+          sessionStorage.removeItem(CONSTELLATION_RETURN_KEY);
+        } catch (error) {
+          console.warn("별자리 해금 상태를 초기화할 수 없습니다.", error);
+        }
+      }
+
+      function updateConstellationUnlockState() {
+        isConstellationUnlocked = readConstellationUnlock();
+        descCard2.classList.toggle("locked", !isConstellationUnlocked);
+        descCard2.setAttribute(
+          "aria-disabled",
+          String(!isConstellationUnlocked),
+        );
+        constellationExcerpt.textContent = isConstellationUnlocked
+          ? CONSTELLATION_UNLOCKED_COPY
+          : CONSTELLATION_LOCKED_COPY;
+        constellationReadmoreLabel.textContent = isConstellationUnlocked
+          ? "READ MORE"
+          : "LOCKED";
+        constellationHeroKicker.textContent = isConstellationUnlocked
+          ? "AQUARIUS · CONSTELLATION"
+          : "? · CONSTELLATION";
+        constellationHeroTag.textContent = isConstellationUnlocked
+          ? "물병자리"
+          : "?";
+        constellationCardKicker.textContent = isConstellationUnlocked
+          ? "AQUARIUS"
+          : "UNKNOWN";
+        constellationCardTitle.innerHTML = isConstellationUnlocked
+          ? "물병자리<br>Constellation"
+          : "?<br>Constellation";
+      }
+
+      const detailContent = {
+        planet: {
+          img: "Amethyst_star_image.jpg",
+          kicker: "PLANET NOTE",
+          title: "Amethyst Planet",
+          copy: `자수정 행성은 단순히 보석을 우주 속에 배치한 이미지가 아니라,
+          자수정이 가진 고요한 보랏빛과 내면의 깊이를 하나의 공간으로 확장해 해석한 결과입니다.
+          <br><br>
+          저는 이 행성을 통해 자수정의 색이 지닌 고요함, 직관, 그리고 어둠 속에서 또렷해지는 내면의 빛을 표현하고 싶었습니다.
+          표면은 조용히 빛나지만, 그 안에서는 보랏빛 안개와 별빛의 결이 천천히 흐르는 듯한 감각을 만들고자 했습니다.
+          <br><br>
+          행성 주변을 둘러싸는 빛과 흐름은 단순한 장식이 아니라,
+          중심에서 바깥으로 퍼져나가는 직관과 빛의 흔적을 시각화한 것입니다.
+          이는 자수정이 상징하는 평온, 직관, 그리고 마음을 맑게 정화하는 힘을 우주적인 스케일로 풀어낸 장면입니다.
+          <br><br>
+          이 작업은 보석을 하나의 물질로 보여주는 데서 멈추지 않고,
+          자수정이라는 존재가 하나의 세계가 된다면 어떤 고요한 궤도와 신비로운 중력을 가질지를 상상하며 만든 시도입니다.`,
+        },
+        constellation: {
+          img: "물병자리-인포-2.jpg",
+          kicker: "CONSTELLATION",
+          title: "물병자리",
+          copy: `물병자리는 1월 20일부터 2월 18일에 태어난 이들의 별자리로,
+          겨울 하늘에서 빛나는 차갑고 강인한 별들의 집합입니다.
+          <br><br>
+          깊은 우주를 가로지르는 물병자리의 빛은
+          고요한 밤하늘 위에 자유로운 파동을 남깁니다.
+          <br><br>
+          물병자리는 맑고 투명한 감각 안에서 자유로운 직관과 맑은 통찰을 은은하게 드러냅니다.
+          낡은 흐름을 벗어나 새롭게 사고하는 힘, 그리고 조용히 자신만의 궤도를 그리는 감각이
+          이 별자리의 가장 깊은 아름다움입니다.
+          <br><br>
+          자수정은 이 물병자리의 에너지를 가장 잘 담아내는 탄생석입니다.
+          깊은 보랏빛은 마음을 고요하게 정돈하고 내면의 직관을 깨우는 힘을 상징합니다.`,
+        },
+      };
+
+      const transitionTo = (href, delay = 550) => {
+        overlay.classList.add("show");
+        setTimeout(() => {
+          window.location.href = href;
+        }, delay);
+      };
+
+      function openDescCards() {
+        descCardsOverlay.classList.add("show");
+      }
+
+      function closeDescCards() {
+        descCardsOverlay.classList.remove("show");
+      }
+
+      function showDetail(type) {
+        if (type === "constellation" && !isConstellationUnlocked) return;
+        const data = detailContent[type];
+        detailImg.src = data.img;
+        detailKicker.textContent = data.kicker;
+        detailTitle.textContent = data.title;
+        detailCopy.innerHTML = data.copy;
+        constellationDetailModal.classList.add("show");
+      }
+
+      function closeDetail() {
+        constellationDetailModal.classList.remove("show");
+      }
+
+      leftHalf.addEventListener("click", (event) => {
+        event.stopPropagation();
+        openDescCards();
+      });
+
+      rightHalf.addEventListener("click", (event) => {
+        event.stopPropagation();
+        resetConstellationUnlockState();
+        transitionTo("Amethyst_star_spline_view.html", 450);
+      });
+
+      descBackdrop.addEventListener("click", closeDescCards);
+      descCloseBtn.addEventListener("click", closeDescCards);
+      descCard1.addEventListener("click", (event) => {
+        event.stopPropagation();
+        showDetail("planet");
+      });
+      descCard2.addEventListener("click", (event) => {
+        event.stopPropagation();
+        if (!isConstellationUnlocked) return;
+        showDetail("constellation");
+      });
+      constellationDetailClose.addEventListener("click", closeDetail);
+      constellationDetailBackdrop.addEventListener("click", closeDetail);
+
+      musicBtn.addEventListener("click", async (event) => {
+        event.stopPropagation();
+        audio.volume = 0.45;
+        try {
+          if (audio.paused) {
+            await audio.play();
+            musicBtn.classList.add("playing");
+            audioLabel.textContent = "music off";
+          } else {
+            audio.pause();
+            musicBtn.classList.remove("playing");
+            audioLabel.textContent = "music on";
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      });
+
+      menuToggleBtn.addEventListener("click", (event) => {
+        event.stopPropagation();
+        topNav.classList.toggle("open");
+      });
+
+      window.addEventListener("click", (event) => {
+        if (!topNav.contains(event.target)) topNav.classList.remove("open");
+      });
+
+      toggle.addEventListener("click", () => {
+        toggle.classList.remove("active");
+        resetConstellationUnlockState();
+        transitionTo("Amethyst_view_light.html", 800);
+      });
+
+      function goMenu() {
+        resetConstellationUnlockState();
+        transitionTo("The_star_I_am.html", 700);
+      }
+
+      function goCollectStar() {
+        resetConstellationUnlockState();
+        transitionTo("zodiac_collection.html", 700);
+      }
+
+      initializeConstellationUnlockState();
+      window.addEventListener("pageshow", refreshConstellationUnlockState);
+
+      window.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape") return;
+        closeDetail();
+        closeDescCards();
+      });
+    </script>
+  </body>
+</html>
