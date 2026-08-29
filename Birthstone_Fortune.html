@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Birthstone Fortune Draw</title>
+  <meta name="theme-color" content="#eee7fb" />
+  <style>
+    :root {
+      --bg: #090814;
+      --panel: rgba(222, 231, 255, .18);
+      --line: rgba(255,255,255,.34);
+      --line-soft: rgba(255,255,255,.20);
+      --text: #ffffff;
+      --muted: rgba(255,255,255,.78);
+      --muted-2: rgba(255,255,255,.56);
+      --gold: #f4e6bd;
+      --radius: 28px;
+      --shadow: 0 28px 70px rgba(0,0,0,.42);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: #eee7fb;
+    }
+
+    body {
+      color: var(--text);
+      font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+      background: #eee7fb;
+      overflow-x: hidden;
+    }
+
+    button, input {
+      font: inherit;
+    }
+
+
+    .gradient-background {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 14% 16%, rgba(255,255,255,.96) 0, rgba(255,255,255,0) 34%),
+        radial-gradient(circle at 86% 18%, rgba(207,224,255,.82) 0, rgba(207,224,255,0) 40%),
+        radial-gradient(circle at 72% 84%, rgba(235,214,250,.86) 0, rgba(235,214,250,0) 43%),
+        radial-gradient(circle at 18% 82%, rgba(222,232,255,.72) 0, rgba(222,232,255,0) 38%),
+        linear-gradient(135deg, #eee7fb 0%, #e6edff 48%, #f4e9f8 100%);
+    }
+
+
+    .sky-stars {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      opacity: .50;
+      background-image:
+        radial-gradient(circle at 6% 10%, rgba(255,255,255,.88) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 18% 18%, rgba(255,255,255,.70) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 31% 9%, rgba(214,226,255,.68) 0 1px, transparent 1.7px),
+        radial-gradient(circle at 44% 20%, rgba(255,255,255,.78) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 58% 11%, rgba(255,255,255,.66) 0 1px, transparent 1.7px),
+        radial-gradient(circle at 72% 19%, rgba(255,255,255,.82) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 88% 10%, rgba(214,226,255,.66) 0 1px, transparent 1.7px),
+
+        radial-gradient(circle at 10% 34%, rgba(255,255,255,.72) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 24% 29%, rgba(214,226,255,.62) 0 1px, transparent 1.7px),
+        radial-gradient(circle at 38% 38%, rgba(255,255,255,.82) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 52% 31%, rgba(255,255,255,.68) 0 1px, transparent 1.7px),
+        radial-gradient(circle at 66% 39%, rgba(255,255,255,.76) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 80% 30%, rgba(214,226,255,.64) 0 1px, transparent 1.7px),
+        radial-gradient(circle at 94% 37%, rgba(255,255,255,.72) 0 1px, transparent 1.6px),
+
+        radial-gradient(circle at 5% 58%, rgba(214,226,255,.62) 0 1px, transparent 1.7px),
+        radial-gradient(circle at 20% 51%, rgba(255,255,255,.78) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 34% 61%, rgba(255,255,255,.66) 0 1px, transparent 1.7px),
+        radial-gradient(circle at 48% 53%, rgba(255,255,255,.80) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 62% 62%, rgba(214,226,255,.64) 0 1px, transparent 1.7px),
+        radial-gradient(circle at 76% 52%, rgba(255,255,255,.74) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 90% 60%, rgba(255,255,255,.68) 0 1px, transparent 1.7px),
+
+        radial-gradient(circle at 12% 78%, rgba(255,255,255,.68) 0 1px, transparent 1.7px),
+        radial-gradient(circle at 27% 88%, rgba(214,226,255,.62) 0 1px, transparent 1.7px),
+        radial-gradient(circle at 42% 76%, rgba(255,255,255,.76) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 57% 87%, rgba(255,255,255,.70) 0 1px, transparent 1.7px),
+        radial-gradient(circle at 72% 77%, rgba(214,226,255,.64) 0 1px, transparent 1.7px),
+        radial-gradient(circle at 86% 88%, rgba(255,255,255,.78) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 96% 76%, rgba(255,255,255,.66) 0 1px, transparent 1.7px);
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+    }
+.page {
+      position: relative;
+      z-index: 3;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+    }
+
+
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      width: min(1160px, 100%);
+      min-height: min(780px, calc(100vh - 56px));
+      display: grid;
+      grid-template-columns: minmax(300px, .88fr) minmax(430px, 1.12fr);
+      border: 1px solid rgba(255,255,255,.42);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: rgba(255,255,255,.68);
+      box-shadow:
+        0 30px 78px rgba(5, 12, 33, .28),
+        inset 0 1px 0 rgba(255,255,255,.32);
+      backdrop-filter: blur(18px) saturate(1.12);
+      -webkit-backdrop-filter: blur(18px) saturate(1.12);
+    }
+
+    .shell::after {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: calc(var(--radius) - 10px);
+      pointer-events: none;
+    }
+
+    .left {
+      padding: 54px 48px;
+      border-right: 1px solid rgba(255,255,255,.28);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 28px;
+      background: rgba(246,252,255,.54);
+    }
+
+    .home-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      margin-bottom: 34px;
+      padding: 0 16px;
+      border: 1px solid rgba(255,255,255,.84);
+      border-radius: 999px;
+      color: #604a7a;
+      background: rgba(255,255,255,.58);
+      box-shadow:
+        0 8px 20px rgba(101,75,137,.10),
+        inset 0 1px 0 rgba(255,255,255,.88);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-decoration: none;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: transform .22s ease, background .22s ease, box-shadow .22s ease;
+    }
+
+    .home-button:hover {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.78);
+      box-shadow:
+        0 10px 24px rgba(101,75,137,.14),
+        inset 0 1px 0 rgba(255,255,255,.96);
+    }
+
+    .home-button:active {
+      transform: translateY(0);
+    }
+
+    .home-button:focus-visible {
+      outline: 3px solid rgba(128,103,157,.22);
+      outline-offset: 3px;
+    }
+
+    .eyebrow {
+      margin: 0 0 16px;
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+    }
+
+    .title {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(42px, 5.2vw, 74px);
+      font-weight: 400;
+      line-height: .95;
+      letter-spacing: -.05em;
+    }
+
+    .title span {
+      display: block;
+      margin-top: 12px;
+      color: rgba(247,243,236,.50);
+      font-size: .52em;
+      font-style: italic;
+      letter-spacing: -.03em;
+    }
+
+    .intro {
+      max-width: 370px;
+      margin: 22px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.85;
+      word-break: keep-all;
+    }
+
+    .steps {
+      display: grid;
+      gap: 10px;
+      margin-top: 34px;
+      max-width: 390px;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      border: 1px solid rgba(255,255,255,.30);
+      border-radius: 16px;
+      background: rgba(242,246,255,.12);
+    }
+
+    .step-num {
+      flex: 0 0 30px;
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border: 1px solid rgba(220,198,144,.26);
+      border-radius: 50%;
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .step b {
+      display: block;
+      margin-bottom: 3px;
+      color: rgba(247,243,236,.88);
+      font-size: 13px;
+    }
+
+    .step span {
+      color: var(--muted-2);
+      font-size: 12px;
+    }
+
+    .credit {
+      color: rgba(247,243,236,.28);
+      font-size: 11px;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+    }
+
+    .right {
+      position: relative;
+      padding: 54px 48px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      place-items: center;
+      overflow: hidden;
+      background: rgba(255,255,255,.30);
+      isolation: isolate;
+    }
+
+    .view {
+      position: relative;
+      z-index: 1;
+      grid-area: 1 / 1;
+      width: 100%;
+      max-width: 760px;
+    }
+
+    .view[hidden] {
+      display: none;
+    }
+
+    .form-wrap {
+      width: min(540px, 100%);
+      margin: 0 auto;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid rgba(255,255,255,.30);
+      border-radius: 999px;
+      color: rgba(255,255,255,.88);
+      background: rgba(242,246,255,.13);
+      font-size: 12px;
+    }
+
+    .form-title {
+      margin: 20px 0 10px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(28px, 3.2vw, 42px);
+      font-weight: 400;
+      line-height: 1.12;
+      letter-spacing: -.035em;
+    }
+
+    .form-title span {
+      display: block;
+      white-space: nowrap;
+    }
+
+    .form-copy {
+      margin: 0 0 26px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+      word-break: keep-all;
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 10px;
+      color: rgba(247,243,236,.72);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .input {
+      width: 100%;
+      height: 58px;
+      padding: 0 18px;
+      border: 1px solid rgba(255,255,255,.34);
+      border-radius: 16px;
+      outline: none;
+      color: #ffffff;
+      color-scheme: dark;
+      background: rgba(235,241,255,.14);
+      transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+
+    .input:focus {
+      border-color: rgba(220,198,144,.45);
+      box-shadow: 0 0 0 4px rgba(220,198,144,.07);
+      background: rgba(255,255,255,.07);
+    }
+
+    .error {
+      min-height: 22px;
+      margin: 10px 2px 0;
+      color: #f0a7ad;
+      font-size: 12px;
+    }
+
+    .primary, .secondary {
+      min-height: 54px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition:
+        transform .25s cubic-bezier(.22,.61,.36,1),
+        filter .25s ease,
+        background .25s ease,
+        border-color .25s ease,
+        box-shadow .25s ease;
+    }
+
+    .primary:hover, .secondary:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+    }
+
+    .primary:active, .secondary:active {
+      transform: translateY(0);
+    }
+
+    .primary {
+      width: 100%;
+      margin-top: 10px;
+      border: 0;
+      color: #2d3150;
+      background: #ddd0f3;
+      font-weight: 800;
+      letter-spacing: .02em;
+    }
+
+    .helper {
+      margin-top: 14px;
+      color: rgba(247,243,236,.34);
+      font-size: 11px;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .result-layout {
+      display: grid;
+      grid-template-columns: minmax(260px, 320px) minmax(280px, 1fr);
+      gap: 42px;
+      align-items: center;
+      width: 100%;
+      will-change: opacity, transform, filter;
+    }
+
+    .card-area {
+      display: flex;
+      justify-content: center;
+      perspective: 1600px;
+    }
+
+    .card-float {
+      width: min(320px, 100%);
+      will-change: transform;
+    }
+
+    .card-float.floating {
+      animation: floatCard 3.8s ease-in-out infinite;
+    }
+
+    @keyframes floatCard {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-12px);
+      }
+    }
+
+    .fortune-card {
+      width: 100%;
+      aspect-ratio: .68;
+      position: relative;
+      display: grid;
+      place-items: center;
+      visibility: hidden;
+    }
+
+    .fortune-card.revealed {
+      visibility: visible;
+    }
+
+    .fortune-panel {
+      visibility: hidden;
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition:
+        opacity .62s ease,
+        transform .72s cubic-bezier(.22,.61,.36,1);
+      will-change: opacity, transform;
+    }
+
+    .fortune-panel.revealed {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .card-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 22px;
+      opacity: 0;
+      visibility: hidden;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .card-image.loaded {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .fortune-panel .mini {
+      margin: 0 0 10px;
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    .fortune-title {
+      margin: 0 0 14px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(28px, 3.9vw, 40px);
+      font-weight: 400;
+      line-height: 1.15;
+      letter-spacing: -.03em;
+      word-break: keep-all;
+    }
+
+    .fortune-copy {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.85;
+      word-break: keep-all;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 20px 0 18px;
+    }
+
+    .chip-item {
+      padding: 8px 11px;
+      border: 1px solid rgba(255,255,255,.28);
+      border-radius: 999px;
+      color: rgba(255,255,255,.84);
+      background: rgba(240,244,255,.10);
+      font-size: 11px;
+    }
+
+    .fortune-meta {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,.08);
+    }
+
+    .meta-box {
+      padding: 12px 14px;
+      border: 1px solid rgba(255,255,255,.26);
+      border-radius: 14px;
+      background: rgba(237,242,255,.11);
+    }
+
+    .meta-label {
+      display: block;
+      margin-bottom: 5px;
+      color: rgba(220,198,144,.74);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .meta-text {
+      color: rgba(247,243,236,.72);
+      font-size: 13px;
+      line-height: 1.65;
+      word-break: keep-all;
+    }
+
+    .birth-text {
+      margin-top: 16px;
+      color: rgba(247,243,236,.38);
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      margin-top: 24px;
+    }
+
+    .secondary {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,.34);
+      color: #ffffff;
+      background: rgba(236,242,255,.13);
+      padding: 0 16px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1;
+      white-space: nowrap;
+      word-break: keep-all;
+    }
+
+    .secondary.strong {
+      border-color: rgba(255,255,255,.42);
+      color: #ffffff;
+      background: rgba(224,232,255,.18);
+    }
+
+    .music-btn {
+      position: fixed;
+      left: 28px;
+      bottom: 28px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 50px;
+      padding: 0;
+      border: 1px solid rgba(103,78,137,.24);
+      border-radius: 50%;
+      color: rgba(76,59,99,.72);
+      background: rgba(255,255,255,.78);
+      box-shadow: 0 12px 30px rgba(101,75,137,.16);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      cursor: pointer;
+      transition: transform .25s ease, border-color .25s ease, background .25s ease;
+    }
+
+    .music-btn:hover {
+      transform: scale(1.07);
+      border-color: rgba(103,78,137,.42);
+      background: rgba(255,255,255,.92);
+    }
+
+    .music-btn:focus-visible {
+      outline: 2px solid rgba(128,103,157,.82);
+      outline-offset: 4px;
+    }
+
+    .music-inner {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #80679d;
+      box-shadow: 0 0 13px rgba(128,103,157,.62);
+    }
+
+    .music-label {
+      position: absolute;
+      left: 50%;
+      bottom: -23px;
+      transform: translateX(-50%);
+      min-width: 76px;
+      color: rgba(76,59,99,.54);
+      font-size: 11px;
+      line-height: 1;
+      letter-spacing: .08em;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .music-btn.playing .music-label {
+      color: #765a96;
+    }
+
+    .music-credit {
+      position: absolute;
+      left: 0;
+      bottom: calc(100% + 12px);
+      width: min(330px, calc(100vw - 56px));
+      padding: 10px 12px;
+      border: 1px solid rgba(103,78,137,.22);
+      border-radius: 10px;
+      color: rgba(76,59,99,.72);
+      background: rgba(255,255,255,.9);
+      box-shadow: 0 12px 28px rgba(101,75,137,.16);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      font-size: 10px;
+      line-height: 1.45;
+      letter-spacing: .02em;
+      text-align: left;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(6px);
+      transition: opacity .28s ease, transform .28s ease, visibility .28s;
+      pointer-events: none;
+    }
+
+    .music-credit-title,
+    .music-credit-artist {
+      display: block;
+    }
+
+    .music-credit-title {
+      color: #4c3b63;
+      font-weight: 700;
+    }
+
+    .music-credit-artist {
+      margin-top: 3px;
+      color: rgba(118,90,150,.76);
+    }
+
+    .music-btn.playing .music-credit {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 980px) {
+      .page {
+        padding: 18px;
+      }
+
+      .shell {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+
+      .left {
+        padding: 40px 34px;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .right {
+        padding: 40px 34px;
+      }
+    }
+
+    @media (max-width: 720px) {
+.sky-stars {
+        opacity: .44;
+      }
+
+      .page {
+        padding: 12px;
+      }
+
+      .left, .right {
+        padding: 28px 20px;
+      }
+
+      .steps, .credit {
+        display: none;
+      }
+
+      .result-layout {
+        grid-template-columns: 1fr;
+        gap: 28px;
+      }
+
+      .fortune-card {
+        width: min(300px, 84vw);
+      }
+
+      .fortune-panel {
+        text-align: center;
+      }
+
+      .chips {
+        justify-content: center;
+      }
+
+      .actions {
+        grid-template-columns: 1fr;
+      }
+
+      .music-btn {
+        left: 18px;
+        bottom: 24px;
+      }
+
+      .music-credit {
+        width: min(300px, calc(100vw - 36px));
+      }
+    }
+
+    @media (max-width: 420px) {
+      .form-title {
+        font-size: clamp(20px, 6vw, 25px);
+        letter-spacing: -.05em;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+  <style id="birthstone-lavender-theme">
+    :root {
+      --bg: #eee7fb;
+      --panel: rgba(255,255,255,.74);
+      --line: rgba(103, 78, 137, .22);
+      --line-soft: rgba(103, 78, 137, .12);
+      --text: #4c3b63;
+      --muted: rgba(76, 59, 99, .72);
+      --muted-2: rgba(76, 59, 99, .50);
+      --gold: #80679d;
+      --shadow: 0 26px 64px rgba(101, 75, 137, .15);
+    }
+
+    html,
+    body {
+      background: #eee7fb;
+    }
+
+    body {
+      color: var(--text);
+      background: #eee7fb;
+    }
+
+    .sky-stars {
+      opacity: .16;
+      filter: sepia(.20) saturate(.56) hue-rotate(205deg);
+    }
+.shell {
+      border-color: rgba(255,255,255,.88);
+      background: rgba(255,255,255,.68);
+      box-shadow:
+        0 26px 64px rgba(101,75,137,.14),
+        inset 0 1px 0 rgba(255,255,255,.92);
+      backdrop-filter: blur(14px) saturate(1.02);
+      -webkit-backdrop-filter: blur(14px) saturate(1.02);
+    }
+
+    .shell::after {
+      border-color: rgba(103,78,137,.14);
+    }
+
+    .left {
+      border-right-color: rgba(103,78,137,.15);
+      background: rgba(250,247,255,.56);
+    }
+
+    .right {
+      background: rgba(255,255,255,.30);
+    }
+
+    .title,
+    .form-title,
+    .fortune-title {
+      color: #4c3b63;
+    }
+
+    .title span {
+      color: rgba(76,59,99,.50);
+    }
+
+    .eyebrow,
+    .fortune-panel .mini,
+    .meta-label {
+      color: #72598e;
+    }
+
+    .intro,
+    .form-copy,
+    .fortune-copy {
+      color: rgba(76,59,99,.72);
+    }
+
+    .step,
+    .chip,
+    .chip-item,
+    .meta-box {
+      border-color: rgba(103,78,137,.17);
+      background: rgba(255,255,255,.54);
+    }
+
+    .step-num {
+      border-color: rgba(103,78,137,.24);
+      color: #6d5688;
+      background: rgba(255,255,255,.62);
+    }
+
+    .step b,
+    .meta-text,
+    .label {
+      color: rgba(76,59,99,.86);
+    }
+
+    .step span {
+      color: rgba(76,59,99,.52);
+    }
+
+    .credit,
+    .helper,
+    .birth-text {
+      color: rgba(76,59,99,.44);
+    }
+
+    .chip {
+      color: rgba(76,59,99,.80);
+    }
+
+    .chip-item {
+      color: rgba(76,59,99,.76);
+    }
+
+    .input {
+      color: #4c3b63;
+      color-scheme: light;
+      border-color: rgba(103,78,137,.22);
+      background: rgba(255,255,255,.74);
+    }
+
+    .input:focus {
+      border-color: rgba(127,95,170,.52);
+      box-shadow: 0 0 0 4px rgba(159,123,206,.13);
+      background: rgba(255,255,255,.92);
+    }
+
+    .primary {
+      color: #4c3b63;
+      background: #ddd0f3;
+      box-shadow: 0 10px 24px rgba(101,75,137,.15);
+    }
+
+    .primary:hover {
+      background: #d3c3ee;
+    }
+
+    .secondary,
+    .secondary.strong {
+      color: #5b4674;
+      border-color: rgba(103,78,137,.22);
+      background: rgba(255,255,255,.60);
+    }
+
+    .birthstone-name {
+      margin: 0 0 12px;
+      font-family: Georgia, "Times New Roman", serif;
+      color: #765a96;
+      font-size: clamp(34px, 4.6vw, 52px);
+      font-weight: 400;
+      line-height: 1.04;
+      letter-spacing: -.04em;
+      word-break: keep-all;
+    }
+
+    .fortune-title {
+      font-size: clamp(24px, 3.1vw, 34px);
+    }
+
+    .card-image {
+      box-shadow: 0 22px 48px rgba(91,65,126,.16);
+    }
+
+    .error {
+      color: #b45876;
+    }
+
+    @media (max-width: 980px) {
+      .left {
+        border-bottom-color: rgba(103,78,137,.15);
+      }
+    }
+
+    @media (max-width: 720px) {
+.sky-stars {
+        opacity: .11;
+      }
+    }
+  </style>
+
+</head>
+<body>
+  <div class="gradient-background" aria-hidden="true"></div>
+  <div class="sky-stars" aria-hidden="true"></div>
+<main class="page">
+<section class="shell" aria-label="탄생석 운세 뽑기">
+      <aside class="left">
+        <div>
+          <a class="home-button" href="The_gem_I_am.html" data-ui-sound>← 메인 화면</a>
+          <p class="eyebrow">Birthstone fortune draw</p>
+          <h1 class="title">
+            Birthstone
+            <span>Fortune Draw</span>
+          </h1>
+          <p class="intro">
+            생년월일을 입력하면 태어난 달의 탄생석이 자동으로 정해지고,
+            그 보석이 전하는 오늘의 운세 카드가 한 장 나타납니다.
+            밝고 부드러운 빛 속에서 나만의 탄생석 운세를 확인해 보세요.
+          </p>
+
+          <div class="steps" aria-label="이용 순서">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div><b>생년월일 입력</b><span>태어난 월을 기준으로 탄생석을 찾습니다.</span></div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div><b>탄생석 공개</b><span>운세 카드와 탄생석 이름이 부드럽게 나타납니다.</span></div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div><b>메시지 확인</b><span>탄생석의 운세와 행운 포인트를 확인합니다.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <p class="credit">birthstone message · soft fade + vertical floating</p>
+      </aside>
+
+      <section class="right">
+        <div class="view" id="formView">
+          <div class="form-wrap">
+            <div class="chip">탄생석 운세 뽑기</div>
+            <h2 class="form-title">
+              <span>생일을 입력하고</span>
+              <span>나의 탄생석을 만나보세요.</span>
+            </h2>
+            <p class="form-copy">
+              입력한 생년월일의 월을 기준으로 탄생석이 정해집니다.
+              탄생석의 이름과 오늘의 메시지를 부드럽게 펼쳐 보여드려요.
+            </p>
+
+            <form id="birthForm" novalidate>
+              <label class="label" for="birthDate">Birth date</label>
+              <input class="input" id="birthDate" name="birthDate" type="date" required autocomplete="bday" aria-describedby="errorMessage" data-ui-sound />
+              <p class="error" id="errorMessage" role="alert"></p>
+              <button class="primary" type="submit" data-ui-sound>탄생석 운세 뽑기</button>
+            </form>
+
+            <p class="helper">입력한 날짜는 저장되지 않아요.</p>
+          </div>
+        </div>
+
+        <div class="view" id="resultView" hidden aria-live="polite">
+          <div class="result-layout">
+            <div class="card-area">
+              <div class="card-float" id="cardFloat">
+                <article class="fortune-card" id="fortuneCard">
+                  <!--
+                    탄생석 카드 이미지를 이 HTML과 같은 폴더에 넣어주세요.
+                    파일명: 탄생석타로카드.jpg
+                    모든 월에 같은 카드 이미지가 표시되고,
+                    탄생석 이름과 운세 문구만 월별로 달라집니다.
+                  -->
+                  <img class="card-image" id="cardImage" alt="" />
+                </article>
+              </div>
+            </div>
+
+            <div class="fortune-panel">
+              <p class="mini" id="birthstoneMonth">Your Birthstone</p>
+              <h2 class="birthstone-name" id="birthstoneName">Garnet · 가넷</h2>
+              <h3 class="fortune-title" id="fortuneTitle">당신 안의 단단한 빛이 하루를 이끌어 갑니다.</h3>
+              <p class="fortune-copy" id="fortuneCopy"></p>
+
+              <div class="chips" id="chipRow"></div>
+
+              <div class="fortune-meta">
+                <div class="meta-box">
+                  <span class="meta-label">Lucky point</span>
+                  <div class="meta-text" id="luckyPoint"></div>
+                </div>
+                <div class="meta-box">
+                  <span class="meta-label">Gentle note</span>
+                  <div class="meta-text" id="cautionPoint"></div>
+                </div>
+              </div>
+
+              <p class="birth-text" id="birthText"></p>
+
+              <div class="actions">
+                <button class="secondary strong" id="resetButton" type="button" data-ui-sound>다른 생일 입력</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <button class="music-btn" id="musicBtn" type="button" aria-pressed="false" aria-label="배경 음악 켜기" data-ui-sound>
+    <span class="music-credit" aria-live="polite">
+      <span class="music-credit-title">Ambient Celestial Dreamy Meditation Drone Healing Yoga Music</span>
+      <span class="music-credit-artist">Music by REDproductions · Pixabay</span>
+    </span>
+    <span class="music-inner" aria-hidden="true"></span>
+    <span class="music-label">music on</span>
+  </button>
+
+  <audio id="uiSound" src="ting3.mp3" preload="auto"></audio>
+  <audio id="cardRevealSound" src="타로카드.mp3" preload="auto"></audio>
+  <audio id="bgm" loop preload="metadata">
+    <source src="운세카드음악.mp3" type="audio/mpeg" />
+  </audio>
+
+  <script>
+    const birthstones = [
+      {
+        month: 1,
+        name: "Garnet",
+        korean: "가넷",
+        monthLabel: "JANUARY BIRTHSTONE",
+        traits: ["단단함", "온기", "지속"],
+        fortunes: [
+          {
+            title: "조용히 쌓아온 힘이 오늘 빛을 냅니다.",
+            message: "급하게 증명하려 하지 않아도 괜찮아요. 가넷의 단단한 에너지가 당신이 꾸준히 이어온 일에 안정적인 힘을 더해 줍니다.",
+            lucky: "미뤄 둔 일 하나를 차분하게 끝내는 순간 흐름이 열립니다.",
+            caution: "모든 책임을 혼자 감당하려 하지 말고 필요한 도움은 받아보세요."
+          },
+          {
+            title: "따뜻한 진심이 관계의 온도를 높입니다.",
+            message: "오늘은 화려한 표현보다 꾸준한 관심이 더 크게 전해집니다. 오래 지켜온 인연 속에서 좋은 답을 발견할 수 있어요.",
+            lucky: "오래된 연락처, 익숙한 장소, 진심 어린 안부가 행운을 불러옵니다.",
+            caution: "상대의 반응을 미리 단정 짓고 마음을 닫지 마세요."
+          },
+          {
+            title: "한 번 정한 방향을 믿어도 좋은 날입니다.",
+            message: "가넷은 흔들리는 마음을 단단히 붙잡아 줍니다. 작은 확신을 행동으로 옮기면 생각보다 안정적으로 하루가 풀립니다.",
+            lucky: "우선순위를 한 줄로 적어두면 집중력이 오래 이어집니다.",
+            caution: "완벽한 조건만 기다리다 시작을 늦추지 마세요."
+          }
+        ]
+      },
+      {
+        month: 2,
+        name: "Amethyst",
+        korean: "자수정",
+        monthLabel: "FEBRUARY BIRTHSTONE",
+        traits: ["평온", "직감", "회복"],
+        fortunes: [
+          {
+            title: "마음이 잔잔해질수록 답이 또렷해집니다.",
+            message: "복잡한 생각을 억지로 정리하기보다 잠시 쉬어가 보세요. 자수정의 차분한 빛이 숨겨진 우선순위를 자연스럽게 보여줍니다.",
+            lucky: "조용한 음악과 짧은 휴식이 좋은 판단을 도와줍니다.",
+            caution: "피곤한 상태에서 중요한 결론을 서둘러 내리지 마세요."
+          },
+          {
+            title: "첫 느낌이 오늘은 꽤 정확합니다.",
+            message: "논리만으로 설명되지 않는 작은 감각을 믿어보세요. 자수정이 예민한 직감을 부드럽게 정돈해 줍니다.",
+            lucky: "메모해 둔 생각을 다시 읽는 순간 새로운 실마리가 생깁니다.",
+            caution: "타인의 감정까지 전부 내 몫처럼 받아들이지 마세요."
+          },
+          {
+            title: "내면을 돌보는 선택이 가장 좋은 행운입니다.",
+            message: "오늘은 바깥의 속도보다 나의 리듬을 지키는 일이 중요해요. 충분히 쉬고 나면 다시 움직일 힘이 자연스럽게 돌아옵니다.",
+            lucky: "따뜻한 차, 정돈된 침구, 편안한 향이 기분을 환기합니다.",
+            caution: "혼자 참고만 있다가 감정을 한꺼번에 터뜨리지 않도록 해요."
+          }
+        ]
+      },
+      {
+        month: 3,
+        name: "Aquamarine",
+        korean: "아쿠아마린",
+        monthLabel: "MARCH BIRTHSTONE",
+        traits: ["맑음", "소통", "흐름"],
+        fortunes: [
+          {
+            title: "솔직하고 부드러운 말이 길을 열어줍니다.",
+            message: "아쿠아마린의 맑은 에너지가 복잡했던 대화를 가볍게 풀어줍니다. 어렵게 돌려 말하기보다 진심을 담아 표현해 보세요.",
+            lucky: "먼저 보내는 짧은 연락이 좋은 흐름을 만듭니다.",
+            caution: "상대가 알아서 이해할 거라 생각하고 설명을 생략하지 마세요."
+          },
+          {
+            title: "막혀 있던 흐름이 천천히 움직이기 시작합니다.",
+            message: "정체되어 보였던 일에도 작은 변화가 찾아옵니다. 물처럼 유연하게 방향을 조절하면 더 편안한 길이 보여요.",
+            lucky: "평소와 다른 순서로 일을 시작하면 새로운 해결책이 떠오릅니다.",
+            caution: "한 가지 방식만 고집하다 쉬운 길을 놓치지 마세요."
+          },
+          {
+            title: "마음을 가볍게 비울수록 좋은 것이 들어옵니다.",
+            message: "오늘은 불필요한 걱정을 조금 내려놓아도 괜찮아요. 아쿠아마린이 감정을 맑게 씻어주고 새로운 여유를 만들어 줍니다.",
+            lucky: "창문을 열거나 짧게 걷는 시간이 기분 전환에 도움이 됩니다.",
+            caution: "상황을 지나치게 낙관해 필요한 확인까지 빼먹지는 마세요."
+          }
+        ]
+      },
+      {
+        month: 4,
+        name: "Diamond",
+        korean: "다이아몬드",
+        monthLabel: "APRIL BIRTHSTONE",
+        traits: ["명료함", "가치", "결단"],
+        fortunes: [
+          {
+            title: "당신의 기준을 분명히 세울수록 빛이 납니다.",
+            message: "다이아몬드는 흔들리지 않는 가치를 상징합니다. 오늘은 남의 시선보다 내가 정말 중요하게 여기는 것을 기준으로 선택해 보세요.",
+            lucky: "애매한 일 하나에 명확한 결론을 내리는 순간 흐름이 정리됩니다.",
+            caution: "완벽해 보이려는 마음 때문에 솔직함을 숨기지 마세요."
+          },
+          {
+            title: "작은 디테일이 전체 인상을 바꾸는 날입니다.",
+            message: "당신이 한 번 더 살펴본 부분이 좋은 결과로 이어집니다. 다이아몬드처럼 깔끔하고 선명한 마무리가 강점이 돼요.",
+            lucky: "문장, 옷차림, 작업물의 마지막 점검이 행운 포인트입니다.",
+            caution: "사소한 흠 하나에 전체 만족도를 깎아내리지 마세요."
+          },
+          {
+            title: "스스로의 가치를 낮추지 않아도 됩니다.",
+            message: "오늘은 당신이 가진 장점이 자연스럽게 드러나는 날이에요. 지나친 겸손보다 차분한 자신감이 더 좋은 반응을 불러옵니다.",
+            lucky: "원하는 것을 또렷하게 말하는 태도가 기회를 만듭니다.",
+            caution: "비교를 통해 자신의 빛을 평가하지 마세요."
+          }
+        ]
+      },
+      {
+        month: 5,
+        name: "Emerald",
+        korean: "에메랄드",
+        monthLabel: "MAY BIRTHSTONE",
+        traits: ["성장", "회복", "조화"],
+        fortunes: [
+          {
+            title: "조금씩 자라던 일이 눈에 보이기 시작합니다.",
+            message: "에메랄드의 생기로운 힘이 꾸준히 이어온 일에 새로운 활력을 더합니다. 작은 변화라도 충분히 반가워해 주세요.",
+            lucky: "식물, 자연광, 초록빛 공간이 집중력을 높여줍니다.",
+            caution: "빠른 결과를 바라며 이미 자라고 있는 것을 흔들지 마세요."
+          },
+          {
+            title: "관계를 부드럽게 회복할 기회가 찾아옵니다.",
+            message: "오늘은 먼저 건네는 따뜻한 말이 생각보다 크게 전달됩니다. 에메랄드가 서로의 마음 사이에 편안한 여백을 만들어 줍니다.",
+            lucky: "부담 없는 안부와 솔직한 감사 표현이 좋은 흐름을 만듭니다.",
+            caution: "상대를 바꾸려 하기보다 서로 다른 속도를 인정해 주세요."
+          },
+          {
+            title: "몸과 마음의 리듬을 다시 맞추기 좋은 날입니다.",
+            message: "무리하게 속도를 올리기보다 생활의 균형부터 돌아보세요. 편안한 루틴을 되찾으면 에너지도 자연스럽게 회복됩니다.",
+            lucky: "물을 충분히 마시고 짧게라도 몸을 움직여 보세요.",
+            caution: "쉬는 시간을 죄책감으로 채우지 마세요."
+          }
+        ]
+      },
+      {
+        month: 6,
+        name: "Pearl",
+        korean: "진주",
+        monthLabel: "JUNE BIRTHSTONE",
+        traits: ["우아함", "균형", "인내"],
+        fortunes: [
+          {
+            title: "부드러운 태도가 가장 단단한 힘이 됩니다.",
+            message: "진주는 오랜 시간을 거쳐 은은한 빛을 완성합니다. 오늘은 급하게 밀어붙이기보다 차분히 기다리는 태도가 더 좋은 결과를 만듭니다.",
+            lucky: "천천히 정리한 말과 단정한 선택이 신뢰를 높여줍니다.",
+            caution: "참는 것과 나를 희생하는 것을 혼동하지 마세요."
+          },
+          {
+            title: "꾸미지 않은 진심이 가장 아름답게 전해집니다.",
+            message: "오늘은 과한 표현보다 담백한 한마디가 오래 남아요. 진주의 은은한 에너지가 당신의 진정성을 돋보이게 합니다.",
+            lucky: "흰색이나 크림색 소품이 마음을 편안하게 정돈해 줍니다.",
+            caution: "상대에게 맞추느라 자신의 감정을 뒤로 미루지 마세요."
+          },
+          {
+            title: "작은 불편을 다듬으면 하루가 훨씬 편해집니다.",
+            message: "마음에 걸리던 부분을 조용히 정리해 보세요. 진주처럼 매끄러운 흐름이 만들어지면서 전체 분위기도 부드러워집니다.",
+            lucky: "책상이나 가방 안을 정리하면 생각도 함께 가벼워집니다.",
+            caution: "겉으로 평온해 보이기 위해 불편함을 숨기지 마세요."
+          }
+        ]
+      },
+      {
+        month: 7,
+        name: "Ruby",
+        korean: "루비",
+        monthLabel: "JULY BIRTHSTONE",
+        traits: ["열정", "용기", "사랑"],
+        fortunes: [
+          {
+            title: "마음이 향하는 곳에 힘을 실어도 좋은 날입니다.",
+            message: "루비의 선명한 에너지가 망설이던 마음에 용기를 더합니다. 좋아하는 일이나 사람에게 한 걸음 가까이 다가가 보세요.",
+            lucky: "먼저 표현하는 칭찬과 솔직한 제안이 좋은 반응을 부릅니다.",
+            caution: "열정이 앞서 상대의 속도를 놓치지 않도록 해요."
+          },
+          {
+            title: "당당한 태도가 당신의 매력을 더 선명하게 만듭니다.",
+            message: "오늘은 스스로를 작게 만들 필요가 없어요. 루비처럼 생기 있는 자신감이 주변 분위기까지 밝게 바꿉니다.",
+            lucky: "마음에 드는 옷이나 선명한 포인트 컬러가 기분을 높여줍니다.",
+            caution: "관심받고 싶은 마음 때문에 무리한 선택을 하지 마세요."
+          },
+          {
+            title: "멈춰 있던 열정이 다시 살아납니다.",
+            message: "잠시 식었던 의욕이 작은 계기를 통해 돌아옵니다. 처음부터 크게 하려 하지 말고 즐거운 부분부터 다시 시작해 보세요.",
+            lucky: "오래 미뤄둔 취미를 짧게라도 다시 해보는 것이 좋아요.",
+            caution: "기세만으로 일을 벌인 뒤 마무리를 놓치지 마세요."
+          }
+        ]
+      },
+      {
+        month: 8,
+        name: "Peridot",
+        korean: "페리도트",
+        monthLabel: "AUGUST BIRTHSTONE",
+        traits: ["새로움", "가벼움", "정화"],
+        fortunes: [
+          {
+            title: "묵은 마음을 내려놓으면 새로운 빛이 들어옵니다.",
+            message: "페리도트의 산뜻한 에너지가 불필요한 걱정을 가볍게 털어냅니다. 이미 지나간 일보다 지금 바꿀 수 있는 것에 집중해 보세요.",
+            lucky: "방 안의 작은 물건 하나를 정리하는 행동이 좋은 시작이 됩니다.",
+            caution: "과거의 실수를 반복해서 떠올리며 현재의 기회를 놓치지 마세요."
+          },
+          {
+            title: "가벼운 시도가 생각보다 큰 전환을 만듭니다.",
+            message: "오늘은 완벽한 계획보다 작은 실행이 더 중요해요. 페리도트가 새로운 선택을 편안하게 받아들이도록 도와줍니다.",
+            lucky: "새로운 메뉴, 다른 길, 작은 스타일 변화가 기분을 환기합니다.",
+            caution: "변화를 서두르느라 중요한 기본을 건너뛰지 마세요."
+          },
+          {
+            title: "밝은 시선이 흐름을 빠르게 바꿉니다.",
+            message: "문제를 무겁게만 바라보지 않으면 예상 밖의 해결책이 보여요. 유쾌한 태도가 주변의 도움까지 자연스럽게 끌어옵니다.",
+            lucky: "웃음이 나는 대화와 가벼운 산책이 좋은 에너지를 더합니다.",
+            caution: "긍정적으로 넘기기 전에 필요한 확인은 챙겨주세요."
+          }
+        ]
+      },
+      {
+        month: 9,
+        name: "Sapphire",
+        korean: "사파이어",
+        monthLabel: "SEPTEMBER BIRTHSTONE",
+        traits: ["집중", "진실", "지혜"],
+        fortunes: [
+          {
+            title: "깊이 집중할수록 정확한 답에 가까워집니다.",
+            message: "사파이어의 차분한 힘이 흩어진 생각을 하나로 모아줍니다. 오늘은 여러 일을 벌이기보다 중요한 한 가지에 몰입해 보세요.",
+            lucky: "알림을 잠시 끄고 집중하는 짧은 시간이 큰 성과를 만듭니다.",
+            caution: "생각이 깊어지면서 지나치게 비관적인 결론으로 흐르지 않도록 해요."
+          },
+          {
+            title: "솔직한 기준이 복잡한 선택을 정리해 줍니다.",
+            message: "무엇이 더 좋아 보이는지보다 무엇이 진실한지 바라보세요. 사파이어가 흔들리지 않는 판단을 돕습니다.",
+            lucky: "결정의 이유를 한 문장으로 적으면 마음이 선명해집니다.",
+            caution: "정답을 찾느라 자신의 감정을 무시하지 마세요."
+          },
+          {
+            title: "차분한 말 한마디가 신뢰를 높이는 날입니다.",
+            message: "오늘은 많은 설명보다 정확한 표현이 더 힘을 가집니다. 천천히 생각한 뒤 말하면 당신의 진심이 또렷하게 전달돼요.",
+            lucky: "중요한 대화 전 핵심을 짧게 정리해 보세요.",
+            caution: "상대의 실수를 지적할 때 말투가 차갑게 들리지 않도록 해요."
+          }
+        ]
+      },
+      {
+        month: 10,
+        name: "Opal",
+        korean: "오팔",
+        monthLabel: "OCTOBER BIRTHSTONE",
+        traits: ["영감", "변화", "감성"],
+        fortunes: [
+          {
+            title: "다채로운 감각이 새로운 아이디어를 데려옵니다.",
+            message: "오팔처럼 여러 빛이 겹치는 날이에요. 하나의 정답에 갇히지 말고 떠오르는 생각을 자유롭게 펼쳐보세요.",
+            lucky: "이미지, 음악, 색감에서 예상 밖의 영감을 얻을 수 있습니다.",
+            caution: "생각이 많아질수록 실행할 한 가지를 꼭 골라주세요."
+          },
+          {
+            title: "예상 밖의 변화가 오히려 분위기를 살려줍니다.",
+            message: "계획과 조금 달라져도 당황하지 마세요. 오팔의 유연한 에너지가 새로운 방향을 더 매력적으로 바꿔줄 수 있어요.",
+            lucky: "즉흥적인 제안이나 우연한 만남이 좋은 기분을 가져옵니다.",
+            caution: "기분에 따라 중요한 약속까지 바꾸지는 마세요."
+          },
+          {
+            title: "당신다운 취향을 숨기지 않을수록 빛이 납니다.",
+            message: "오늘은 남에게 맞춘 무난함보다 나만의 감각이 더 좋은 반응을 얻습니다. 좋아하는 색과 분위기를 솔직히 드러내 보세요.",
+            lucky: "작업물이나 공간에 취향이 담긴 포인트를 하나 더해보세요.",
+            caution: "다른 사람의 반응을 지나치게 확인하며 자신감을 잃지 마세요."
+          }
+        ]
+      },
+      {
+        month: 11,
+        name: "Topaz",
+        korean: "토파즈",
+        monthLabel: "NOVEMBER BIRTHSTONE",
+        traits: ["낙관", "풍요", "자신감"],
+        fortunes: [
+          {
+            title: "밝은 기대가 실제 행동력을 끌어올립니다.",
+            message: "토파즈의 따뜻한 빛이 망설임보다 가능성에 시선을 두게 합니다. 오늘은 잘될 이유를 하나 믿고 움직여 보세요.",
+            lucky: "오전의 햇빛과 기분 좋은 음악이 하루의 흐름을 밝힙니다.",
+            caution: "긍정적인 마음만 믿고 준비를 생략하지 마세요."
+          },
+          {
+            title: "작은 풍요를 알아보는 순간 만족이 커집니다.",
+            message: "이미 가진 것 중 고마운 부분을 발견해 보세요. 토파즈가 일상의 평범한 장면을 더 따뜻하게 느끼도록 도와줍니다.",
+            lucky: "좋아하는 음식을 천천히 즐기는 시간이 좋은 충전이 됩니다.",
+            caution: "기분 전환을 위해 계획보다 큰 소비를 하지 않도록 해요."
+          },
+          {
+            title: "자신 있게 건넨 제안이 좋은 기회를 만듭니다.",
+            message: "오늘은 당신의 생각을 숨기기보다 밝게 공유해 보세요. 토파즈의 자신감이 사람들의 긍정적인 반응을 이끌어냅니다.",
+            lucky: "먼저 말하고 먼저 보여주는 태도가 행운 포인트입니다.",
+            caution: "들뜬 마음으로 상대의 의견을 가볍게 넘기지 마세요."
+          }
+        ]
+      },
+      {
+        month: 12,
+        name: "Turquoise",
+        korean: "터키석",
+        monthLabel: "DECEMBER BIRTHSTONE",
+        traits: ["보호", "자유", "표현"],
+        fortunes: [
+          {
+            title: "솔직한 마음이 당신을 가장 편안하게 지켜줍니다.",
+            message: "터키석은 진심 어린 표현과 보호의 에너지를 담고 있어요. 오늘은 애매하게 참기보다 부드럽고 분명하게 마음을 전해 보세요.",
+            lucky: "하고 싶은 말을 미리 적어보면 대화가 한결 편안해집니다.",
+            caution: "감정을 숨긴 채 상대가 알아주기만 기다리지 마세요."
+          },
+          {
+            title: "익숙한 자리에서 한 걸음 벗어나도 좋은 날입니다.",
+            message: "조금 새로운 공간이나 방식이 답답했던 마음을 열어줍니다. 터키석의 자유로운 기운을 따라 가볍게 움직여 보세요.",
+            lucky: "짧은 외출이나 다른 경로가 좋은 영감을 데려옵니다.",
+            caution: "자유를 위해 꼭 지켜야 할 약속까지 놓치지 마세요."
+          },
+          {
+            title: "편안한 경계를 세울수록 관계도 맑아집니다.",
+            message: "모든 부탁을 받아들이지 않아도 괜찮아요. 터키석이 당신에게 필요한 거리와 안전한 여백을 만들어 줍니다.",
+            lucky: "부담스러운 일에 정중하게 선을 긋는 선택이 에너지를 지켜줍니다.",
+            caution: "거리 두기가 차가운 단절로 보이지 않도록 설명을 더해 주세요."
+          }
+        ]
+      }
+    ];
+
+    function parseLocalDate(value) {
+      const parts = value.split("-").map(Number);
+      if (parts.length !== 3 || parts.some(Number.isNaN)) return null;
+      return { year: parts[0], month: parts[1], day: parts[2] };
+    }
+
+    function getLocalDateString(date = new Date()) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function getBirthstone(month) {
+      return birthstones.find((stone) => stone.month === month);
+    }
+
+    const form = document.getElementById("birthForm");
+    const birthDateInput = document.getElementById("birthDate");
+    const errorMessage = document.getElementById("errorMessage");
+    const formView = document.getElementById("formView");
+    const resultView = document.getElementById("resultView");
+    const fortuneCard = document.getElementById("fortuneCard");
+    const cardFloat = document.getElementById("cardFloat");
+    const cardImage = document.getElementById("cardImage");
+
+    const birthstoneMonth = document.getElementById("birthstoneMonth");
+    const birthstoneName = document.getElementById("birthstoneName");
+    const fortuneTitle = document.getElementById("fortuneTitle");
+    const fortuneCopy = document.getElementById("fortuneCopy");
+    const chipRow = document.getElementById("chipRow");
+    const luckyPoint = document.getElementById("luckyPoint");
+    const cautionPoint = document.getElementById("cautionPoint");
+    const birthText = document.getElementById("birthText");
+    const resetButton = document.getElementById("resetButton");
+    const uiSound = document.getElementById("uiSound");
+    const cardRevealSound = document.getElementById("cardRevealSound");
+    const musicBtn = document.getElementById("musicBtn");
+    const musicLabel = musicBtn.querySelector(".music-label");
+    const bgm = document.getElementById("bgm");
+    const shell = document.querySelector(".shell");
+    const fortunePanel = document.querySelector(".fortune-panel");
+
+    const CARD_IMAGE_FILE = "탄생석타로카드.jpg";
+    const lastFortuneIndexes = new Map();
+    let transitionBusy = false;
+
+    uiSound.volume = 1;
+    cardRevealSound.volume = 0.65;
+
+    function playSound(audio) {
+      audio.pause();
+      audio.currentTime = 0;
+      const playPromise = audio.play();
+      if (playPromise) playPromise.catch(() => {});
+    }
+
+    musicBtn.addEventListener("click", async () => {
+      bgm.volume = 0.24;
+
+      try {
+        if (bgm.paused) {
+          await bgm.play();
+          musicBtn.classList.add("playing");
+          musicBtn.setAttribute("aria-pressed", "true");
+          musicBtn.setAttribute("aria-label", "배경 음악 끄기");
+          musicLabel.textContent = "music off";
+        } else {
+          bgm.pause();
+          musicBtn.classList.remove("playing");
+          musicBtn.setAttribute("aria-pressed", "false");
+          musicBtn.setAttribute("aria-label", "배경 음악 켜기");
+          musicLabel.textContent = "music on";
+        }
+      } catch (error) {
+        musicBtn.classList.remove("playing");
+        musicBtn.setAttribute("aria-pressed", "false");
+        musicBtn.setAttribute("aria-label", "배경 음악 켜기");
+        musicLabel.textContent = "music on";
+        console.error(error);
+      }
+    });
+
+    document.addEventListener("click", (event) => {
+      const control = event.target.closest("[data-ui-sound]");
+      if (!control) return;
+
+      playSound(uiSound);
+
+      if (
+        control.matches("a[href]") &&
+        !event.metaKey &&
+        !event.ctrlKey &&
+        !event.shiftKey &&
+        !event.altKey
+      ) {
+        event.preventDefault();
+        window.setTimeout(() => {
+          window.location.href = control.href;
+        }, 360);
+      }
+    });
+
+    birthDateInput.max = getLocalDateString();
+
+    cardImage.addEventListener("load", () => {
+      cardImage.classList.add("loaded");
+    });
+
+    cardImage.addEventListener("error", () => {
+      cardImage.classList.remove("loaded");
+      cardImage.removeAttribute("src");
+    });
+
+    // 첫 클릭에서 카드가 늦게 뜨지 않도록 이미지를 미리 불러둡니다.
+    (function preloadCardImage() {
+      const preloader = new Image();
+      preloader.src = CARD_IMAGE_FILE;
+    })();
+
+    function pickFortune(stone) {
+      const lastFortuneIndex = lastFortuneIndexes.get(stone.name) ?? -1;
+      let nextIndex = Math.floor(Math.random() * stone.fortunes.length);
+
+      if (stone.fortunes.length > 1) {
+        while (nextIndex === lastFortuneIndex) {
+          nextIndex = Math.floor(Math.random() * stone.fortunes.length);
+        }
+      }
+
+      lastFortuneIndexes.set(stone.name, nextIndex);
+      return stone.fortunes[nextIndex];
+    }
+
+    function fillResult(dateInfo, stone) {
+      const fortune = pickFortune(stone);
+
+      if (cardImage.getAttribute("src") !== CARD_IMAGE_FILE) {
+        cardImage.classList.remove("loaded");
+        cardImage.src = CARD_IMAGE_FILE;
+      } else {
+        cardImage.classList.add("loaded");
+      }
+
+      cardImage.alt = `${stone.korean} 탄생석 운세 카드`;
+      birthstoneMonth.textContent = stone.monthLabel;
+      birthstoneName.textContent = `${stone.name} · ${stone.korean}`;
+      fortuneTitle.textContent = fortune.title;
+      fortuneCopy.textContent = fortune.message;
+      luckyPoint.textContent = fortune.lucky;
+      cautionPoint.textContent = fortune.caution;
+      birthText.textContent =
+        `${dateInfo.year}년 ${dateInfo.month}월 ${dateInfo.day}일 · ` +
+        `${dateInfo.month}월 탄생석 ${stone.korean} 기준 오늘의 운세`;
+
+      chipRow.replaceChildren(
+        ...stone.traits.map((trait) => {
+          const element = document.createElement("span");
+          element.className = "chip-item";
+          element.textContent = trait;
+          return element;
+        })
+      );
+    }
+
+    const PANEL_REVEAL_DELAY = 260;
+    const CARD_REVEAL_SOUND_DELAY = 360;
+    const wait = (duration) => new Promise((resolve) => window.setTimeout(resolve, duration));
+
+    async function switchView(fromView, toView, onSwap) {
+      const startHeight = shell.getBoundingClientRect().height;
+
+      fromView.hidden = true;
+      toView.hidden = false;
+      if (onSwap) onSwap();
+
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+      }
+
+      shell.style.height = "auto";
+      shell.style.minHeight = "";
+      const targetHeight = Math.ceil(shell.getBoundingClientRect().height);
+
+      shell.style.minHeight = "0";
+      shell.style.height = `${startHeight}px`;
+      void shell.offsetHeight;
+
+      if (Math.abs(targetHeight - startHeight) < 1) {
+        shell.style.height = "";
+        shell.style.minHeight = "";
+        return;
+      }
+
+      const resizeAnimation = shell.animate(
+        [
+          { height: `${startHeight}px` },
+          { height: `${targetHeight}px` }
+        ],
+        {
+          duration: 760,
+          easing: "cubic-bezier(.22,.61,.36,1)",
+          fill: "forwards"
+        }
+      );
+
+      try {
+        await resizeAnimation.finished;
+      } catch (_) {
+        // 크기 전환이 중단되어도 최종 화면은 정상적으로 유지합니다.
+      }
+
+      resizeAnimation.cancel();
+      shell.style.height = "";
+      shell.style.minHeight = "";
+    }
+
+    async function revealCard(dateInfo, stone) {
+      if (transitionBusy) return;
+
+      transitionBusy = true;
+      cardFloat.classList.remove("floating");
+
+      try {
+        fillResult(dateInfo, stone);
+        fortuneCard.classList.remove("revealed");
+        fortunePanel.classList.remove("revealed");
+
+        const viewTransition = switchView(formView, resultView, () => {
+          fortuneCard.classList.add("revealed");
+          window.setTimeout(
+            () => playSound(cardRevealSound),
+            CARD_REVEAL_SOUND_DELAY
+          );
+        });
+
+        await wait(PANEL_REVEAL_DELAY);
+        fortunePanel.classList.add("revealed");
+
+        window.setTimeout(() => cardFloat.classList.add("floating"), 360);
+        await viewTransition;
+      } finally {
+        window.setTimeout(() => { transitionBusy = false; }, 300);
+      }
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      errorMessage.textContent = "";
+
+      if (!birthDateInput.value) {
+        errorMessage.textContent = "생년월일을 먼저 입력해 주세요.";
+        birthDateInput.focus();
+        return;
+      }
+
+      const dateInfo = parseLocalDate(birthDateInput.value);
+
+      if (!dateInfo) {
+        errorMessage.textContent = "올바른 날짜를 입력해 주세요.";
+        birthDateInput.focus();
+        return;
+      }
+
+      if (birthDateInput.value > birthDateInput.max) {
+        errorMessage.textContent = "오늘 이후의 날짜는 입력할 수 없어요.";
+        birthDateInput.focus();
+        return;
+      }
+
+      const stone = getBirthstone(dateInfo.month);
+
+      if (!stone) {
+        errorMessage.textContent = "탄생석 정보를 찾지 못했어요.";
+        return;
+      }
+
+      revealCard(dateInfo, stone);
+    });
+
+    resetButton.addEventListener("click", async () => {
+      if (transitionBusy) return;
+
+      transitionBusy = true;
+      cardFloat.classList.remove("floating");
+
+      try {
+        await switchView(resultView, formView, () => {
+          fortuneCard.classList.remove("revealed");
+          fortunePanel.classList.remove("revealed");
+          cardImage.classList.remove("loaded");
+        });
+        errorMessage.textContent = "";
+        birthDateInput.focus();
+      } finally {
+        window.setTimeout(() => {
+          transitionBusy = false;
+        }, 250);
+      }
+    });
+  </script>
+
+</body>
+</html>
