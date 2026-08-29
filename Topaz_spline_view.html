@@ -1,0 +1,2300 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap"
+    rel="stylesheet">
+  <link rel="preconnect" href="https://prod.spline.design" crossorigin>
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
+  <link rel="preload" href="https://prod.spline.design/WEoUrdmIBQmR4hYk/scene.splinecode" as="fetch"
+    crossorigin="anonymous" fetchpriority="high">
+  <title>Topaz · Spline View</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box
+    }
+
+    :root {
+      --topaz: #E3A11B;
+      --deep: #8A520B;
+      --ink: #6F4B16;
+      --ink-soft: rgba(111, 75, 22, .72);
+      --cream: #FFF9F0;
+      --sun: #F9E1B0;
+      --line: rgba(138, 82, 11, .16);
+      /* 통일된 타이틀 */
+      --title-font: 'Cormorant Garamond', serif;
+      --title-color: #8A520B
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--cream);
+      font-family: 'Cormorant Garamond', serif;
+      color: var(--ink)
+    }
+
+    /* 통일 타이틀 클래스 */
+    .title-uni {
+      font-family: var(--title-font);
+      color: var(--title-color);
+      font-weight: 500;
+      letter-spacing: .01em
+    }
+
+    .viewport {
+      position: fixed;
+      inset: 0;
+      background: var(--cream)
+    }
+
+    .game-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 68% 40%, rgba(243, 200, 106, .18), transparent 52%),
+        linear-gradient(180deg, #fffdf8 0%, #fff0d9 52%, #ffffff 100%)
+    }
+
+    /* ===== BACKGROUND POSTER ===== */
+    .poster-image {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      object-fit: cover;
+      object-position: center;
+      opacity: .5;
+      transform: scale(1.03);
+      transition: opacity 1s ease, transform 10s ease
+    }
+
+    .game-container.loaded .poster-image {
+      transform: scale(1)
+    }
+
+    .game-container.gallery-on .poster-image {
+      opacity: 0
+    }
+
+    .poster-veil {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background:
+    radial-gradient(circle at 50% 40%, rgba(255, 255, 255, .05), transparent 46%),
+    linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.19),
+    rgba(255, 255, 255, .06) 32%,
+    rgba(249, 225, 176, .16) 68%,
+    rgba(249, 225, 176, 0.18)
+    );
+      transition: opacity .8s ease
+    }
+
+    .game-container.gallery-on .poster-veil {
+      opacity: .35
+    }
+
+    /* ===== FULLSCREEN GALLERY (전시장) ===== */
+    .gallery {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1s ease
+    }
+
+    .game-container.gallery-on .gallery {
+      opacity: 1
+    }
+
+    .gallery-slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transform: scale(1.14);
+      transition: opacity 2.4s ease, transform 8s ease
+    }
+
+    .gallery-slide.active {
+      opacity: 1;
+      transform: scale(1)
+    }
+
+    .gallery-slide img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover
+    }
+
+    .gallery-slide::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, .28), rgba(255, 240, 217, .1) 42%, rgba(255, 240, 217, .5))
+    }
+
+    /* 슬라이드 인덱스 도트 */
+    .gallery-dots {
+      position: absolute;
+      left: 50%;
+      bottom: 4.5%;
+      transform: translateX(-50%);
+      z-index: 16;
+      display: none;
+      gap: .5rem
+    }
+
+    .game-container.gallery-on .gallery-dots {
+      display: flex
+    }
+
+    .gallery-dot {
+      width: .5rem;
+      height: .5rem;
+      border-radius: 50%;
+      background: rgba(138, 82, 11, .25);
+      transition: .3s
+    }
+
+    .gallery-dot.on {
+      background: var(--topaz);
+      width: 1.5rem;
+      border-radius: 999px
+    }
+
+    /* ===== CENTER SPLINE ===== */
+    .center-spline {
+      position: absolute;
+      left: 50%;
+      top: 55.5%;
+      z-index: 8;
+      width: min(52vw, 46rem);
+      height: min(74vh, 46rem);
+      transform: translate(-50%, -50%);
+      pointer-events: auto;
+      cursor: grab;
+      filter: drop-shadow(0 26px 60px rgba(227, 161, 27, .22));
+      opacity: 0;
+      transition: opacity 1s ease, left .9s cubic-bezier(.16, 1, .3, 1), width .9s cubic-bezier(.16, 1, .3, 1), transform .5s cubic-bezier(.16, 1, .3, 1)
+    }
+
+    .center-spline:active {
+      cursor: grabbing
+    }
+
+    .center-spline.show {
+      opacity: 1
+    }
+
+    .center-spline:hover {
+      transform: translate(-50%, -50%) scale(1.03)
+    }
+
+    /* 무드 열렸을 때: 스플라인은 페이드 아웃(자리를 캐릭터에게 내줌) */
+    .game-container.mood-open .center-spline {
+      opacity: 0;
+      pointer-events: none
+    }
+
+    .center-spline spline-viewer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      pointer-events: auto
+    }
+
+    .gem-halo {
+      position: absolute;
+      left: 50%;
+      top: 55.5%;
+      z-index: 7;
+      width: min(30vw, 24rem);
+      height: min(30vw, 24rem);
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      pointer-events: none;
+      background: radial-gradient(circle, rgba(243, 200, 106, .28), transparent 62%);
+      opacity: 0;
+      transition: opacity 1s ease;
+      animation: haloPulse 4.5s ease-in-out infinite
+    }
+
+    .center-spline.show~.gem-halo {
+      opacity: 1
+    }
+
+    .game-container.mood-open .gem-halo {
+      opacity: 0
+    }
+
+    @keyframes haloPulse {
+
+      0%,
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: .5
+      }
+
+      50% {
+        transform: translate(-50%, -50%) scale(1.12);
+        opacity: .85
+      }
+    }
+
+    .click-hint {
+      position: absolute;
+      left: 50%;
+      bottom: 7.2%;
+      z-index: 12;
+      transform: translateX(-50%);
+      padding: .44rem 1.05rem;
+      border-radius: 999px;
+      border: 1px solid rgba(227, 161, 27, .4);
+      background: rgba(255, 255, 255, .58);
+      backdrop-filter: blur(12px);
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      font-size: clamp(.54rem, .64vw, .66rem);
+      letter-spacing: .14em;
+      color: var(--deep);
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity .6s ease;
+      animation: hintFloat 3.4s ease-in-out infinite
+    }
+
+    .click-hint.ready {
+      opacity: 1
+    }
+
+    .click-hint.gone {
+      opacity: 0;
+      pointer-events: none
+    }
+
+    @keyframes hintFloat {
+
+      0%,
+      100% {
+        transform: translateX(-50%) translateY(0)
+      }
+
+      50% {
+        transform: translateX(-50%) translateY(-6px)
+      }
+    }
+
+
+    /* ===== TOP BAR ===== */
+    .topbar {
+      position: absolute;
+      top: 2.2%;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 40;
+      width: min(94vw, 84rem);
+      height: clamp(3.2rem, 4.4vw, 4.2rem);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(1rem, 1.6vw, 1.8rem);
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .66);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 12px 38px rgba(138, 82, 11, .1);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: clamp(1.15rem, 1.5vw, 1.5rem);
+      font-weight: 600;
+    }
+
+    .brand-dot {
+      width: .5rem;
+      height: .5rem;
+      border-radius: 50%;
+      background: var(--topaz);
+      box-shadow: 0 0 12px rgba(227, 161, 27, .6);
+    }
+/* ===== MODE TOGGLE ===== */
+    .mode-toggle {
+      position: absolute;
+      top: 3%;
+      right: 3%;
+      width: 3.35rem;
+      height: 1.72rem;
+      border-radius: 999px;
+      z-index: 20;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: background 0.25s ease;
+    }
+
+    .mode-toggle.active {
+      background: rgba(227, 161, 27, 0.24);
+      border-color: rgba(255, 228, 171, 0.22);
+    }
+
+    .toggle-knob {
+      position: absolute;
+      top: 50%;
+      left: 0.18rem;
+      width: 1.28rem;
+      height: 1.28rem;
+      border-radius: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.88);
+      transition: left 0.28s ease, background 0.28s ease;
+    }
+
+    .mode-toggle.active .toggle-knob {
+      left: 1.88rem;
+      background: rgba(255, 245, 215, 0.95);
+    }
+
+    .topbar .mode-toggle {
+      position: relative;
+      top: auto;
+      right: auto;
+      flex: none;
+      z-index: 2;
+
+      /* 밝은 상단 바 위에서도 토글이 확실히 보이도록 조정 */
+      background: rgba(227, 161, 27, 0.12);
+      border-color: rgba(181, 122, 34, 0.42);
+      box-shadow:
+        inset 0 0 0.35rem rgba(255, 255, 255, 0.72),
+        0 0 0.75rem rgba(227, 161, 27, 0.16);
+    }
+
+    .topbar .mode-toggle .toggle-knob {
+      background: #E3A11B;
+      box-shadow: 0 0 0.55rem rgba(227, 161, 27, 0.45);
+    }
+
+    .topbar .mode-toggle.active {
+      background: rgba(227, 161, 27, 0.24);
+      border-color: rgba(227, 161, 27, 0.58);
+    }
+
+    .topbar .mode-toggle.active .toggle-knob {
+      background: #FFE39A;
+      box-shadow: 0 0 0.6rem rgba(243, 200, 106, 0.55);
+    }
+
+    /* ===== HERO TYPO (통일 타이틀) ===== */
+    .hero-title {
+      position: absolute;
+      left: 50%;
+      top: 15.5%;
+      transform: translateX(-50%);
+      z-index: 6;
+      text-align: center;
+      pointer-events: none;
+      transition: opacity .6s ease
+    }
+
+    .game-container.mood-open .hero-title,
+    .game-container.mood-open .hero-copy,
+    .game-container.mood-open .promo-card,
+    .game-container.mood-open .click-hint,
+    .game-container.gallery-on .hero-title,
+    .game-container.gallery-on .hero-copy {
+      opacity: 0;
+      pointer-events: none
+    }
+
+    .hero-title h1 {
+      margin: 0;
+      font-size: clamp(4.5rem, 12.5vw, 15rem);
+      line-height: .82;
+      text-shadow: 0 12px 40px rgba(227, 161, 27, .18)
+    }
+
+    .hero-copy {
+      position: absolute;
+      left: 6%;
+      top: 40%;
+      z-index: 6;
+      max-width: 15rem;
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      pointer-events: none;
+      transition: opacity .6s ease
+    }
+
+    .hero-copy .lead {
+      font-size: clamp(.78rem, .95vw, .96rem);
+      line-height: 1.7;
+      letter-spacing: .02em;
+      color: var(--ink)
+    }
+
+    .hero-copy .sub {
+      margin-top: 1.1rem;
+      font-size: clamp(.7rem, .82vw, .82rem);
+      line-height: 1.7;
+      letter-spacing: .02em;
+      color: rgba(111, 75, 22, .58)
+    }
+
+    /* ===== PROMO CARD ===== */
+    .promo-card {
+      position: absolute;
+      right: 4%;
+      bottom: 8%;
+      z-index: 14;
+      width: min(24vw, 21rem);
+      padding: 1.25rem 1.4rem 1.35rem;
+      border-radius: 1.3rem;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .72);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 24px 55px rgba(138, 82, 11, .14);
+      font-family: 'Jost', sans-serif;
+      transition: opacity .6s ease
+    }
+
+    .promo-kicker {
+      font-size: .62rem;
+      letter-spacing: .26em;
+      color: var(--topaz);
+      margin-bottom: .7rem
+    }
+
+    .promo-title {
+      font-size: clamp(1.15rem, 1.5vw, 1.5rem);
+      line-height: 1.15;
+      margin-bottom: .55rem
+    }
+
+    .promo-text {
+      font-weight: 300;
+      font-size: .74rem;
+      line-height: 1.55;
+      letter-spacing: .02em;
+      color: rgba(111, 75, 22, .64);
+      margin-bottom: 1rem
+    }
+
+    .promo-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .6rem 1.25rem;
+      border-radius: 999px;
+      border: 1px solid rgba(227, 161, 27, .5);
+      background: rgba(243, 200, 106, .22);
+      color: var(--deep);
+      font-family: 'Jost', sans-serif;
+      font-size: .74rem;
+      letter-spacing: .08em;
+      cursor: pointer;
+      transition: .25s
+    }
+
+    .promo-btn:hover {
+      background: rgba(243, 200, 106, .38)
+    }
+
+    /* ===== QUICK MENU ===== */
+    .quick-menu {
+      position: absolute;
+      top: calc(2.2% + clamp(3.2rem, 4.4vw, 4.2rem) + 1rem);
+      left: 3.2%;
+      z-index: 31
+    }
+
+    .quick-menu summary {
+      position: relative;
+      width: clamp(2.5rem, 3.2vw, 3.2rem);
+      height: clamp(2.5rem, 3.2vw, 3.2rem);
+      border: 0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      list-style: none;
+      cursor: pointer;
+      color: var(--deep);
+      font-family: 'Jost', sans-serif;
+      font-size: clamp(1rem, 1.3vw, 1.25rem);
+      line-height: 1;
+      user-select: none
+    }
+
+    .quick-menu summary::-webkit-details-marker {
+      display: none
+    }
+
+    .quick-menu summary::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .6);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 6px 18px rgba(36, 36, 36, .1);
+      transition: transform .3s ease, background .3s ease
+    }
+
+    .menu-icon {
+      position: relative;
+      z-index: 1
+    }
+
+    .quick-menu summary:hover::before,
+    .quick-menu[open] summary::before {
+      transform: scale(1.08);
+      background: rgba(255, 255, 255, .82)
+    }
+
+    .quick-menu-panel {
+      position: absolute;
+      top: 0;
+      left: calc(100% + .65rem);
+      min-width: clamp(10.5rem, 12vw, 12.5rem);
+      padding: .4rem;
+      border: 1px solid var(--line);
+      border-radius: .9rem;
+      background: rgba(255, 255, 255, .82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 12px 28px rgba(36, 36, 36, .12);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(-.4rem);
+      pointer-events: none;
+      transition: opacity .22s ease, visibility .22s ease, transform .22s ease
+    }
+
+    .quick-menu[open] .quick-menu-panel {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+      pointer-events: auto
+    }
+
+    .quick-menu-panel a {
+      display: block;
+      padding: .68rem .85rem;
+      border-radius: .62rem;
+      color: var(--deep);
+      text-decoration: none;
+      font-family: 'Jost', sans-serif;
+      font-size: clamp(.72rem, .82vw, .82rem);
+      letter-spacing: .04em;
+      white-space: nowrap;
+      transition: background .2s ease
+    }
+
+    .quick-menu-panel a + a {
+      margin-top: .15rem
+    }
+
+    .quick-menu-panel a:hover,
+    .quick-menu-panel a:focus-visible {
+      background: rgba(255, 255, 255, .72);
+      outline: none
+    }
+
+    /* ===== BACK ===== */
+    .top-back-btn {
+      position: absolute;
+      top: calc(2.2% + clamp(3.2rem, 4.4vw, 4.2rem) + clamp(2.5rem, 3.2vw, 3.2rem) + 1.65rem);
+      left: 3.2%;
+      z-index: 30;
+      width: clamp(2.5rem, 3.2vw, 3.2rem);
+      height: clamp(2.5rem, 3.2vw, 3.2rem);
+      border: none;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: transparent;
+      color: var(--deep);
+      font-family: 'Jost', sans-serif;
+      font-size: clamp(1.15rem, 1.5vw, 1.45rem);
+      line-height: 1;
+      transition: color .3s ease
+    }
+
+    .top-back-btn::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .6);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 6px 18px rgba(138, 82, 11, .12);
+      transition: transform .3s ease, background .3s ease
+    }
+
+    .back-arrow {
+      position: relative;
+      z-index: 1
+    }
+
+    .top-back-btn:hover {
+      color: var(--topaz)
+    }
+
+    .top-back-btn:hover::before {
+      transform: scale(1.08);
+      background: rgba(243, 200, 106, .2)
+    }
+
+    /* ===== LOADING ===== */
+    .loading-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      pointer-events: none;
+      background: rgba(255, 240, 217, .72);
+      backdrop-filter: blur(6px);
+      opacity: 1;
+      transition: opacity .7s ease, visibility .7s ease
+    }
+
+    .loading-overlay.hide {
+      opacity: 0;
+      visibility: hidden
+    }
+
+    .loading-orb {
+      position: relative;
+      width: 4rem;
+      height: 4rem;
+      border-radius: 50%;
+      border: 1px solid rgba(138, 82, 11, .16);
+      background: radial-gradient(circle, rgba(255, 255, 255, .8), rgba(243, 200, 106, .12) 60%, rgba(243, 200, 106, .02));
+      box-shadow: 0 0 26px rgba(227, 161, 27, .22), inset 0 0 14px rgba(255, 255, 255, .5);
+      animation: orbSpin 4s linear infinite, orbFloat 3.6s ease-in-out infinite
+    }
+
+    .orb-dot {
+      position: absolute;
+      width: .42rem;
+      height: .42rem;
+      border-radius: 50%;
+      background: radial-gradient(circle, #fff, var(--topaz) 46%, rgba(227, 161, 27, .1));
+      box-shadow: 0 0 10px rgba(243, 200, 106, .8)
+    }
+
+    .orb-dot-1 {
+      top: -.12rem;
+      left: 50%;
+      transform: translateX(-50%)
+    }
+
+    .orb-dot-2 {
+      right: .4rem;
+      bottom: .8rem
+    }
+
+    .orb-dot-3 {
+      left: .45rem;
+      bottom: .72rem
+    }
+
+    @keyframes orbSpin {
+      from {
+        transform: rotate(0)
+      }
+
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    @keyframes orbFloat {
+
+      0%,
+      100% {
+        translate: 0 0
+      }
+
+      50% {
+        translate: 0 -8px
+      }
+    }
+
+    .loading-copy-box {
+      padding: .9rem 1.3rem;
+      min-width: min(86vw, 32rem);
+      max-width: min(94vw, 42rem);
+      border-radius: 1.1rem;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .62);
+      backdrop-filter: blur(12px);
+      text-align: center
+    }
+
+    .loading-kicker {
+      margin-bottom: .4rem;
+      font-family: 'Jost', sans-serif;
+      font-size: clamp(.6rem, .8vw, .7rem);
+      letter-spacing: .24em;
+      color: var(--topaz)
+    }
+
+    .loading-copy {
+      position: relative;
+      height: 1.7em;
+      color: var(--deep);
+      font-size: clamp(.95rem, 1.4vw, 1.18rem);
+      line-height: 1.45;
+      letter-spacing: .04em;
+      white-space: nowrap;
+      overflow: hidden
+    }
+
+    .loading-copy span {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: loadingSentence 6s infinite
+    }
+
+    .loading-copy span:nth-child(1) {
+      animation-delay: 0s
+    }
+
+    .loading-copy span:nth-child(2) {
+      animation-delay: 2s
+    }
+
+    .loading-copy span:nth-child(3) {
+      animation-delay: 4s
+    }
+
+    @keyframes loadingSentence {
+      0% {
+        opacity: 0;
+        transform: translateY(8px)
+      }
+
+      10% {
+        opacity: 1;
+        transform: translateY(0)
+      }
+
+      30% {
+        opacity: 1;
+        transform: translateY(0)
+      }
+
+      40% {
+        opacity: 0;
+        transform: translateY(-8px)
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(-8px)
+      }
+    }
+
+    /* ===== CHARACTER ===== */
+    .character {
+      position: absolute;
+      left: 8%;
+      top: 50%;
+      z-index: 22;
+      width: min(26vw, 22rem);
+      height: min(78vh, 46rem);
+      transform: translateY(-50%);
+      border-radius: 1.4rem;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #FFF1DB, var(--sun));
+      box-shadow: 0 30px 70px rgba(138, 82, 11, .16);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .7s ease, transform .7s cubic-bezier(.16, 1, .3, 1)
+    }
+
+    .game-container.mood-open .character {
+      opacity: 1;
+      transform: translateY(-50%)
+    }
+
+    /* 캐릭터 전신 이미지 (세로로 긴 사진 권장) */
+    .character-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top
+    }
+
+    /* 5개 세로 구간을 덮는 셔터 (아직 안 열린 구간) */
+
+/* 현재 열린 구간 하이라이트 라인 */
+
+.character-cap {
+      position: absolute;
+      left: 1rem;
+      bottom: 1rem;
+      z-index: 5;
+      padding: .3rem .7rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .82);
+      font-family: 'Jost', sans-serif;
+      font-size: .58rem;
+      letter-spacing: .16em;
+      color: var(--deep)
+    }
+
+    .character.single-preview {
+      background: linear-gradient(180deg, rgba(255,255,255,.82), rgba(249, 225, 176, .88));
+    }
+
+    .character.single-preview .character-img {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 185%;
+      height: auto;
+      max-width: none;
+      max-height: none;
+      transform: translate(-50%, -50%) rotate(-90deg);
+      transform-origin: center;
+      object-fit: contain;
+      object-position: center;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      opacity: 1;
+      transition: opacity .22s ease;
+    }
+
+    .character.single-preview .character-img.is-changing {
+      opacity: 0;
+    }
+
+/* ===== MOOD PANEL (우측) ===== */
+    .mood-panel {
+      position: absolute;
+      top: 0;
+      right: 0;
+      z-index: 45;
+      width: min(40vw, 34rem);
+      height: 100%;
+      padding: clamp(4.8rem, 7vw, 6.5rem) clamp(1.8rem, 2.6vw, 3rem) clamp(1.6rem, 2.4vw, 2.4rem);
+      background: linear-gradient(180deg, rgba(255, 255, 255, .82), rgba(255, 241, 219, .86));
+      backdrop-filter: blur(20px);
+      border-left: 1px solid var(--line);
+      box-shadow: -24px 0 60px rgba(138, 82, 11, .12);
+      transform: translateX(103%);
+      transition: transform .7s cubic-bezier(.16, 1, .3, 1);
+      overflow-y: auto
+    }
+
+    .game-container.mood-open .mood-panel {
+      transform: translateX(0)
+    }
+
+    .mood-panel::-webkit-scrollbar {
+      width: 6px
+    }
+
+    .mood-panel::-webkit-scrollbar-thumb {
+      background: rgba(227, 161, 27, .3);
+      border-radius: 999px
+    }
+
+    .mood-panel-close {
+      position: absolute;
+      top: 1.4rem;
+      right: 1.4rem;
+      width: 2.3rem;
+      height: 2.3rem;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      cursor: pointer;
+      background: rgba(255, 255, 255, .7);
+      color: var(--deep);
+      font-family: 'Jost', sans-serif;
+      font-size: 1.2rem;
+      line-height: 1;
+      transition: .25s
+    }
+
+    .mood-panel-close:hover {
+      background: rgba(243, 200, 106, .24);
+      color: var(--topaz)
+    }
+
+    .mood-head-kicker {
+      font-family: 'Jost', sans-serif;
+      font-size: .66rem;
+      letter-spacing: .26em;
+      color: var(--topaz);
+      margin-bottom: .7rem
+    }
+
+    .mood-head-title {
+      margin: 0 0 .5rem;
+      font-size: clamp(1.8rem, 2.6vw, 2.6rem);
+      line-height: 1
+    }
+
+    .mood-head-desc {
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      font-size: .9rem;
+      line-height: 1.72;
+      letter-spacing: .02em;
+      color: rgba(111, 75, 22, .68);
+      margin-bottom: 1.6rem
+    }
+
+    .mood-block {
+      padding: 1.05rem 1.15rem;
+      margin-bottom: .85rem;
+      border-radius: 1rem;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .55);
+      cursor: pointer;
+      transition: .3s
+    }
+
+    .mood-block:hover {
+      border-color: rgba(227, 161, 27, .45);
+      background: rgba(243, 200, 106, .1);
+      transform: translateX(-4px)
+    }
+
+    .mood-block.active {
+      border-color: rgba(227, 161, 27, .6);
+      background: rgba(243, 200, 106, .16)
+    }
+
+    .mood-block-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: .6rem;
+      margin-bottom: .55rem
+    }
+
+    .mood-block-label {
+      font-family: 'Jost', sans-serif;
+      font-size: .62rem;
+      letter-spacing: .22em;
+      color: var(--topaz)
+    }
+
+    .mood-block-view {
+      font-family: 'Jost', sans-serif;
+      font-size: .58rem;
+      letter-spacing: .16em;
+      color: rgba(111, 75, 22, .42)
+    }
+
+    .mood-block-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 600;
+      font-size: 1.15rem;
+      color: var(--deep);
+      margin-bottom: .4rem
+    }
+
+    .mood-block-body {
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      font-size: .88rem;
+      line-height: 1.7;
+      letter-spacing: .01em;
+      color: rgba(111, 75, 22, .74)
+    }
+
+    .mood-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+      margin-top: .7rem
+    }
+
+    .mood-tag {
+      padding: .3rem .68rem;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .5);
+      font-family: 'Jost', sans-serif;
+      font-size: .62rem;
+      letter-spacing: .08em;
+      color: rgba(111, 75, 22, .78)
+    }
+
+    .swatch-row {
+      display: flex;
+      gap: .5rem;
+      margin-top: .7rem;
+      margin-bottom: .3rem
+    }
+
+    .swatch {
+      flex: 1;
+      height: 2rem;
+      border-radius: .5rem;
+      border: 1px solid rgba(138, 82, 11, .14);
+      position: relative
+    }
+
+    .swatch span {
+      position: absolute;
+      left: 50%;
+      bottom: -1.1rem;
+      transform: translateX(-50%);
+      font-family: 'Jost', sans-serif;
+      font-size: .5rem;
+      letter-spacing: .06em;
+      color: rgba(111, 75, 22, .58);
+      white-space: nowrap
+    }
+
+    /* ===== MAGAZINE GRID (중앙, 느낌있는 배치) ===== */
+    .magazine {
+      position: absolute;
+      left: calc(8% + min(26vw, 22rem) + 2.5%);
+      top: 50%;
+      transform: translateY(-50%) translateY(14px);
+      z-index: 20;
+      width: calc(92% - (8% + min(26vw, 22rem) + 2.5%) - min(40vw, 34rem) - 2.5%);
+      height: min(78vh, 46rem);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .6s ease, transform .6s ease
+    }
+
+    .game-container.magazine-open .magazine {
+      opacity: 1;
+      transform: translateY(-50%);
+      pointer-events: auto
+    }
+
+    .magazine-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: .9rem
+    }
+
+    .magazine-kicker {
+      font-family: 'Jost', sans-serif;
+      font-size: .62rem;
+      letter-spacing: .26em;
+      color: var(--topaz);
+      margin-bottom: .4rem
+    }
+
+    .magazine-title {
+      margin: 0;
+      font-size: clamp(1.7rem, 2.6vw, 2.8rem);
+      line-height: .95
+    }
+
+    .magazine-back {
+      flex: none;
+      padding: .5rem 1.1rem;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .62);
+      font-family: 'Jost', sans-serif;
+      font-size: .66rem;
+      letter-spacing: .12em;
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: .25s
+    }
+
+    .magazine-back:hover {
+      border-color: rgba(227, 161, 27, .5);
+      color: var(--topaz)
+    }
+
+    /* 2번째 이미지처럼 비대칭 매거진 레이아웃 */
+    .magazine-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: repeat(12, 1fr);
+      gap: .6rem;
+      height: calc(100% - 5rem)
+    }
+
+    .mag-cell {
+      position: relative;
+      border-radius: .8rem;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--sun), #FFF1DB);
+      border: 1px solid var(--line);
+      box-shadow: 0 14px 30px rgba(138, 82, 11, .08);
+      opacity: 0;
+      transform: translateY(10px);
+      animation: cellIn .6s ease forwards
+    }
+
+    @keyframes cellIn {
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    .mag-cell img {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block
+    }
+
+    .mag-cell .mag-ph {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Jost', sans-serif;
+      font-size: .58rem;
+      letter-spacing: .16em;
+      color: rgba(111, 75, 22, .4)
+    }
+
+    .mag-cell .mag-cap {
+      position: absolute;
+      left: .7rem;
+      bottom: .6rem;
+      z-index: 2;
+      padding: .26rem .6rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .78);
+      font-family: 'Jost', sans-serif;
+      font-size: .54rem;
+      letter-spacing: .14em;
+      color: var(--deep)
+    }
+
+    /* 느낌있는 비대칭 배치 — 겹침 없는 완전 타일링 (12x12) */
+    /* 좌상단 큰 메인 컷 */
+    .m1 {
+      grid-column: 1 / 8;
+      grid-row: 1 / 7
+    }
+
+    /* 우상단 가로 컷 */
+    .m2 {
+      grid-column: 8 / 13;
+      grid-row: 1 / 5
+    }
+
+    /* 우중단 세로 컷 */
+    .m3 {
+      grid-column: 8 / 13;
+      grid-row: 5 / 10
+    }
+
+    /* 우하단 컷 */
+    .m6 {
+      grid-column: 8 / 13;
+      grid-row: 10 / 13
+    }
+
+    .mag-cell:nth-child(1) {
+      animation-delay: .02s
+    }
+
+    .mag-cell:nth-child(2) {
+      animation-delay: .08s
+    }
+
+    .mag-cell:nth-child(3) {
+      animation-delay: .14s
+    }
+
+    .mag-cell:nth-child(4) {
+      animation-delay: .2s
+    }
+
+    .mag-cell:nth-child(5) {
+      animation-delay: .26s
+    }
+
+/* 4개 이미지 + 1개의 합쳐진 설명 카드 */
+    .mag-info {
+      padding: clamp(1rem, 1.45vw, 1.55rem);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      background:
+        radial-gradient(circle at 88% 14%, rgba(243, 200, 106, .22), transparent 38%),
+        linear-gradient(145deg, rgba(255, 255, 255, .92), rgba(255, 241, 219, .88));
+    }
+
+    /* 기존 4번·5번 칸을 하나로 합친 설명 영역 */
+    .mag-info-wide {
+      grid-column: 1 / 8;
+      grid-row: 7 / 13;
+    }
+
+    .mag-info-no {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      font-family: 'Jost', sans-serif;
+      font-size: .55rem;
+      letter-spacing: .2em;
+      color: var(--topaz);
+    }
+
+    .mag-info-title {
+      margin: 0 0 .55rem;
+      font-size: clamp(1.15rem, 1.65vw, 1.7rem);
+      line-height: 1.02;
+      color: var(--deep);
+    }
+
+    .mag-info-copy {
+      margin: 0;
+      max-width: 96%;
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      font-size: clamp(.74rem, .9vw, .94rem);
+      line-height: 1.72;
+      color: rgba(111, 75, 22, .68);
+    }
+
+    /* 스타일링 설명 안의 세로형 Topaz 컬러 팔레트 */
+
+/* CORE는 사진 없이 설명 카드만 */
+    .core-grid {
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: repeat(12, 1fr);
+    }
+
+    .core-card {
+      padding: clamp(1.1rem, 1.8vw, 1.9rem) clamp(1.4rem, 2.2vw, 2.4rem);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: clamp(1.2rem, 2.4vw, 2.6rem);
+      overflow: hidden;
+      background:
+        linear-gradient(120deg, rgba(255, 255, 255, .92), rgba(255, 241, 219, .86));
+    }
+
+    /* 큰 워터마크 번호로 빈 공간을 채워 허전함 제거 */
+    .core-card::before {
+      content: attr(data-no);
+      position: absolute;
+      top: 50%;
+      right: .5em;
+      transform: translateY(-50%);
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 600;
+      font-size: clamp(3rem, 6vw, 6rem);
+      line-height: 1;
+      color: rgba(227, 161, 27, .12);
+      pointer-events: none;
+    }
+
+    .core-card::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 42%;
+      border-radius: 2px;
+      background: linear-gradient(180deg, var(--topaz), rgba(243, 200, 106, .2));
+    }
+
+    .core-card.c1 { grid-column: 1 / 13; grid-row: 1 / 7; }
+    .core-card.c2 { grid-column: 1 / 13; grid-row: 7 / 13; }
+
+    /* 설명이 1개일 때도 전체 높이로 늘리지 않고,
+       기존 설명 카드 한 칸 정도의 크기로 중앙 배치 */
+    .core-grid.core-count-1 .core-card.c1 {
+      grid-column: 1 / 13;
+      grid-row: 4 / 10;
+      padding: clamp(1.1rem, 1.8vw, 1.9rem) clamp(1.4rem, 2.2vw, 2.4rem);
+    }
+
+    .core-grid.core-count-1 .core-card::before {
+      font-size: clamp(3rem, 6vw, 6rem);
+      right: .5em;
+    }
+
+    .core-grid.core-count-1 .core-head {
+      flex-basis: clamp(9rem, 22%, 15rem);
+    }
+
+    .core-grid.core-count-1 .core-copy {
+      max-width: 52ch;
+      font-size: clamp(.8rem, .98vw, 1rem);
+    }
+
+    /* 왼쪽 라벨 그룹 (번호 + 제목) */
+    .core-head {
+      position: relative;
+      flex: 0 0 clamp(9rem, 22%, 15rem);
+    }
+
+    .core-index {
+      position: relative;
+      display: block;
+      font-family: 'Jost', sans-serif;
+      font-size: .58rem;
+      letter-spacing: .24em;
+      color: var(--topaz);
+      margin-bottom: .45rem;
+    }
+
+    .core-title {
+      position: relative;
+      margin: 0;
+      font-size: clamp(1.15rem, 1.7vw, 1.7rem);
+      line-height: 1.05;
+      color: var(--deep);
+    }
+
+    .core-copy {
+      position: relative;
+      flex: 1;
+      margin: 0;
+      max-width: 52ch;
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      font-size: clamp(.8rem, .98vw, 1rem);
+      line-height: 1.78;
+      color: rgba(111, 75, 22, .72);
+    }
+
+    /* 주얼리: 가로로 긴 이미지 1장 + 설명 1개 */
+
+/* 스타일링 상세: 이미지 없이 세로로 긴 4색 팔레트 */
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-rows: 1fr;
+      gap: clamp(.55rem, .9vw, .9rem);
+    }
+
+    .palette-card {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      border-radius: 1rem;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .75);
+      box-shadow: 0 16px 34px rgba(138, 82, 11, .1);
+      opacity: 0;
+      transform: translateY(12px);
+      animation: cellIn .58s ease forwards;
+    }
+
+    .palette-card:nth-child(1) { animation-delay: .03s; }
+    .palette-card:nth-child(2) { animation-delay: .1s; }
+    .palette-card:nth-child(3) { animation-delay: .17s; }
+    .palette-card:nth-child(4) { animation-delay: .24s; }
+
+    .palette-color {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+    }
+
+    .palette-color::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, .2), transparent 35%, rgba(138, 82, 11, .08));
+    }
+
+    .palette-copy {
+      flex: none;
+      min-height: 6.6rem;
+      padding: .8rem .75rem .85rem;
+      background: rgba(255, 255, 255, .9);
+    }
+
+    .palette-name {
+      margin: 0 0 .25rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(.95rem, 1.2vw, 1.18rem);
+      font-weight: 600;
+      color: var(--deep);
+    }
+
+    .palette-hex {
+      margin-bottom: .5rem;
+      font-family: 'Jost', sans-serif;
+      font-size: .52rem;
+      letter-spacing: .15em;
+      color: var(--topaz);
+    }
+
+    .palette-desc {
+      margin: 0;
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      font-size: clamp(.64rem, .76vw, .78rem);
+      line-height: 1.58;
+      color: rgba(111, 75, 22, .62);
+    }
+
+
+    /* ===== TRANSITION / MUSIC ===== */
+    .transition-overlay {
+      position: fixed;
+      inset: 0;
+      background: #fff;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 99999;
+      transition: opacity .8s ease
+    }
+
+    .transition-overlay.show {
+      opacity: 1
+    }
+
+    .music-btn {
+      position: absolute;
+      bottom: 6%;
+      left: 4%;
+      width: clamp(2.5rem, 3.2vw, 3.2rem);
+      height: clamp(2.5rem, 3.2vw, 3.2rem);
+      border-radius: 50%;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: rgba(255, 255, 255, .62);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--line);
+      transition: .3s
+    }
+
+    .music-btn:hover {
+      transform: scale(1.08)
+    }
+
+    .music-inner {
+      width: clamp(.7rem, .9vw, .9rem);
+      height: clamp(.7rem, .9vw, .9rem);
+      border-radius: 50%;
+      background: var(--topaz);
+      box-shadow: 0 0 .6vw rgba(227, 161, 27, .6)
+    }
+
+    .music-label {
+      position: absolute;
+      left: 50%;
+      bottom: -1.55rem;
+      transform: translateX(-50%);
+      width: max-content;
+      min-width: 6.2rem;
+      font-family: 'Jost', sans-serif;
+      font-size: .8rem;
+      letter-spacing: .08em;
+      text-align: center;
+      white-space: nowrap;
+      color: rgba(111, 75, 22, .6)
+    }
+
+    .music-btn.playing .music-label {
+      color: var(--topaz)
+    }
+
+
+    .music-credit {
+      position: absolute;
+      left: 0;
+      bottom: calc(100% + .7rem);
+      width: max-content;
+      max-width: min(15rem, 72vw);
+      padding: .42rem .58rem;
+      border: 1px solid rgba(227, 161, 27, .22);
+      border-radius: .5rem;
+      background: rgba(255, 255, 255, .76);
+      box-shadow: 0 .35rem 1.1rem rgba(138, 82, 11, .1);
+      backdrop-filter: blur(10px);
+      color: rgba(111, 75, 22, .78);
+      font-family: 'Jost', sans-serif;
+      font-size: clamp(.58rem, .62vw, .7rem);
+      line-height: 1.35;
+      letter-spacing: .025em;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(.35rem);
+      transition: opacity .28s ease, transform .28s ease, visibility .28s;
+      pointer-events: none;
+    }
+
+    .music-credit-title {
+      display: block;
+      color: var(--deep);
+      font-weight: 600;
+    }
+
+    .music-credit-artist {
+      display: block;
+      margin-top: .08rem;
+      color: rgba(111, 75, 22, .62);
+    }
+
+    .music-btn.playing .music-credit {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1200px) {
+      .magazine {
+        left: 4%;
+        width: calc(96% - min(40vw, 34rem) - 4%)
+      }
+
+      .character {
+        display: none
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .hero-copy {
+        display: none
+      }
+
+      .mood-panel {
+        width: min(92vw, 34rem)
+      }
+
+      .magazine {
+        left: 4%;
+        width: 92%;
+        z-index: 44
+      }
+
+      .palette-grid {
+        grid-template-columns: repeat(4, minmax(7rem, 1fr));
+        overflow-x: auto;
+        padding-bottom: .35rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+.promo-card {
+        right: 50%;
+        transform: translateX(50%);
+        width: min(88vw, 24rem)
+      }
+
+      .loading-copy {
+        font-size: .9rem;
+        white-space: normal;
+        height: 2.8em
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="viewport">
+    <div class="game-container" id="gameContainer">
+
+      <!-- BACKGROUND POSTER -->
+      <img class="poster-image" src="./Topaz_view_image.jpg" alt="Topaz background"
+        fetchpriority="high">
+      <div class="poster-veil"></div>
+
+      <!-- FULLSCREEN GALLERY (전시장) -->
+      <div class="gallery" id="gallery">
+        <div class="gallery-slide"><img src="Topaz_view_image.jpg" alt="gallery 1"></div>
+        <div class="gallery-slide"><img src="Topaz_view_image2.jpg" alt="gallery 2"></div>
+        <div class="gallery-slide"><img src="Topaz_view_image3.jpg" alt="gallery 3"></div>
+      </div>
+      <div class="gallery-dots" id="galleryDots"></div>
+      <!-- TOP BAR: Topaz + 별자리 화면 토글 -->
+      <nav class="topbar" aria-label="Topaz 화면 전환">
+        <div class="brand title-uni">
+          <span class="brand-dot"></span>
+          Topaz
+        </div>
+<div class="mode-toggle" id="modeToggle" role="button" tabindex="0"
+          aria-label="별자리 화면으로 이동" title="별자리 화면으로 이동">
+          <div class="toggle-knob"></div>
+        </div>
+      </nav>
+
+      <!-- QUICK MENU -->
+      <details class="quick-menu">
+        <summary aria-label="페이지 메뉴 열기" title="페이지 메뉴" role="button">
+          <span class="menu-icon" aria-hidden="true">☰</span>
+        </summary>
+        <nav class="quick-menu-panel" aria-label="주요 페이지">
+          <a href="The_gem_I_am.html">메인 메뉴</a>
+          <a href="gem_collection.html">Gem Collection</a>
+        </nav>
+      </details>
+
+      <!-- BACK -->
+      <button type="button" class="top-back-btn" id="topBackBtn" aria-label="이전 화면으로 돌아가기"><span class="back-arrow">←</span></button>
+
+      <!-- HERO TYPO -->
+      <div class="hero-title">
+        <h1 class="title-uni">Topaz</h1>
+      </div>
+      <div class="hero-copy">
+        <div class="lead">11월의 탄생석, Topaz.<br>노랑과 주황, 황금빛 안에 따뜻한 자신감과 풍요로운 에너지를 담고 있습니다.</div>
+        <div class="sub">중앙의 보석을 클릭하면 보석에 어울리는<br>무드를 만나볼 수 있어요.</div>
+      </div>
+
+      <!-- CENTER SPLINE -->
+      <div class="center-spline" id="centerSpline" role="button" tabindex="0" aria-label="Topaz 무드 열기">
+        <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.98/build/spline-viewer.js"></script>
+        <spline-viewer id="splineScene" loading="eager" hint loading-anim-type="spinner-small-light"
+          url="https://prod.spline.design/WEoUrdmIBQmR4hYk/scene.splinecode"></spline-viewer>
+      </div>
+      <div class="gem-halo"></div>
+
+      <div class="click-hint" id="clickHint">꾹 눌러서 탐색 · 눌러서 열기</div>
+
+      <!-- PROMO CARD -->
+      <div class="promo-card">
+        <div class="promo-kicker">NOVEMBER BIRTHSTONE</div>
+        <div class="promo-title title-uni">보석을 클릭해<br>전시장을 열어보세요</div>
+        <div class="promo-text">전시된 모든 3D 화면은 직접 제작한 작업입니다. 각 장면마다 담고자 한 분위기와 디테일을 신경 썼으니, 관심 있게 봐주시면 감사하겠습니다.</div>
+        <button type="button" class="promo-btn" data-open="mood">무드 체험하기 →</button>
+      </div>
+
+      <!-- LOADING -->
+      <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-orb"><span class="orb-dot orb-dot-1"></span><span class="orb-dot orb-dot-2"></span><span
+            class="orb-dot orb-dot-3"></span></div>
+        <div class="loading-copy-box">
+          <div class="loading-kicker">AWAKENING</div>
+          <div class="loading-copy"><span>토파즈의 공간을 준비하고 있어요</span><span>따뜻한 자신감과 풍요, 그리고 황금빛 에너지</span><span>잠시 후 눈부신 보석이 나타납니다</span></div>
+        </div>
+      </div>
+
+      <!-- CHARACTER (좌측 5분할) -->
+      <div class="character single-preview">
+        <img class="character-img" id="characterImage" src="Topaz_character.gif" alt="topaz pixel character"
+          onerror="this.style.display='none'">
+
+        <div class="character-cap" id="characterCaption">TOPAZ MOOD LOOK</div>
+      </div>
+
+      <!-- MOOD PANEL (우측) -->
+      <aside class="mood-panel">
+        <button type="button" class="mood-panel-close" id="moodClose" aria-label="닫기">×</button>
+        <div class="mood-head-kicker">CURATED FOR TOPAZ</div>
+        <h3 class="mood-head-title title-uni">Topaz에<br>어울리는 무드</h3>
+        <p class="mood-head-desc">무드·코어·스타일링·주얼리를 따라 토파즈의 노랑과 주황, 황금빛이 만드는 따뜻하고 화사한 분위기를 살펴보세요.</p>
+
+        <div class="mood-block" data-mag="mood">
+          <div class="mood-block-head">
+            <span class="mood-block-label">MOOD · 분위기</span>
+            <span class="mood-block-view">VIEW →</span>
+          </div>
+          <div class="mood-block-title">눈부시고 따뜻한 골든 아우라</div>
+          <div class="mood-block-body">늦은 오후 햇살과 꿀빛 크리스털처럼 포근하고 찬란한 무드. 밝고 화사한 에너지가 주변을 환하게 만들며, 곁에 있으면 자신감과 생기가 차오르는 분위기를 풍깁니다.</div>
+          <div class="mood-tags">
+            <span class="mood-tag">Golden</span><span class="mood-tag">Warm</span><span class="mood-tag">Sunny
+              glow</span><span class="mood-tag">Radiant</span>
+          </div>
+        </div>
+
+        <div class="mood-block" data-mag="core">
+          <div class="mood-block-head">
+            <span class="mood-block-label">CORE · 코어</span>
+            <span class="mood-block-view">VIEW →</span>
+          </div>
+          <div class="mood-block-title">Warm Vintage · Sunny Glam</div>
+          <div class="mood-block-body">햇살이 스민 빈티지 톤과 부드러운 광택, 따뜻한 우드와 골드 포인트가 어우러지는 써니 글램 무드. 벨벳, 새틴, 유리 오브제가 만나 토파즈 특유의 화사하고 풍요로운 분위기를 완성해 줍니다.</div>
+          <div class="mood-tags">
+            <span class="mood-tag">Warm vintage</span><span class="mood-tag">Sunny glam</span><span
+              class="mood-tag">Honey glow</span><span class="mood-tag">Bright</span>
+          </div>
+        </div>
+
+        <div class="mood-block" data-mag="style">
+          <div class="mood-block-head">
+            <span class="mood-block-label">STYLING · 옷차림</span>
+            <span class="mood-block-view">VIEW →</span>
+          </div>
+          <div class="mood-block-title">버터 크림 &amp; 골든 오렌지</div>
+          <div class="mood-block-body">버터 크림이나 웜 아이보리를 베이스로 허니 옐로와 골든 오렌지를 레이어드해 보세요. 니트·새틴·트위드처럼 질감이 살아 있는 소재에 골드 주얼리를 더하면 토파즈 특유의 따뜻하고 화려한 분위기가 살아나요.</div>
+          <div class="swatch-row">
+            <div class="swatch" style="background:#FFF7E8"><span>Butter Cream</span></div>
+            <div class="swatch" style="background:#F7D978"><span>Honey Yellow</span></div>
+            <div class="swatch" style="background:#E3A11B"><span>Topaz Gold</span></div>
+            <div class="swatch" style="background:#8d4d14"><span>Golden Orange</span></div>
+          </div>
+        </div>
+
+        <div class="mood-block" data-mag="jewel">
+          <div class="mood-block-head">
+            <span class="mood-block-label">JEWELRY · 주얼리</span>
+            <span class="mood-block-view">VIEW →</span>
+          </div>
+          <div class="mood-block-title">Yellow Gold &amp; Topaz</div>
+          <div class="mood-block-body">옐로우 골드는 토파즈의 노랑과 주황, 황금빛을 가장 화사하게 살려줘요. 작은 토파즈 스터드, 얇은 체인 목걸이, 볼드하지 않은 골드 링을 더하면 따뜻하고 고급스러운 포인트가 완성됩니다.</div>
+          <div class="mood-tags">
+            <span class="mood-tag">Yellow Gold</span><span class="mood-tag">Topaz stud</span><span
+              class="mood-tag">Thin chain</span><span class="mood-tag">Classic ring</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAGAZINE GRID (중앙) -->
+      <section class="magazine">
+        <div class="magazine-head">
+          <div>
+            <div class="magazine-kicker" id="magKicker">MOOD · 분위기</div>
+            <h2 class="magazine-title title-uni" id="magTitle">Golden Topaz Aura</h2>
+          </div>
+          <button type="button" class="magazine-back" id="magBack">← 목록</button>
+        </div>
+        <div class="magazine-grid" id="magGrid"><!-- selected content injected --></div>
+      </section>
+
+      <!-- MUSIC -->
+      <div class="music-btn" id="musicBtn">
+        <div class="music-credit" aria-live="polite">
+          <span class="music-credit-title">Lonely fairy's lament</span>
+          <span class="music-credit-artist">Music by Alban_Gogh · Pixabay</span>
+        </div>
+        <div class="music-inner"></div>
+        <div class="music-label">music on</div>
+      </div>
+
+      <div class="transition-overlay" id="transitionOverlay"></div>
+      <audio id="bgm" loop>
+        <source src="탄생석음악.mp3" type="audio/mpeg">
+      </audio>
+      <audio id="clickSound" preload="auto" aria-hidden="true">
+        <source src="ting2.mp3" type="audio/mpeg">
+      </audio>
+    </div>
+  </div>
+
+  <script>
+    const container = document.getElementById('gameContainer');
+    const spline = document.getElementById('splineScene');
+    const centerSpline = document.getElementById('centerSpline');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const clickHint = document.getElementById('clickHint');
+    const overlay = document.getElementById('transitionOverlay');
+    const topBackBtn = document.getElementById('topBackBtn');
+    const moodClose = document.getElementById('moodClose');
+    const gallery = document.getElementById('gallery');
+    const galleryDots = document.getElementById('galleryDots');
+    const characterImage = document.getElementById('characterImage');
+    const characterCaption = document.getElementById('characterCaption');
+    const magGrid = document.getElementById('magGrid');
+    const magKicker = document.getElementById('magKicker');
+    const magTitle = document.getElementById('magTitle');
+    const magBack = document.getElementById('magBack');
+    const modeToggle = document.getElementById('modeToggle');
+    const musicBtn = document.getElementById('musicBtn');
+    const musicLabel = document.querySelector('.music-label');
+    const audio = document.getElementById('bgm');
+    const clickSound = document.getElementById('clickSound');
+    let revealed = false;
+
+    /* ---------- 빠른 로딩 reveal ---------- */
+    function revealSpline() {
+      if (revealed) return;
+      revealed = true;
+      container.classList.add('loaded');
+      centerSpline.classList.add('show');
+      loadingOverlay.classList.add('hide');
+      loadingOverlay.addEventListener('transitionend', () => {
+        loadingOverlay.remove();
+        clickHint.classList.add('ready');
+      }, { once: true });
+    }
+    function waitForCanvas() {
+      const tryFind = () => {
+        const shadow = spline.shadowRoot;
+        if (!shadow) return false;
+        const canvas = shadow.querySelector('canvas');
+        if (!canvas) return false;
+        let frames = 0;
+        (function wf() {
+          frames++;
+          if (frames < 3) { requestAnimationFrame(wf); return; }
+          setTimeout(revealSpline, 150);
+        })();
+        return true;
+      };
+      if (tryFind()) return;
+      const observer = new MutationObserver(() => { if (tryFind()) observer.disconnect(); });
+      observer.observe(spline, { childList: true, subtree: true });
+    }
+    spline.addEventListener('load', waitForCanvas);
+    setTimeout(revealSpline, 2500);
+
+    /* ---------- 전체화면 갤러리 ---------- */
+    const slides = Array.from(gallery.querySelectorAll('.gallery-slide'));
+    slides.forEach(() => {
+      const d = document.createElement('div');
+      d.className = 'gallery-dot';
+      galleryDots.appendChild(d);
+    });
+    const dots = Array.from(galleryDots.children);
+    const GALLERY_DELAY = 5000;
+    let galIndex = 0;
+    let galTimer = null;
+    let galNextAt = 0;
+    let galRemaining = GALLERY_DELAY;
+    let galleryPaused = false;
+    let pausedGalleryAnimations = [];
+
+    function showSlide(i) {
+      slides.forEach((slide, idx) => slide.classList.toggle('active', idx === i));
+      dots.forEach((dot, idx) => dot.classList.toggle('on', idx === i));
+    }
+
+    function scheduleGallery(delay = GALLERY_DELAY) {
+      clearTimeout(galTimer);
+      galRemaining = Math.max(120, delay);
+      galNextAt = performance.now() + galRemaining;
+      galTimer = setTimeout(() => {
+        galIndex = (galIndex + 1) % slides.length;
+        showSlide(galIndex);
+        scheduleGallery(GALLERY_DELAY);
+      }, galRemaining);
+    }
+
+    function startGallery() {
+      container.classList.add('gallery-on');
+      galIndex = 0;
+      showSlide(galIndex);
+      galleryPaused = false;
+      pausedGalleryAnimations = [];
+      scheduleGallery(GALLERY_DELAY);
+    }
+
+    /* 현재 슬라이드의 페이드·확대 움직임까지 그 자리에서 정지 */
+    function pauseGallery() {
+      if (galleryPaused || !container.classList.contains('gallery-on')) return;
+      galleryPaused = true;
+
+      if (galTimer) {
+        galRemaining = Math.max(120, galNextAt - performance.now());
+        clearTimeout(galTimer);
+        galTimer = null;
+      }
+
+      pausedGalleryAnimations = gallery
+        .getAnimations({ subtree: true })
+        .filter(animation => animation.playState === 'running');
+      pausedGalleryAnimations.forEach(animation => animation.pause());
+    }
+
+    /* 멈춘 지점에서 애니메이션과 슬라이드 타이머를 이어서 재생 */
+    function resumeGallery() {
+      if (!galleryPaused || !container.classList.contains('gallery-on')) return;
+      galleryPaused = false;
+      pausedGalleryAnimations.forEach(animation => {
+        try { animation.play(); } catch (error) { /* 이미 끝난 애니메이션은 무시 */ }
+      });
+      pausedGalleryAnimations = [];
+      if (!galTimer) scheduleGallery(galRemaining || GALLERY_DELAY);
+    }
+
+    function stopGallery() {
+      container.classList.remove('gallery-on');
+      clearTimeout(galTimer);
+      galTimer = null;
+      galleryPaused = false;
+      galRemaining = GALLERY_DELAY;
+      pausedGalleryAnimations.forEach(animation => {
+        try { animation.cancel(); } catch (error) { /* no-op */ }
+      });
+      pausedGalleryAnimations = [];
+      slides.forEach(slide => slide.classList.remove('active'));
+      dots.forEach(dot => dot.classList.remove('on'));
+      galIndex = 0;
+    }
+
+    /* ---------- 무드 열기/닫기 ---------- */
+    function openMood() {
+      container.classList.add('mood-open');
+      clickHint.classList.add('gone');
+      if (!container.classList.contains('gallery-on')) startGallery();
+    }
+    function closeMood() {
+      container.classList.remove('mood-open', 'magazine-open');
+      stopGallery();
+      clickHint.classList.remove('gone');
+      clickHint.classList.add('ready');
+      document.querySelectorAll('.mood-block.active').forEach(b => b.classList.remove('active'));
+    }
+    document.querySelectorAll('[data-open="mood"]').forEach(el => el.addEventListener('click', openMood));
+
+    /* Spline 인터랙션(회전 등)과 '무드 열기' 탭을 구분:
+       드래그하면(=Spline 조작) 무드 안 열림, 짧게 탭/클릭하면 무드 열림 */
+    let pdX = 0, pdY = 0, pdT = 0, pointerMoved = false;
+    const DRAG_TOL = 8;     /* px: 이 이상 움직이면 드래그로 간주 */
+    const TAP_TIME = 500;    /* ms: 이 이상 누르면 탭 아님 */
+    centerSpline.addEventListener('pointerdown', e => {
+      pdX = e.clientX; pdY = e.clientY; pdT = Date.now(); pointerMoved = false;
+    });
+    centerSpline.addEventListener('pointermove', e => {
+      if (Math.abs(e.clientX - pdX) > DRAG_TOL || Math.abs(e.clientY - pdY) > DRAG_TOL) {
+        pointerMoved = true;
+      }
+    });
+    centerSpline.addEventListener('pointerup', e => {
+      const quick = (Date.now() - pdT) < TAP_TIME;
+      if (!pointerMoved && quick && !container.classList.contains('mood-open')) {
+        openMood();
+      }
+    });
+    centerSpline.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openMood(); }
+    });
+    moodClose.addEventListener('click', closeMood);
+    window.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        if (container.classList.contains('magazine-open')) closeMagazine();
+        else closeMood();
+      }
+    });
+
+    /* ---------- 매거진 ---------- */
+    const magData = {
+      mood: {
+        type: 'mixed',
+        kicker: 'MOOD · 분위기',
+        title: 'Golden Topaz Aura',
+        images: [
+          '토파즈무드1.jpg',
+          '토파즈무드2.jpg',
+          '토파즈무드3.jpg',
+          '토파즈무드4.jpg'
+        ],
+        caps: ['MOOD 01', 'MOOD 02', 'MOOD 03', 'MOOD 04'],
+        info: {
+          title: '햇살 머금은 골든 아우라',
+          copy: '햇살을 머금은 유리와 꿀빛 크리스털처럼 맑고 따뜻한 광택을 중심으로 한 무드입니다. 노랑과 주황, 황금빛의 결이 만나 토파즈 특유의 화사하고 풍요로운 에너지를 보여 줘요.'
+        }
+      },
+      core: {
+        type: 'core',
+        kicker: 'CORE · 코어',
+        title: 'Sunny Vintage Glow',
+        cards: [
+          {
+            title: 'Golden Glass Texture',
+            copy: '따뜻한 유리 오브제와 우드, 부드러운 광택을 중심으로 화사한 분위기를 만들고, 새틴·트위드·니트처럼 밀도 있는 소재로 포근한 온도를 더합니다.'
+          },
+          {
+            title: 'Warm Golden Balance',
+            copy: '따뜻하고 화려한 무드는 유지하되 과한 장식은 덜고, 노랑과 오렌지의 균형을 정리해 밝고 세련된 분위기로 완성해요.'
+          }
+        ]
+      },
+      style: {
+        type: 'palette',
+        kicker: 'STYLING · 컬러 팔레트',
+        title: 'Butter Cream & Gold',
+        colors: [
+          {
+            name: 'BUTTER CREAM',
+            hex: '#FFF7E8',
+            color: '#fff7e8',
+            desc: '부드럽고 포근한 기본 베이스 컬러. 상의와 이너에 사용하면 토파즈의 황금빛을 따뜻하고 화사하게 받쳐 줍니다.'
+          },
+          {
+            name: 'HONEY YELLOW',
+            hex: '#F7D978',
+            color: '#f7d978',
+            desc: '달콤한 꿀빛이 도는 밝은 옐로 컬러. 블레이저나 니트, 가벼운 아우터에 넣으면 환하고 생기 있는 분위기가 생겨요.'
+          },
+          {
+            name: 'TOPAZ GOLD',
+            hex: '#E3A11B',
+            color: '#e3a11b',
+            desc: '토파즈의 중심이 되는 메인 컬러. 가방이나 주얼리처럼 시선이 모이는 아이템에 사용하면 고급스러운 아우라의 눈부신 포인트가 됩니다.'
+          },
+          {
+            name: 'GOLDEN ORANGE',
+            hex: '#8D4D14',
+            color: '#8d4d14',
+            desc: '황금빛 팔레트에 온기와 깊이를 더하는 짙은 오렌지 브라운. 하의나 슈즈에 사용하면 전체 룩이 더 풍성하고 세련되게 마무리돼요.'
+          }
+        ]
+      },
+      jewel: {
+        type: 'core',
+        kicker: 'JEWELRY · 주얼리',
+        title: 'Gold & Topaz',
+        cards: [
+          {
+            title: 'Yellow Gold & Radiant Details',
+            copy: '따뜻한 옐로우 골드와 얇은 체인, 작은 토파즈 스터드처럼 섬세한 주얼리 한두 개를 골라 주세요. 여백을 충분히 남길수록 노랑빛과 황금빛 보석이 탁해지지 않고 얼굴 가까이에서 더욱 화사하고 선명하게 빛납니다.'
+          }
+        ]
+      }
+    };
+
+    const imageCellClass = ['m1', 'm2', 'm3', 'm6'];
+
+    function renderMixedMagazine(data) {
+      const imageCells = data.caps.map((cap, i) => {
+        const imageSrc = data.images[i];
+
+        return `
+        <div class="mag-cell ${imageCellClass[i]}">
+          <div class="mag-ph">IMAGE ${String(i + 1).padStart(2, '0')}</div>
+          <img src="./${imageSrc}" alt="${cap}" onerror="this.style.display='none'">
+          <div class="mag-cap">${cap}</div>
+        </div>`;
+      }).join('');
+
+      const infoCell = `
+        <article class="mag-cell mag-info mag-info-wide">
+          <div class="mag-info-no">CURATION NOTE</div>
+          <div>
+            <h3 class="mag-info-title title-uni">${data.info.title}</h3>
+            <p class="mag-info-copy">${data.info.copy}</p>
+          </div>
+        </article>`;
+
+      return imageCells + infoCell;
+    }
+
+    function renderCoreMagazine(data) {
+      const sectionLabel = data.kicker.split(' · ')[0];
+      return data.cards.map((card, i) => `
+        <article class="mag-cell core-card c${i + 1}" data-no="0${i + 1}">
+          <div class="core-head">
+            <span class="core-index">${sectionLabel} · 0${i + 1}</span>
+            <h3 class="core-title title-uni">${card.title}</h3>
+          </div>
+          <p class="core-copy">${card.copy}</p>
+        </article>`).join('');
+    }
+
+    function renderPaletteMagazine(data) {
+      return data.colors.map(color => `
+        <article class="palette-card">
+          <div class="palette-color" style="background:${color.color}"></div>
+          <div class="palette-copy">
+            <h3 class="palette-name">${color.name}</h3>
+            <div class="palette-hex">${color.hex || color.color.toUpperCase()}</div>
+            <p class="palette-desc">${color.desc}</p>
+          </div>
+        </article>`).join('');
+    }
+
+
+    const characterLooks = {
+      mood:   { src: 'Topaz_character.gif', caption: 'TOPAZ MOOD LOOK' },
+      core:   { src: 'Topaz_character2.gif', caption: 'TOPAZ CORE LOOK' },
+      style:  { src: 'Topaz_character3.gif', caption: 'TOPAZ STYLING LOOK' },
+      jewel:  { src: 'Topaz_character4.gif', caption: 'TOPAZ JEWELRY LOOK' }
+    };
+
+    let currentCharacterKey = 'mood';
+    Object.values(characterLooks).forEach(look => {
+      const preload = new Image();
+      preload.src = look.src;
+    });
+
+    function changeCharacterGif(key) {
+      const look = characterLooks[key];
+      if (!look || key === currentCharacterKey) return;
+
+      const loader = new Image();
+      loader.onload = () => {
+        characterImage.classList.add('is-changing');
+        window.setTimeout(() => {
+          characterImage.src = look.src;
+          characterImage.alt = `${key} topaz pixel character`;
+          characterCaption.textContent = look.caption;
+          currentCharacterKey = key;
+          requestAnimationFrame(() => characterImage.classList.remove('is-changing'));
+        }, 180);
+      };
+      loader.onerror = () => {
+        console.warn(`캐릭터 GIF를 찾을 수 없습니다: ${look.src}`);
+      };
+      loader.src = look.src;
+    }
+
+    function openMagazine(key, blockEl) {
+      const data = magData[key];
+      if (!data) return;
+
+      magKicker.textContent = data.kicker;
+      magTitle.textContent = data.title;
+      magGrid.className = 'magazine-grid';
+
+      if (data.type === 'mixed') {
+        magGrid.innerHTML = renderMixedMagazine(data);
+      } else if (data.type === 'core') {
+        magGrid.classList.add('core-grid', `core-count-${data.cards.length}`);
+        magGrid.innerHTML = renderCoreMagazine(data);
+      } else if (data.type === 'palette') {
+        magGrid.classList.add('palette-grid');
+        magGrid.innerHTML = renderPaletteMagazine(data);
+      }
+
+      changeCharacterGif(key);
+      pauseGallery();
+      container.classList.add('magazine-open');
+      document.querySelectorAll('.mood-block.active').forEach(block => block.classList.remove('active'));
+      if (blockEl) blockEl.classList.add('active');
+    }
+    function closeMagazine() {
+      container.classList.remove('magazine-open');
+      document.querySelectorAll('.mood-block.active').forEach(block => block.classList.remove('active'));
+      resumeGallery();
+    }
+    document.querySelectorAll('.mood-block').forEach(block => {
+      block.addEventListener('click', () => openMagazine(block.dataset.mag, block));
+    });
+    magBack.addEventListener('click', closeMagazine);
+
+    /* ---------- BACK / MODE / MUSIC ---------- */
+    const mainMenuLink = document.querySelector('.quick-menu-panel a[href="The_gem_I_am.html"]');
+    mainMenuLink.addEventListener('click', event => {
+      event.preventDefault();
+      overlay.classList.add('show');
+      setTimeout(() => { window.location.href = 'The_gem_I_am.html'; }, 800);
+    });
+
+    topBackBtn.addEventListener('click', () => {
+      overlay.classList.add('show');
+      setTimeout(() => { window.location.href = 'Topaz_view_light.html'; }, 550);
+    });
+    function openStarView() {
+      modeToggle.classList.add('active');
+      overlay.classList.add('show');
+      setTimeout(() => { window.location.href = 'Topaz_star_spline_view.html'; }, 800);
+    }
+
+    modeToggle.addEventListener('click', openStarView);
+    modeToggle.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        openStarView();
+      }
+    });
+    musicBtn.addEventListener('click', async () => {
+      audio.volume = .45;
+      try {
+        if (audio.paused) {
+          await audio.play();
+          musicBtn.classList.add('playing');
+          musicLabel.textContent = 'music off';
+        } else {
+          audio.pause();
+          musicBtn.classList.remove('playing');
+          musicLabel.textContent = 'music on';
+        }
+      } catch (err) { console.error(err); }
+    });
+
+    /* ---------- 클릭 효과음 ---------- */
+    const clickSoundPool = [
+      clickSound,
+      ...Array.from({ length: 3 }, () => clickSound.cloneNode(true))
+    ];
+    let clickSoundIndex = 0;
+
+    clickSoundPool.forEach(sound => {
+      sound.volume = .9;
+      sound.preload = 'auto';
+    });
+
+    function playClickSound() {
+      const sound = clickSoundPool[clickSoundIndex];
+      clickSoundIndex = (clickSoundIndex + 1) % clickSoundPool.length;
+      sound.currentTime = 0;
+      const playPromise = sound.play();
+      if (playPromise) playPromise.catch(() => { /* 브라우저 재생 제한 시 조용히 무시 */ });
+    }
+
+    const clickSoundTargets = 'button, a[href], [role="button"], .mood-block, .music-btn';
+
+    document.addEventListener('click', event => {
+      if (!(event.target instanceof Element)) return;
+
+      const target = event.target.closest(clickSoundTargets);
+      if (!target || !container.contains(target)) return;
+      if (target.matches(':disabled') || target.getAttribute('aria-disabled') === 'true') return;
+
+      /* 보석을 회전하려고 드래그한 경우에는 클릭음이 나지 않도록 제외 */
+      if (target === centerSpline) {
+        const wasQuickTap = (Date.now() - pdT) < TAP_TIME;
+        if (pointerMoved || !wasQuickTap) return;
+      }
+
+      playClickSound();
+    });
+  </script>
+</body>
+
+</html>
