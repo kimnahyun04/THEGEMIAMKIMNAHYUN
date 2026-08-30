@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f2c7d8" id="themeColor">
+  <meta name="description" content="THE GEM I AM과 THE STAR I AM으로 들어가는 시작 화면">
+  <title>THE GEM I AM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&family=Noto+Sans+KR:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      --ease-scene: cubic-bezier(.22, .72, .18, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
+
+    body {
+      background: #f2c7d8;
+      font-family: "Jost", sans-serif;
+    }
+
+    button,
+    a {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .entry {
+      --title-color: #6f1d4c;
+      --title-shadow: rgba(99, 20, 65, .12);
+      --hover-a: #fff8fc;
+      --hover-b: #9f2a6f;
+      --hover-c: #7a4fd0;
+      --ring-color: rgba(103, 27, 73, .34);
+      --ring-active: #7d245a;
+      --transition-color: #ef93b9;
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 100%;
+      height: 100%;
+      min-height: 100svh;
+      isolation: isolate;
+      overflow: hidden;
+      touch-action: none;
+      transition: color .8s var(--ease-scene);
+    }
+
+    .entry[data-mode="star"] {
+      --title-color: #f3f7ff;
+      --title-shadow: rgba(0, 7, 27, .34);
+      --hover-a: #ffffff;
+      --hover-b: #79d7ff;
+      --hover-c: #c3a7ff;
+      --ring-color: rgba(211, 230, 255, .38);
+      --ring-active: #dcecff;
+      --transition-color: #071a42;
+    }
+
+    .theme {
+      position: absolute;
+      inset: -8%;
+      z-index: -4;
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(1.035);
+      transition: opacity 1s var(--ease-scene), transform 1.35s var(--ease-scene);
+    }
+
+    .theme-gem {
+      background:
+        radial-gradient(circle at 18% 16%, rgba(255, 255, 255, .86) 0 5%, rgba(255, 255, 255, .27) 19%, transparent 40%),
+        radial-gradient(circle at 79% 28%, rgba(255, 238, 247, .72) 0 7%, rgba(255, 224, 239, .26) 25%, transparent 45%),
+        radial-gradient(circle at 67% 84%, rgba(211, 196, 239, .58), transparent 38%),
+        linear-gradient(142deg, #fff0f5 0%, #f3c6d8 42%, #e9b9cf 67%, #d5c6ec 100%);
+    }
+
+    .theme-star {
+      background:
+        radial-gradient(circle at 24% 18%, rgba(72, 116, 177, .34), transparent 32%),
+        radial-gradient(circle at 78% 78%, rgba(94, 72, 148, .29), transparent 38%),
+        radial-gradient(circle at 72% 24%, rgba(69, 137, 168, .12), transparent 27%),
+        linear-gradient(145deg, #071020 0%, #0b1b36 42%, #102746 70%, #0b172e 100%);
+    }
+
+    .entry[data-mode="gem"] .theme-gem,
+    .entry[data-mode="star"] .theme-star {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .glow {
+      position: absolute;
+      inset: 0;
+      z-index: -3;
+      pointer-events: none;
+      opacity: .9;
+      background:
+        linear-gradient(115deg, transparent 25%, rgba(255, 255, 255, .20) 45%, transparent 61%),
+        radial-gradient(ellipse at center, rgba(255, 255, 255, .12), transparent 54%);
+      mix-blend-mode: screen;
+      animation: glow-drift 11s ease-in-out infinite alternate;
+    }
+
+    .dust {
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      opacity: .31;
+      background-image:
+        radial-gradient(circle at 12% 28%, rgba(255,255,255,.82) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 27% 74%, rgba(255,255,255,.68) 0 1px, transparent 1.4px),
+        radial-gradient(circle at 46% 18%, rgba(255,255,255,.72) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 72% 62%, rgba(255,255,255,.77) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 87% 32%, rgba(255,255,255,.72) 0 1px, transparent 1.4px),
+        radial-gradient(circle at 91% 84%, rgba(255,255,255,.66) 0 1px, transparent 1.4px);
+      background-size: 310px 310px, 270px 270px, 360px 360px, 290px 290px, 330px 330px, 250px 250px;
+      transition: opacity .8s var(--ease-scene);
+    }
+
+    .entry[data-mode="star"] .dust {
+      opacity: .22;
+    }
+
+    .star-particles {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1s var(--ease-scene);
+    }
+
+    .entry[data-mode="star"] .star-particles {
+      opacity: 1;
+    }
+
+    .star-particle {
+      position: absolute;
+      top: var(--y);
+      left: var(--x);
+      width: var(--size);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: rgba(246, 250, 255, .98);
+      box-shadow:
+        0 0 4px rgba(215, 233, 255, .9),
+        0 0 11px rgba(119, 180, 255, .58);
+      opacity: 0;
+      animation: star-twinkle var(--duration) ease-in-out var(--delay) infinite;
+      will-change: opacity, transform;
+    }
+
+    .star-particle:nth-child(7n) {
+      width: calc(var(--size) * 1.8);
+      border-radius: 0;
+      clip-path: polygon(50% 0, 58% 41%, 100% 50%, 58% 59%, 50% 100%, 42% 59%, 0 50%, 42% 41%);
+    }
+
+    .world-entry {
+      position: relative;
+      z-index: 3;
+      display: grid;
+      place-items: center;
+      width: min(94vw, 1500px);
+      min-height: 44vh;
+      padding: clamp(2rem, 6vw, 6rem) 1rem;
+      color: var(--title-color);
+      text-decoration: none;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .title {
+      position: relative;
+      margin: 0;
+      color: var(--title-color);
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: clamp(3.25rem, 10.2vw, 10.8rem);
+      font-weight: 500;
+      line-height: .92;
+      letter-spacing: clamp(.08em, .14vw, .14em);
+      text-align: center;
+      white-space: nowrap;
+      text-shadow: 0 .06em .35em var(--title-shadow);
+      transition:
+        color .65s var(--ease-scene),
+        letter-spacing .65s var(--ease-scene),
+        transform .65s var(--ease-scene),
+        filter .65s var(--ease-scene),
+        text-shadow .65s var(--ease-scene);
+    }
+
+    .title::after {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0;
+      color: transparent;
+      background: linear-gradient(100deg, var(--hover-a) 5%, var(--hover-b) 46%, var(--hover-c) 94%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      opacity: 0;
+      filter: blur(4px);
+      transform: translateY(.04em);
+      transition: opacity .6s ease, filter .7s ease, transform .7s var(--ease-scene);
+      pointer-events: none;
+    }
+
+    .world-entry:hover .title,
+    .world-entry:focus-visible .title {
+      letter-spacing: clamp(.105em, .22vw, .19em);
+      transform: translateY(-.035em) scale(1.012);
+      filter: drop-shadow(0 .09em .24em var(--title-shadow));
+    }
+
+    .world-entry:hover .title::after,
+    .world-entry:focus-visible .title::after {
+      opacity: 1;
+      filter: blur(0);
+      transform: translateY(0);
+    }
+
+    .world-entry:focus-visible {
+      border-radius: 2rem;
+      box-shadow: 0 0 0 1px var(--ring-color);
+    }
+
+    .scene-nav {
+      position: absolute;
+      z-index: 5;
+      top: 50%;
+      right: max(1.4rem, env(safe-area-inset-right));
+      display: grid;
+      gap: .7rem;
+      transform: translateY(-50%);
+    }
+
+    .scene-dot {
+      width: 7px;
+      height: 7px;
+      padding: 0;
+      border: 1px solid var(--ring-color);
+      border-radius: 50%;
+      background: transparent;
+      cursor: pointer;
+      transition: transform .45s var(--ease-scene), background .45s ease, border-color .45s ease;
+    }
+
+    .entry[data-mode="gem"] .scene-dot[data-target="gem"],
+    .entry[data-mode="star"] .scene-dot[data-target="star"] {
+      background: var(--ring-active);
+      border-color: var(--ring-active);
+      transform: scale(1.55);
+    }
+
+    .scroll-hint {
+      position: absolute;
+      z-index: 5;
+      left: 50%;
+      bottom: max(1.35rem, env(safe-area-inset-bottom));
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      color: var(--title-color);
+      font-family: "Noto Sans KR", "Jost", sans-serif;
+      font-size: .52rem;
+      font-weight: 300;
+      letter-spacing: .12em;
+      white-space: nowrap;
+      opacity: .54;
+      transform: translateX(-50%);
+      transition: color .7s ease, opacity .4s ease;
+      pointer-events: none;
+    }
+
+    .scroll-hint::after {
+      content: "";
+      width: 11px;
+      height: 11px;
+      border-right: 1px solid currentColor;
+      border-bottom: 1px solid currentColor;
+      transform: rotate(45deg) translateY(-2px);
+      animation: hint-down 1.9s ease-in-out infinite;
+    }
+
+    .entry[data-mode="star"] .scroll-hint::after {
+      transform: rotate(225deg) translateY(-2px);
+      animation-name: hint-up;
+    }
+
+    .transition {
+      position: fixed;
+      z-index: 20;
+      inset: 0;
+      background: var(--transition-color, #ef93b9);
+      opacity: 0;
+      transform: scaleY(0);
+      transform-origin: bottom;
+      pointer-events: none;
+      transition: transform .7s var(--ease-scene), opacity .25s ease;
+    }
+
+    .entry[data-mode="gem"] + .transition {
+      background: #dca4ba;
+    }
+
+    .entry[data-mode="star"] + .transition {
+      background: #0b172e;
+    }
+
+    .entry.is-leaving + .transition {
+      opacity: 1;
+      transform: scaleY(1);
+    }
+
+    .entry.is-leaving .world-entry,
+    .entry.is-leaving .scene-nav,
+    .entry.is-leaving .scroll-hint {
+      opacity: 0;
+      transform: translateY(-16px);
+      transition: opacity .25s ease, transform .45s var(--ease-scene);
+    }
+
+    @keyframes glow-drift {
+      from { transform: translate3d(-1.5%, -.7%, 0) scale(1.03); }
+      to { transform: translate3d(1.5%, .7%, 0) scale(1.08); }
+    }
+
+    @keyframes star-twinkle {
+      0%, 18%, 100% {
+        opacity: 0;
+        transform: scale(.2) rotate(0deg);
+      }
+      38% {
+        opacity: var(--peak);
+        transform: scale(1) rotate(16deg);
+      }
+      55% {
+        opacity: .18;
+        transform: scale(.68) rotate(28deg);
+      }
+      72% {
+        opacity: 0;
+        transform: scale(.15) rotate(40deg);
+      }
+    }
+
+    @keyframes hint-down {
+      0%, 100% { translate: 0 -2px; opacity: .45; }
+      50% { translate: 0 4px; opacity: 1; }
+    }
+
+    @keyframes hint-up {
+      0%, 100% { translate: 0 2px; opacity: .45; }
+      50% { translate: 0 -4px; opacity: 1; }
+    }
+
+    @media (max-width: 700px) and (orientation: portrait) {
+      .entry {
+        height: 100dvh;
+        min-height: 100dvh;
+      }
+
+      .theme {
+        inset: -5%;
+      }
+
+      .theme-gem {
+        background:
+          radial-gradient(circle at 48% 9%, rgba(255, 255, 255, .86) 0 5%, rgba(255, 255, 255, .27) 20%, transparent 42%),
+          radial-gradient(circle at 84% 43%, rgba(255, 238, 247, .72) 0 7%, rgba(255, 224, 239, .25) 25%, transparent 47%),
+          radial-gradient(circle at 35% 91%, rgba(211, 196, 239, .58), transparent 39%),
+          linear-gradient(168deg, #fff0f5 0%, #f3c6d8 42%, #e9b9cf 67%, #d5c6ec 100%);
+      }
+
+      .theme-star {
+        background:
+          radial-gradient(circle at 42% 12%, rgba(72, 116, 177, .34), transparent 34%),
+          radial-gradient(circle at 72% 84%, rgba(94, 72, 148, .29), transparent 39%),
+          radial-gradient(circle at 88% 43%, rgba(69, 137, 168, .12), transparent 28%),
+          linear-gradient(168deg, #071020 0%, #0b1b36 42%, #102746 70%, #0b172e 100%);
+      }
+
+      .world-entry {
+        width: 100%;
+        min-height: 52dvh;
+        padding: 2rem .55rem;
+      }
+
+      .title {
+        font-size: clamp(2.25rem, 12vw, 4.8rem);
+        letter-spacing: .02em;
+      }
+
+      .world-entry:hover .title,
+      .world-entry:focus-visible .title {
+        letter-spacing: .04em;
+      }
+
+      .scene-nav {
+        right: max(1rem, env(safe-area-inset-right));
+      }
+
+      .scroll-hint {
+        font-size: .46rem;
+        letter-spacing: .1em;
+        bottom: max(1.1rem, env(safe-area-inset-bottom));
+      }
+    }
+
+    @media (max-width: 1180px) and (max-height: 540px) and (orientation: landscape) {
+      .entry {
+        height: 100dvh;
+        min-height: 100dvh;
+      }
+
+      .theme {
+        inset: -6%;
+      }
+
+      .theme-gem {
+        background:
+          radial-gradient(circle at 12% 42%, rgba(255, 255, 255, .82) 0 5%, rgba(255, 255, 255, .25) 20%, transparent 42%),
+          radial-gradient(circle at 76% 18%, rgba(255, 238, 247, .68) 0 7%, rgba(255, 224, 239, .23) 25%, transparent 45%),
+          radial-gradient(circle at 82% 88%, rgba(211, 196, 239, .55), transparent 37%),
+          linear-gradient(112deg, #fff0f5 0%, #f3c6d8 42%, #e9b9cf 67%, #d5c6ec 100%);
+      }
+
+      .theme-star {
+        background:
+          radial-gradient(circle at 18% 28%, rgba(72, 116, 177, .33), transparent 32%),
+          radial-gradient(circle at 80% 78%, rgba(94, 72, 148, .28), transparent 37%),
+          radial-gradient(circle at 73% 18%, rgba(69, 137, 168, .11), transparent 26%),
+          linear-gradient(112deg, #071020 0%, #0b1b36 42%, #102746 70%, #0b172e 100%);
+      }
+
+      .world-entry {
+        width: 100%;
+        min-height: 68dvh;
+        padding-top: .7rem;
+        padding-right: max(2rem, env(safe-area-inset-right));
+        padding-bottom: .7rem;
+        padding-left: max(2rem, env(safe-area-inset-left));
+      }
+
+      .title {
+        font-size: clamp(2.4rem, 8.2vw, 5.4rem);
+        letter-spacing: .035em;
+      }
+
+      .world-entry:hover .title,
+      .world-entry:focus-visible .title {
+        letter-spacing: .055em;
+      }
+
+      .scene-nav {
+        right: max(.9rem, env(safe-area-inset-right));
+        gap: .55rem;
+      }
+
+      .scroll-hint {
+        bottom: max(.58rem, env(safe-area-inset-bottom));
+        font-size: .43rem;
+        letter-spacing: .09em;
+      }
+
+      .scroll-hint::after {
+        width: 9px;
+        height: 9px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="entry" id="entry" data-mode="gem">
+    <div class="theme theme-gem" aria-hidden="true"></div>
+    <div class="theme theme-star" aria-hidden="true"></div>
+    <div class="glow" aria-hidden="true"></div>
+    <div class="dust" aria-hidden="true"></div>
+    <div class="star-particles" id="starParticles" aria-hidden="true"></div>
+
+    <a class="world-entry" id="worldEntry" href="The_gem_I_am.html" aria-label="THE GEM I AM 메인 화면으로 이동">
+      <h1 class="title" id="title" data-text="THE GEM I AM">THE GEM I AM</h1>
+    </a>
+
+    <nav class="scene-nav" aria-label="시작 화면 선택">
+      <button class="scene-dot" type="button" data-target="gem" aria-label="THE GEM I AM 보기"></button>
+      <button class="scene-dot" type="button" data-target="star" aria-label="THE STAR I AM 보기"></button>
+    </nav>
+
+    <div class="scroll-hint" id="scrollHint" aria-hidden="true">스크롤하여 STAR 이동</div>
+  </main>
+  <div class="transition" id="transition" aria-hidden="true"></div>
+
+  <audio id="gemSceneAudio" src="메인 화면 소리.mp3" preload="auto" playsinline></audio>
+  <audio id="starSceneAudio" src="우주 음악.mp3" preload="auto" playsinline></audio>
+  <audio id="switchAudio" src="index효과음.mp3" preload="auto" playsinline></audio>
+
+  <script>
+    (() => {
+      const entry = document.querySelector('#entry');
+      const worldEntry = document.querySelector('#worldEntry');
+      const title = document.querySelector('#title');
+      const themeColor = document.querySelector('#themeColor');
+      const scrollHint = document.querySelector('#scrollHint');
+      const starParticles = document.querySelector('#starParticles');
+      const sceneDots = document.querySelectorAll('.scene-dot');
+      const gemSceneAudio = document.querySelector('#gemSceneAudio');
+      const starSceneAudio = document.querySelector('#starSceneAudio');
+      const switchAudio = document.querySelector('#switchAudio');
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      let currentMode = 'gem';
+      let isSwitching = false;
+      let isNavigating = false;
+      let pointerStart = null;
+      let suppressClickUntil = 0;
+      let activeSceneAudio = null;
+      let sceneAudioToken = 0;
+      let audioUnlocked = false;
+
+      const AUDIO_UNLOCK_HINT = '화면을 클릭하여 사운드 활성화';
+
+      const sceneData = {
+        gem: {
+          title: 'THE GEM I AM',
+          home: 'The_gem_I_am.html',
+          themeColor: '#f2c7d8',
+          hint: '스크롤하여 STAR 이동',
+          audio: gemSceneAudio,
+          volume: 1
+        },
+        star: {
+          title: 'THE STAR I AM',
+          home: 'The_star_I_am.html',
+          themeColor: '#0b172e',
+          hint: '스크롤하여 GEM 이동',
+          audio: starSceneAudio,
+          volume: 1
+        }
+      };
+
+      for (let index = 0; index < 34; index += 1) {
+        const particle = document.createElement('span');
+        const x = 3 + ((index * 37 + 11) % 94);
+        const y = 4 + ((index * 53 + 17) % 90);
+        const size = 1.1 + ((index * 7) % 4) * .55;
+        const duration = 3.2 + ((index * 11) % 18) * .16;
+        const delay = -((index * 13) % 31) * .21;
+        const peak = .46 + ((index * 5) % 6) * .09;
+
+        particle.className = 'star-particle';
+        particle.style.setProperty('--x', `${x}%`);
+        particle.style.setProperty('--y', `${y}%`);
+        particle.style.setProperty('--size', `${size}px`);
+        particle.style.setProperty('--duration', `${duration}s`);
+        particle.style.setProperty('--delay', `${delay}s`);
+        particle.style.setProperty('--peak', peak.toFixed(2));
+        starParticles.appendChild(particle);
+      }
+
+      function getHome(mode = currentMode) {
+        return sceneData[mode].home;
+      }
+
+      function stopSceneMusic() {
+        sceneAudioToken += 1;
+
+        if (!activeSceneAudio) return;
+        activeSceneAudio.pause();
+        activeSceneAudio.currentTime = 0;
+        activeSceneAudio = null;
+      }
+
+      function playSceneMusic(mode) {
+        const data = sceneData[mode];
+        if (!data || !data.audio) return;
+
+        stopSceneMusic();
+        const audio = data.audio;
+        const token = sceneAudioToken;
+        const startVolume = data.volume;
+
+        activeSceneAudio = audio;
+        audio.pause();
+        audio.currentTime = 0;
+        audio.volume = startVolume;
+
+        const playPromise = audio.play();
+        if (!playPromise) return;
+
+        playPromise.then(() => {
+          if (token !== sceneAudioToken || audio !== activeSceneAudio) return;
+          audioUnlocked = true;
+          scrollHint.textContent = sceneData[currentMode].hint;
+        }).catch(() => {
+          if (token !== sceneAudioToken || audio !== activeSceneAudio) return;
+          activeSceneAudio = null;
+          scrollHint.textContent = AUDIO_UNLOCK_HINT;
+        });
+      }
+
+      function playSwitchSound() {
+        switchAudio.pause();
+        switchAudio.currentTime = 0;
+        switchAudio.volume = 1;
+        switchAudio.play().catch(() => {});
+      }
+
+      function applyMode(mode) {
+        currentMode = mode;
+        const data = sceneData[mode];
+
+        entry.dataset.mode = mode;
+        title.textContent = data.title;
+        title.dataset.text = data.title;
+        worldEntry.href = getHome(mode);
+        worldEntry.setAttribute('aria-label', `${data.title} 메인 화면으로 이동`);
+        themeColor.setAttribute('content', data.themeColor);
+        scrollHint.textContent = audioUnlocked ? data.hint : AUDIO_UNLOCK_HINT;
+        document.title = data.title;
+
+        sceneDots.forEach((dot) => {
+          dot.setAttribute('aria-current', dot.dataset.target === mode ? 'true' : 'false');
+        });
+      }
+
+      async function switchMode(mode, direction = 1) {
+        if (!sceneData[mode] || mode === currentMode || isSwitching || isNavigating) return;
+        isSwitching = true;
+        playSwitchSound();
+        playSceneMusic(mode);
+
+        if (reducedMotion.matches || !title.animate) {
+          applyMode(mode);
+          isSwitching = false;
+          return;
+        }
+
+        try {
+          const exitAnimation = title.animate([
+            { opacity: 1, filter: 'blur(0)', transform: 'translateY(0)' },
+            { opacity: 0, filter: 'blur(5px)', transform: `translateY(${direction > 0 ? -22 : 22}px)` }
+          ], {
+            duration: 230,
+            easing: 'cubic-bezier(.55, 0, .8, .4)',
+            fill: 'forwards'
+          });
+          await exitAnimation.finished;
+          exitAnimation.cancel();
+
+          applyMode(mode);
+
+          const enterAnimation = title.animate([
+            { opacity: 0, filter: 'blur(5px)', transform: `translateY(${direction > 0 ? 24 : -24}px)` },
+            { opacity: 1, filter: 'blur(0)', transform: 'translateY(0)' }
+          ], {
+            duration: 480,
+            easing: 'cubic-bezier(.2, .78, .18, 1)',
+            fill: 'forwards'
+          });
+          await enterAnimation.finished;
+          enterAnimation.cancel();
+        } catch (error) {
+          applyMode(mode);
+        } finally {
+          isSwitching = false;
+        }
+      }
+
+      function navigateToCurrentHome() {
+        if (isNavigating || isSwitching) return;
+        isNavigating = true;
+        worldEntry.href = getHome();
+        entry.classList.add('is-leaving');
+
+        window.setTimeout(() => {
+          window.location.href = getHome();
+        }, reducedMotion.matches ? 0 : 610);
+      }
+
+      worldEntry.addEventListener('click', (event) => {
+        if (performance.now() < suppressClickUntil) {
+          event.preventDefault();
+          return;
+        }
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        navigateToCurrentHome();
+      });
+
+      entry.addEventListener('click', (event) => {
+        if (audioUnlocked) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        suppressClickUntil = performance.now() + 650;
+        playSceneMusic(currentMode);
+      }, { capture: true });
+
+      entry.addEventListener('wheel', (event) => {
+        if (Math.abs(event.deltaY) < 8) return;
+        event.preventDefault();
+        if (event.deltaY > 0) switchMode('star', 1);
+        else switchMode('gem', -1);
+      }, { passive: false });
+
+      entry.addEventListener('pointerdown', (event) => {
+        if (event.pointerType === 'mouse') return;
+        pointerStart = {
+          id: event.pointerId,
+          x: event.clientX,
+          y: event.clientY,
+          time: performance.now()
+        };
+      });
+
+      entry.addEventListener('pointerup', (event) => {
+        if (!pointerStart || pointerStart.id !== event.pointerId) return;
+        const deltaX = event.clientX - pointerStart.x;
+        const deltaY = event.clientY - pointerStart.y;
+        const elapsed = performance.now() - pointerStart.time;
+        pointerStart = null;
+
+        if (elapsed > 1300 || Math.abs(deltaY) < 46 || Math.abs(deltaY) <= Math.abs(deltaX)) return;
+        suppressClickUntil = performance.now() + 650;
+        if (deltaY < 0) switchMode('star', 1);
+        else switchMode('gem', -1);
+      });
+
+      entry.addEventListener('pointercancel', () => {
+        pointerStart = null;
+      });
+
+      sceneDots.forEach((dot) => {
+        dot.addEventListener('click', () => {
+          const direction = dot.dataset.target === 'star' ? 1 : -1;
+          switchMode(dot.dataset.target, direction);
+        });
+      });
+
+      window.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowDown' || event.key === 'PageDown') {
+          event.preventDefault();
+          switchMode('star', 1);
+        }
+        if (event.key === 'ArrowUp' || event.key === 'PageUp') {
+          event.preventDefault();
+          switchMode('gem', -1);
+        }
+      });
+
+      window.addEventListener('resize', () => {
+        worldEntry.href = getHome();
+      });
+
+      window.addEventListener('pageshow', (event) => {
+        isNavigating = false;
+        isSwitching = false;
+        entry.classList.remove('is-leaving');
+        applyMode(currentMode);
+        if (event.persisted) playSceneMusic(currentMode);
+      });
+
+      applyMode('gem');
+      playSceneMusic('gem');
+    })();
+  </script>
+</body>
+</html>
