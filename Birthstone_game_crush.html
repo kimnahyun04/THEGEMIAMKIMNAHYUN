@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>GEM CUTTER REFINED — BIRTHSTONE CUTTING GAME</title>
+<style>
+:root{
+  --bg:#090b12;
+  --panel:rgba(255,255,255,.055);
+  --line:rgba(255,255,255,.12);
+  --text:#f7f7fb;
+  --muted:rgba(255,255,255,.58);
+  --target:#22a86a;
+  --soft:#8be1b7;
+  --good:#9de5c2;
+  --warn:#ffd882;
+  --bad:#ff91a3;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#080a10;color:var(--text)}
+body{
+  font-family:Inter,Pretendard,"Noto Sans KR",system-ui,sans-serif;
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:18px;
+  background:
+    radial-gradient(circle at 18% 15%,rgba(118,81,172,.16),transparent 28%),
+    radial-gradient(circle at 82% 14%,rgba(69,110,158,.13),transparent 25%),
+    linear-gradient(150deg,#171827,#0b0e16 58%,#080a10);
+}
+.spline-loading{
+  position:fixed;
+  inset:0;
+  z-index:200;
+  display:grid;
+  place-items:center;
+  background:inherit;
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transition:
+    opacity .65s cubic-bezier(.22,1,.36,1),
+    visibility 0s linear .65s
+}
+.spline-loading.is-hidden{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none
+}
+.spline-loading-inner{
+  width:min(38vw,260px);
+  text-align:center;
+  color:rgba(31,48,88,.76)
+}
+.spline-loading-title{
+  display:block;
+  margin-bottom:.8rem;
+  font-size:clamp(13px,1.05vw,18px);
+  font-weight:500;
+  letter-spacing:.24em
+}
+.spline-loading-line{
+  position:relative;
+  width:100%;
+  height:1px;
+  overflow:hidden;
+  background:rgba(46,68,116,.18)
+}
+.spline-loading-line::after{
+  content:"";
+  position:absolute;
+  inset:0 auto 0 0;
+  width:42%;
+  background:linear-gradient(90deg,transparent,rgba(95,151,224,.94),rgba(183,134,223,.94),transparent);
+  animation:splineLoadingSweep 1.15s ease-in-out infinite
+}
+@keyframes splineLoadingSweep{
+  from{transform:translateX(-120%)}
+  to{transform:translateX(340%)}
+}
+body.is-loading .app{
+  opacity:0;
+  transform:translateY(8px)
+}
+body.is-ready .app{
+  opacity:1;
+  transform:translateY(0);
+  transition:
+    opacity .65s cubic-bezier(.22,1,.36,1),
+    transform .65s cubic-bezier(.22,1,.36,1)
+}
+@media(prefers-reduced-motion:reduce){
+  .spline-loading-line::after{animation:none;left:29%}
+  body.is-ready .app{transition:none}
+}
+button{font:inherit}
+.app{
+  width:min(1180px,100%);
+  height:min(780px,calc(100vh - 36px));
+  min-height:590px;
+  margin:0;
+  display:flex;
+  flex-direction:column;
+  border:1px solid var(--line);
+  border-radius:26px;
+  overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.025));
+  box-shadow:0 30px 90px rgba(0,0,0,.34);
+}
+.top{
+  min-height:76px;padding:14px 18px;display:flex;align-items:center;gap:14px;
+  border-bottom:1px solid rgba(255,255,255,.09)
+}
+.brand{margin-right:auto}
+.brand small{display:block;font-size:9px;letter-spacing:.3em;opacity:.42;margin-bottom:4px}
+.brand h1{margin:0;font:500 clamp(20px,3vw,31px)/1 Georgia,serif;letter-spacing:.08em}
+.stats{display:flex;gap:7px}
+.stat{
+  min-width:74px;padding:7px 9px;border-radius:12px;border:1px solid rgba(255,255,255,.11);
+  background:rgba(0,0,0,.14);text-align:center;font-size:8px;color:var(--muted)
+}
+.stat b{display:block;color:white;font-size:15px;margin-top:2px}
+.view{display:none}
+.view.on{display:block;flex:1;min-height:0;height:auto;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin}
+
+/* START */
+#start{padding:26px 18px 18px;text-align:center}
+#start.view.on{display:flex;flex-direction:column;justify-content:safe center;align-items:center}
+.eyebrow{font-size:10px;letter-spacing:.3em;color:var(--muted);margin-bottom:10px}
+.hero{width:min(940px,100%);margin:0 auto;max-width:940px;font:400 clamp(44px,7vw,82px)/.92 Georgia,serif;letter-spacing:-.04em}
+.hero em{font-style:italic;color:#e4d4ff;white-space:nowrap}
+.desc{width:min(620px,100%);max-width:620px;margin:16px auto 20px;color:var(--muted);font-size:13px;line-height:1.75}
+.rules{width:min(820px,100%);max-width:820px;margin:0 auto 18px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rule{
+  padding:12px;border:1px solid rgba(255,255,255,.1);border-radius:14px;
+  background:rgba(255,255,255,.035);font-size:10px;line-height:1.6;color:var(--muted)
+}
+.rule b{display:block;color:white;font-size:11px;margin-bottom:3px}
+.months{width:min(790px,100%);max-width:790px;margin:0 auto 14px;display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.month{
+  min-height:92px;
+  border:1px solid rgba(255,255,255,.11);background:rgba(255,255,255,.035);color:white;
+  border-radius:13px;padding:9px 5px;cursor:pointer;transition:.15s
+}
+.month:hover{transform:translateY(-2px);background:rgba(255,255,255,.075)}
+.month.sel{
+  border-color:rgba(255,255,255,.42);background:rgba(255,255,255,.11);
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--target) 28%,transparent)
+}
+.month b{display:block;font-size:11px}
+.month span{font-size:8px;color:var(--muted);opacity:.58;letter-spacing:.08em}
+.primary,.ghost{border-radius:999px;font-weight:800;cursor:pointer;transition:.15s}
+.primary{border:0;padding:13px 23px;color:#211b29;background:linear-gradient(90deg,#eadcff,#d9e7ff)}
+.primary:disabled{opacity:.3;cursor:not-allowed}
+.primary:not(:disabled):hover{transform:translateY(-2px)}
+.ghost{
+  padding:11px 17px;color:white;border:1px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.05)
+}
+
+/* GAME */
+#game{padding:15px}
+.gameLayout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:12px}
+.mainCard,.side{
+  border:1px solid rgba(255,255,255,.1);border-radius:20px;background:rgba(255,255,255,.035)
+}
+.mainCard{padding:16px;min-height:610px}
+.side{padding:15px;align-self:start}
+.mission{display:flex;align-items:center;gap:11px;margin-bottom:12px}
+.gemIcon{
+  width:31px;height:31px;transform:rotate(45deg);border-radius:8px 12px 8px 12px;
+  background:linear-gradient(135deg,rgba(255,255,255,.62),transparent 32%),var(--target);
+  box-shadow:inset -6px -7px 10px rgba(0,0,0,.18),inset 4px 4px 8px rgba(255,255,255,.2),0 0 18px color-mix(in srgb,var(--target) 42%,transparent)
+}
+.mission h2{margin:0;font:500 19px Georgia,serif}
+.mission p{margin:2px 0 0;color:var(--muted);font-size:10px}
+
+.workbench{
+  display:grid;grid-template-columns:minmax(0,1fr) 180px;gap:14px;align-items:center
+}
+.gemStage{
+  min-height:360px;border:1px solid rgba(255,255,255,.08);border-radius:18px;
+  background:radial-gradient(circle at 50% 48%,color-mix(in srgb,var(--target) 10%,transparent),transparent 35%),rgba(0,0,0,.12);
+  display:grid;place-items:center;position:relative;overflow:hidden
+}
+.gridGlow{
+  position:absolute;inset:0;opacity:.14;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 1px);
+  background-size:34px 34px
+}
+.gemBox{
+  position:relative;
+  width:260px;
+  height:260px;
+  transform:scale(1);
+  transition:.3s ease;
+  filter:drop-shadow(0 18px 22px rgba(0,0,0,.26));
+}
+.gemShape{
+  position:absolute;inset:0;
+  clip-path:polygon(50% 2%, 72% 14%, 90% 40%, 82% 76%, 50% 98%, 18% 76%, 10% 40%, 28% 14%);
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.78),transparent 24%),
+    linear-gradient(315deg,rgba(0,0,0,.20),transparent 46%),
+    linear-gradient(180deg,color-mix(in srgb,var(--soft) 38%,white) 0%, var(--target) 35%, color-mix(in srgb,var(--target) 80%,black) 100%);
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,.13),
+    inset 0 0 30px rgba(255,255,255,.05),
+    0 0 36px color-mix(in srgb,var(--target) 28%,transparent);
+  overflow:hidden;
+  transition:clip-path .25s ease, filter .2s ease, transform .2s ease;
+}
+.gemShape::before{
+  content:"";
+  position:absolute; inset:10% 8% 14% 8%;
+  clip-path:polygon(50% 0, 66% 10%, 81% 31%, 74% 66%, 50% 82%, 26% 66%, 19% 31%, 34% 10%);
+  border:1px solid rgba(255,255,255,.28);
+  opacity:.34;
+}
+.gemShape::after{
+  content:"";
+  position:absolute; inset:0;
+  background:
+    linear-gradient(115deg,rgba(255,255,255,.17) 13%,transparent 16% 38%,rgba(255,255,255,.08) 40% 42%,transparent 45% 100%);
+  opacity:.82;
+}
+.facet{
+  position:absolute; inset:0; opacity:0; transition:.22s ease;
+  background:rgba(255,255,255,.16)
+}
+.f1{clip-path:polygon(50% 2%,60% 14%,50% 30%,40% 14%)}
+.f2{clip-path:polygon(28% 14%,40% 14%,50% 30%,30% 36%,10% 40%)}
+.f3{clip-path:polygon(72% 14%,60% 14%,50% 30%,70% 36%,90% 40%)}
+.f4{clip-path:polygon(18% 76%,30% 36%,50% 30%,39% 62%,50% 98%)}
+.f5{clip-path:polygon(82% 76%,70% 36%,50% 30%,61% 62%,50% 98%)}
+.f6{clip-path:polygon(30% 36%,50% 30%,70% 36%,61% 62%,39% 62%)}
+.innerSpark{
+  position:absolute;
+  inset:24%;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.27),transparent 62%);
+  opacity:.44
+}
+.crack{
+  position:absolute;width:2px;height:26%;background:rgba(255,255,255,.55);left:56%;top:28%;
+  transform:rotate(24deg);opacity:.22;box-shadow:8px 14px 0 -.4px rgba(255,255,255,.30);
+  transition:.25s ease
+}
+.chip{
+  position:absolute;
+  background:linear-gradient(180deg,rgba(8,10,16,.78),rgba(11,14,22,.96));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
+  opacity:0;
+  transition:.2s ease;
+}
+.chip.show{opacity:1}
+.chipTop{width:28px;height:16px;left:86px;top:4px;clip-path:polygon(50% 0,100% 100%,0 100%)}
+.chipLT{width:22px;height:28px;left:8px;top:64px;clip-path:polygon(0 0,100% 30%,100% 100%)}
+.chipRT{width:22px;height:28px;right:8px;top:64px;clip-path:polygon(0 30%,100% 0,0 100%)}
+.chipLB{width:24px;height:24px;left:20px;bottom:28px;clip-path:polygon(0 100%,100% 0,100% 100%)}
+.chipRB{width:24px;height:24px;right:20px;bottom:28px;clip-path:polygon(0 0,100% 100%,0 100%)}
+
+.spark{
+  position:absolute;width:18px;height:18px;border-radius:50%;
+  background:radial-gradient(circle,white 0 28%, rgba(255,255,255,.7) 29%, transparent 70%);
+  box-shadow:0 0 18px rgba(255,255,255,.65);opacity:0;pointer-events:none;
+  left:50%;top:50%;transform:translate(-50%,-50%)
+}
+
+.tools{display:grid;gap:8px}
+.toolTitle{font-size:9px;letter-spacing:.15em;color:var(--muted);margin-bottom:2px}
+.tool{
+  border:1px solid rgba(255,255,255,.1);border-radius:13px;background:rgba(255,255,255,.04);
+  color:white;padding:11px;text-align:left;transition:.15s
+}
+.tool.active{
+  border-color:color-mix(in srgb,var(--target) 38%,rgba(255,255,255,.12));
+  background:color-mix(in srgb,var(--target) 10%,rgba(255,255,255,.04))
+}
+.tool b{display:block;font-size:11px}
+.tool span{font-size:8px;color:var(--muted)}
+
+.meterBox{margin-top:15px;border-top:1px solid rgba(255,255,255,.08);padding-top:14px}
+.stepTitle{text-align:center;margin-bottom:10px}
+.stepTitle b{display:block;font:500 18px Georgia,serif}
+.stepTitle span{font-size:9px;color:var(--muted)}
+.track{
+  height:26px;border-radius:999px;border:1px solid rgba(255,255,255,.1);
+  background:rgba(0,0,0,.16);position:relative;overflow:hidden
+}
+.zone{
+  position:absolute;top:0;bottom:0;left:42%;width:16%;
+  background:color-mix(in srgb,var(--target) 22%,transparent);
+  border-left:1px solid var(--soft);border-right:1px solid var(--soft)
+}
+.marker{
+  position:absolute;top:50%;left:0%;width:14px;height:14px;border-radius:50%;
+  background:white;transform:translate(-50%,-50%);
+  box-shadow:0 0 14px rgba(255,255,255,.5)
+}
+.actionRow{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+.cutBtn{
+  min-width:210px;border:0;border-radius:999px;padding:12px 20px;font-weight:900;cursor:pointer;
+  color:#211b28;background:linear-gradient(90deg,#eadcff,#d9e8ff)
+}
+
+/* side */
+.side h3{margin:0 0 10px;font:500 18px Georgia,serif}
+.readout{display:grid;gap:8px}
+.read{
+  padding:10px;border:1px solid rgba(255,255,255,.09);border-radius:12px;background:rgba(0,0,0,.12)
+}
+.read small{display:block;font-size:8px;letter-spacing:.12em;color:var(--muted)}
+.read b{display:block;font-size:12px;margin-top:3px}
+.read.good b{color:var(--good)}
+.read.mid b{color:var(--warn)}
+.read.bad b{color:var(--bad)}
+.material{
+  margin-top:12px;padding:10px;border:1px dashed rgba(255,255,255,.11);border-radius:12px;
+  color:var(--muted);font-size:9px;line-height:1.65
+}
+.material b{color:white}
+.progressBox{margin-top:12px}
+.progressBox h4{margin:0 0 7px;font-size:9px;letter-spacing:.13em;color:var(--muted)}
+.steps{display:grid;gap:6px}
+.step{
+  padding:8px 9px;border-radius:10px;border:1px solid rgba(255,255,255,.07);
+  background:rgba(255,255,255,.03);font-size:9px;color:var(--muted)
+}
+.step.done{color:var(--good);border-color:rgba(156,227,189,.18)}
+.step.current{color:white;border-color:rgba(255,255,255,.16);background:rgba(255,255,255,.06)}
+
+/* RESULT */
+#result{padding:42px 18px;text-align:center}
+.resultCard{
+  max-width:660px;margin:0 auto;padding:26px;border:1px solid rgba(255,255,255,.1);
+  border-radius:22px;background:rgba(255,255,255,.035)
+}
+.finishedGemWrap{position:relative;width:112px;height:112px;margin:6px auto 24px}
+.finishedGem{
+  position:absolute;inset:0;
+  clip-path:polygon(50% 2%, 72% 14%, 90% 40%, 82% 76%, 50% 98%, 18% 76%, 10% 40%, 28% 14%);
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.78),transparent 24%),
+    linear-gradient(315deg,rgba(0,0,0,.20),transparent 46%),
+    linear-gradient(180deg,color-mix(in srgb,var(--soft) 38%,white) 0%, var(--target) 35%, color-mix(in srgb,var(--target) 80%,black) 100%);
+  box-shadow:0 0 48px color-mix(in srgb,var(--target) 44%,transparent)
+}
+.finishedGem::before{
+  content:"";position:absolute;inset:10% 8% 14% 8%;
+  clip-path:polygon(50% 0, 66% 10%, 81% 31%, 74% 66%, 50% 82%, 26% 66%, 19% 31%, 34% 10%);
+  border:1px solid rgba(255,255,255,.25);opacity:.4
+}
+.finishedGem::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(115deg,rgba(255,255,255,.17) 13%,transparent 16% 38%,rgba(255,255,255,.08) 40% 42%,transparent 45% 100%);
+}
+.finishedChip{
+  position:absolute;background:linear-gradient(180deg,rgba(8,10,16,.78),rgba(11,14,22,.96));opacity:0
+}
+.rank{font:italic 500 clamp(54px,9vw,92px)/.82 Georgia,serif;color:#e4d5ff}
+.resultCard h2{margin:10px 0 8px;font:500 clamp(28px,5vw,44px)/1 Georgia,serif}
+.resultCard p{margin:0 auto 18px;max-width:530px;color:var(--muted);font-size:12px;line-height:1.7}
+.resultStats{max-width:480px;margin:0 auto 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.rs{
+  padding:10px;border:1px solid rgba(255,255,255,.09);border-radius:12px;
+  background:rgba(0,0,0,.12);color:var(--muted);font-size:9px
+}
+.rs b{display:block;color:white;font-size:20px;margin-top:3px}
+.actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+
+.toast{
+  position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(15px);
+  opacity:0;pointer-events:none;padding:9px 13px;border:1px solid rgba(255,255,255,.13);
+  background:rgba(12,14,22,.94);border-radius:999px;font-size:10px;transition:.18s
+}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:860px){
+  body{display:block;padding:0}
+  .app{width:100%;height:auto;margin:0;min-height:100vh;border-radius:0;border-left:0;border-right:0}
+  .top{padding:10px}
+  .brand small{font-size:7px}.brand h1{font-size:18px}
+  .stat{min-width:56px;padding:6px;font-size:7px}.stat b{font-size:13px}
+  .view.on{height:auto;overflow:visible}
+  #start{padding:20px 12px 18px}.hero{font-size:clamp(28px,8vw,42px)}
+  .hero em{white-space:nowrap}
+  .rules{grid-template-columns:1fr}
+  .months{grid-template-columns:repeat(4,1fr)}
+  #game{padding:9px}
+  .gameLayout{grid-template-columns:1fr}
+  .side{order:2}
+  .mainCard{min-height:0}
+  .workbench{grid-template-columns:1fr}
+  .gemBox{width:225px;height:225px}
+}
+@media(max-width:430px){
+  .stats{gap:4px}.stat{min-width:50px}
+  .months{grid-template-columns:repeat(3,1fr)}
+  .resultStats{grid-template-columns:repeat(2,1fr)}
+}
+
+
+/* =========================================================
+   LIGHT / ELEGANT VISUAL OVERRIDE
+   Matched to GEM VAULT light theme. Gameplay logic unchanged.
+   ========================================================= */
+:root{
+  --bg:#fff8f6;
+  --panel:rgba(255,255,255,.72);
+  --line:rgba(139,101,122,.17);
+  --text:#4f3d49;
+  --muted:rgba(79,61,73,.66);
+  --good:#74b996;
+  --warn:#cfaa63;
+  --bad:#d8798e;
+}
+
+html,body{
+  background:#fff8f6;
+  color:var(--text);
+}
+body{
+  background:
+    radial-gradient(circle at 14% 17%,rgba(255,187,211,.56),transparent 28%),
+    radial-gradient(circle at 85% 12%,rgba(202,197,255,.55),transparent 30%),
+    radial-gradient(circle at 73% 89%,rgba(255,223,190,.48),transparent 31%),
+    linear-gradient(145deg,#fffaf6 0%,#fceff5 48%,#f4effc 100%);
+  position:relative;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.34;
+  background-image:
+    radial-gradient(circle,rgba(191,137,165,.42) 1px,transparent 1.4px),
+    radial-gradient(circle,rgba(255,255,255,.95) 1.5px,transparent 1.8px);
+  background-size:120px 120px,185px 185px;
+  background-position:22px 30px,70px 12px;
+}
+
+.app{
+  border:1px solid rgba(255,255,255,.94);
+  background:linear-gradient(145deg,rgba(255,255,255,.84),rgba(255,249,250,.62));
+  backdrop-filter:blur(22px);
+  box-shadow:
+    0 30px 90px rgba(132,84,111,.16),
+    inset 0 1px 0 #fff;
+  position:relative;
+  z-index:1;
+}
+.top{
+  border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.48);
+}
+.brand small{color:#aa7c94;opacity:1}
+.brand h1{color:#513c49}
+
+.stat{
+  border:1px solid rgba(155,114,137,.14);
+  background:rgba(255,255,255,.60);
+  color:var(--muted);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
+}
+.stat b{color:#5a414f}
+
+.eyebrow{color:#a77b91}
+.hero{color:#4f3d49}
+.hero em{
+  color:#c16f98;
+  text-shadow:0 9px 25px rgba(193,111,152,.12);
+}
+.desc{color:var(--muted)}
+
+.rule{
+  border:1px solid rgba(151,111,134,.13);
+  background:rgba(255,255,255,.54);
+  color:var(--muted);
+  box-shadow:0 9px 22px rgba(115,76,98,.05);
+}
+.rule b{color:#6a4c5c}
+
+.month{
+  border:1px solid rgba(151,111,134,.13);
+  background:rgba(255,255,255,.55);
+  color:#5d4654;
+  box-shadow:0 9px 22px rgba(115,76,98,.045);
+}
+.month:hover{
+  background:rgba(255,255,255,.90);
+  transform:translateY(-3px);
+  box-shadow:0 13px 28px rgba(115,76,98,.10);
+}
+.month.sel{
+  border-color:color-mix(in srgb,var(--target) 42%,rgba(151,111,134,.18));
+  background:color-mix(in srgb,var(--target) 9%,rgba(255,255,255,.86));
+  box-shadow:0 10px 26px color-mix(in srgb,var(--target) 13%,rgba(115,76,98,.08));
+}
+.month span{color:var(--muted)}
+
+.primary,.cutBtn{
+  color:#fff;
+  background:linear-gradient(100deg,#c56f99,#9a87c2);
+  box-shadow:0 13px 30px rgba(157,99,136,.22);
+}
+.ghost{
+  color:#674d5c;
+  background:rgba(255,255,255,.66);
+  border:1px solid var(--line);
+}
+
+.mainCard,.side{
+  border:1px solid rgba(151,111,134,.13);
+  background:rgba(255,255,255,.52);
+  box-shadow:0 14px 34px rgba(115,76,98,.055);
+}
+.mission h2,.side h3,.stepTitle b{color:#523d49}
+.mission p,.stepTitle span,.toolTitle{color:var(--muted)}
+
+.gemStage{
+  border:1px solid rgba(151,111,134,.12);
+  background:
+    radial-gradient(circle at 50% 48%,color-mix(in srgb,var(--target) 13%,rgba(255,255,255,.8)),transparent 39%),
+    rgba(255,255,255,.56);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.92);
+}
+.gridGlow{
+  opacity:.22;
+  background-image:
+    linear-gradient(rgba(151,111,134,.10) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(151,111,134,.10) 1px,transparent 1px);
+}
+.gemBox{filter:drop-shadow(0 18px 22px rgba(112,72,94,.18))}
+
+.tool{
+  border:1px solid rgba(151,111,134,.12);
+  background:rgba(255,255,255,.54);
+  color:#5d4654;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
+}
+.tool.active{
+  border-color:color-mix(in srgb,var(--target) 34%,rgba(151,111,134,.16));
+  background:color-mix(in srgb,var(--target) 8%,rgba(255,255,255,.75));
+}
+.tool span{color:var(--muted)}
+
+.meterBox{border-top:1px solid var(--line)}
+.track{
+  border:1px solid rgba(151,111,134,.15);
+  background:rgba(255,255,255,.70);
+  box-shadow:inset 0 2px 7px rgba(112,72,94,.06);
+}
+.zone{
+  background:color-mix(in srgb,var(--target) 19%,rgba(255,255,255,.38));
+}
+.marker{
+  background:#fff;
+  border:1px solid rgba(151,111,134,.16);
+  box-shadow:0 3px 12px rgba(112,72,94,.22),0 0 14px color-mix(in srgb,var(--target) 18%,transparent);
+}
+
+.read{
+  border:1px solid rgba(151,111,134,.11);
+  background:rgba(255,255,255,.58);
+}
+.read small{color:#a0788c}
+.read b{color:#5c4251}
+.material{
+  border:1px dashed rgba(151,111,134,.18);
+  background:rgba(255,255,255,.38);
+  color:var(--muted);
+}
+.material b{color:#604754}
+.progressBox h4{color:#a0788c}
+.step{
+  border:1px solid rgba(151,111,134,.10);
+  background:rgba(255,255,255,.42);
+  color:var(--muted);
+}
+.step.done{
+  color:#5c9e7d;
+  border-color:rgba(116,185,150,.25);
+  background:rgba(240,255,247,.58);
+}
+.step.current{
+  color:#5d4654;
+  border-color:rgba(151,111,134,.18);
+  background:rgba(255,255,255,.76);
+}
+
+.chip{
+  background:linear-gradient(180deg,rgba(115,76,98,.42),rgba(85,57,72,.62));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);
+}
+
+.resultCard{
+  border:1px solid rgba(255,255,255,.94);
+  background:rgba(255,255,255,.61);
+  box-shadow:
+    0 24px 58px rgba(120,78,102,.11),
+    inset 0 1px 0 #fff;
+}
+.rank{
+  color:#bc688f;
+  text-shadow:0 9px 24px rgba(188,104,143,.13);
+}
+.resultCard h2{color:#503a47}
+.resultCard p{color:var(--muted)}
+.rs{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.58);
+  color:var(--muted);
+}
+.rs b{color:#5c4251}
+
+.toast{
+  background:rgba(255,255,255,.93);
+  border:1px solid rgba(151,111,134,.18);
+  color:#624956;
+  box-shadow:0 12px 30px rgba(115,76,98,.12);
+}
+
+.musicBar{
+  flex:none;
+  min-height:42px;
+  padding:7px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  border-top:1px solid var(--line);
+  background:rgba(255,255,255,.48)
+}
+.musicCredit{
+  min-width:0;
+  color:var(--muted);
+  font-size:9px;
+  line-height:1.35;
+  letter-spacing:.02em
+}
+.musicCredit strong{color:#654b5a;font-weight:800}
+.musicCredit a{color:#8d6078;text-decoration:none}
+.musicCredit a:hover{text-decoration:underline}
+.musicToggle{
+  flex:none;
+  min-width:92px;
+  padding:7px 11px;
+  border:1px solid rgba(151,111,134,.17);
+  border-radius:999px;
+  background:rgba(255,255,255,.68);
+  color:#684d5c;
+  cursor:pointer;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.07em;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
+  transition:.16s
+}
+.musicToggle:hover{transform:translateY(-1px);background:rgba(255,255,255,.96)}
+.musicToggle.off{opacity:.58}
+
+@media(max-width:860px){
+  .app{
+    background:linear-gradient(145deg,rgba(255,255,255,.89),rgba(255,249,250,.72));
+  }
+  .musicBar{padding:7px 10px}
+  .musicCredit{font-size:8px}
+}
+@media(max-width:430px){
+  .musicToggle{min-width:84px;padding:7px 9px}
+}
+
+
+/* =========================================================
+   PIXEL PNG GEM OVERRIDE
+   Replace CSS-drawn stones with the exact GEM RUSH pixel PNG assets.
+   ========================================================= */
+.month{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:10px 5px 9px}
+.month b{font-size:11px;line-height:1.05}
+.monthGem{display:block;width:42px;height:42px;object-fit:contain;image-rendering:pixelated;margin:0 auto 2px;filter:drop-shadow(0 5px 8px rgba(100,63,84,.14)) drop-shadow(0 0 8px rgba(255,255,255,.75))}
+.gemIcon{width:40px;height:40px;object-fit:contain;image-rendering:pixelated;transform:none;border-radius:0;background:none;box-shadow:none;filter:drop-shadow(0 5px 7px rgba(100,63,84,.16)) drop-shadow(0 0 7px rgba(255,255,255,.78))}
+.gemShape{background:none;box-shadow:none;clip-path:none;overflow:visible;transition:none}
+.gemShape::before,.gemShape::after{display:none}
+.gemSprite{position:absolute;left:50%;top:50%;width:240px;height:240px;transform:translate(-50%,-50%);object-fit:contain;image-rendering:pixelated;transition:transform .2s ease, filter .2s ease;filter:drop-shadow(0 14px 18px rgba(112,72,94,.15))}
+.gemSprite.rawGem{width:250px;height:250px}
+.gemSprite.starterStone{width:280px;height:280px;filter:drop-shadow(0 16px 22px rgba(75,48,60,.2)) saturate(.92)}
+.gemSprite.powderGem{width:260px;height:260px;filter:drop-shadow(0 12px 16px rgba(44,43,49,.17))}
+.gemSprite.breakHit{animation:stoneHit .24s steps(2,end)}
+.gemSprite.rawReveal{animation:rawReveal .62s cubic-bezier(.18,.88,.23,1.3)}
+.breakShard{
+  position:absolute;left:50%;top:50%;z-index:8;width:var(--chip,10px);height:var(--chip,10px);
+  pointer-events:none;background:linear-gradient(135deg,#fff4de,color-mix(in srgb,var(--target) 48%,#8f725c));
+  border:1px solid rgba(103,76,64,.16);clip-path:polygon(15% 0,100% 18%,82% 100%,0 72%);
+  animation:breakShard .52s cubic-bezier(.12,.64,.35,1) forwards;
+}
+@keyframes stoneHit{
+  0%,100%{transform:translate(-50%,-50%) rotate(0) scale(1)}
+  25%{transform:translate(calc(-50% - 7px),calc(-50% + 3px)) rotate(-3deg) scale(.98)}
+  65%{transform:translate(calc(-50% + 6px),calc(-50% - 2px)) rotate(3deg) scale(1.02)}
+}
+@keyframes rawReveal{
+  0%{transform:translate(-50%,-50%) scale(.25) rotate(-9deg);filter:brightness(2) blur(4px);opacity:0}
+  58%{transform:translate(-50%,-50%) scale(1.14) rotate(3deg);filter:brightness(1.45);opacity:1}
+  100%{transform:translate(-50%,-50%) scale(1) rotate(0);filter:drop-shadow(0 14px 18px rgba(112,72,94,.15));opacity:1}
+}
+@keyframes breakShard{
+  0%{transform:translate(-50%,-50%) scale(.35) rotate(0);opacity:1}
+  100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.9) rotate(var(--rot));opacity:0}
+}
+.zone{transition:left .25s ease,width .25s ease}
+.cutBtn:disabled{opacity:.58;cursor:wait;transform:none}
+.facet{background:rgba(255,255,255,.16);mix-blend-mode:screen}
+.innerSpark{inset:26%;mix-blend-mode:screen;opacity:.38}
+.crack{display:none;opacity:0;background:none;box-shadow:none}
+.finishedGem{display:none}
+.finishedGemWrap{width:145px;height:145px}
+.finishedGemDisplay{position:absolute;left:50%;top:50%;width:145px;height:145px;transform:translate(-50%,-50%);object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 11px 15px rgba(104,65,86,.17)) drop-shadow(0 0 14px color-mix(in srgb,var(--target) 24%,transparent))}
+@media(max-width:860px){
+  .month{min-height:84px;padding:8px 3px}
+  .monthGem{width:38px;height:38px}
+  .gemIcon{width:36px;height:36px}
+  .gemSprite{width:205px;height:205px}
+  .gemSprite.rawGem{width:215px;height:215px}
+  .gemSprite.starterStone{width:250px;height:250px}
+  .gemSprite.powderGem{width:225px;height:225px}
+}
+
+/* Hide dark chip shards while preserving damage state/effects */
+.chip,.chip.show,.finishedChip{display:none;opacity:0;}
+
+
+
+/* UNIFIED GAME NAVIGATION */
+.top,.topbar{position:relative}
+.navControl{
+  flex:none;min-width:88px;padding:9px 13px;border:1px solid rgba(151,111,134,.17);
+  border-radius:999px;background:rgba(255,255,255,.72);color:#684d5c;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.94),0 7px 18px rgba(115,76,98,.07);
+  cursor:pointer;font-size:9px;font-weight:900;letter-spacing:.05em;white-space:nowrap;
+  transition:transform .16s ease,background .16s ease,box-shadow .16s ease
+}
+.navControl:hover{transform:translateY(-1px);background:rgba(255,255,255,.97);box-shadow:inset 0 1px 0 #fff,0 10px 22px rgba(115,76,98,.11)}
+.navControl:active{transform:translateY(0)}
+.navControl:focus-visible{outline:2px solid rgba(193,111,152,.42);outline-offset:2px}
+.legacyBack{display:none}
+@media(max-width:860px){
+  .navControl{min-width:70px;padding:7px 9px;font-size:8px}
+}
+@media(max-width:430px){
+  .top,.topbar{gap:4px}
+  .navControl{min-width:58px;padding:7px 6px;font-size:7px;letter-spacing:0}
+  .brand small,.logo small{display:none}
+  .brand h1,.logo h1{font-size:14px}
+  .stats,.meta{gap:2px}
+  .stat,.badge{min-width:43px;padding:5px 3px}
+}
+</style>
+</head>
+<body class="is-loading">
+<div class="spline-loading" id="splineLoading" role="status" aria-live="polite">
+  <div class="spline-loading-inner">
+    <span class="spline-loading-title">LOADING...</span>
+    <div class="spline-loading-line" aria-hidden="true"></div>
+  </div>
+</div>
+<div class="app">
+  <header class="top">
+    <button class="navControl" id="navControl" type="button" aria-label="메인메뉴로 이동">메인메뉴</button>
+    <div class="brand">
+      <small>BIRTHSTONE CUTTING GAME</small>
+      <h1>GEM CUTTER REFINED</h1>
+    </div>
+    <div class="stats">
+      <div class="stat">STEP<b id="stepStat">1/5</b></div>
+      <div class="stat">PACE<b id="paceStat">1x</b></div>
+      <div class="stat">QUALITY<b id="qualityStat">0%</b></div>
+      <div class="stat">VALUE<b id="valueStat">0</b></div>
+    </div>
+  </header>
+
+  <section id="start" class="view on">
+    <div class="eyebrow">BREAK THE STONE · FIND YOUR BIRTHSTONE</div>
+    <h2 class="hero">Break the stone,<br><em>find your gem.</em></h2>
+    <p class="desc">
+      먼저 스페이스바로 시작 돌을 네 번 두드리세요. 이어지는 1단계까지 돌의 모습이 유지되고,
+      2~3단계는 원석, 4단계부터는 완성형 보석으로 변화합니다. 세공에 실패하면 금 간 모습이 끝까지 유지됩니다.
+    </p>
+    <div class="rules">
+      <div class="rule"><b>01 · 네 번 타격 후 1단계</b>시작 돌을 네 번 두드린 뒤 1단계에서 완전히 부숩니다.</div>
+      <div class="rule"><b>02 · 원석 세공</b>2~3단계는 선택한 달의 원석을 다듬습니다.</div>
+      <div class="rule"><b>03 · 완성형 또는 균열</b>4단계부터 성공은 완성형, 실수는 금 간 보석으로 이어집니다.</div>
+    </div>
+    <div class="months" id="months"></div>
+    <button class="primary" id="startBtn" disabled>세공 시작</button>
+  </section>
+
+  <section id="game" class="view">
+    <div class="gameLayout">
+      <div class="mainCard">
+        <div class="mission">
+          <img class="gemIcon" id="missionGemIcon" alt="선택된 보석">
+          <div>
+            <h2 id="missionTitle">에메랄드 세공하기</h2>
+            <p id="missionSub">첫 번째 세공을 진행하세요.</p>
+          </div>
+        </div>
+
+        <div class="workbench">
+          <div class="gemStage">
+            <div class="gridGlow"></div>
+            <div class="gemBox" id="gemBox">
+              <div class="gemShape" id="gemShape">
+                <img class="gemSprite" id="gemImage" alt="현재 세공 중인 보석">
+                <div class="facet f1"></div>
+                <div class="facet f2"></div>
+                <div class="facet f3"></div>
+                <div class="facet f4"></div>
+                <div class="facet f5"></div>
+                <div class="facet f6"></div>
+                <div class="innerSpark"></div>
+                <div class="crack" id="crack"></div>
+              </div>
+              <div class="chip chipTop" id="chipTop"></div>
+              <div class="chip chipLT" id="chipLT"></div>
+              <div class="chip chipRT" id="chipRT"></div>
+              <div class="chip chipLB" id="chipLB"></div>
+              <div class="chip chipRB" id="chipRB"></div>
+              <div class="spark" id="spark"></div>
+            </div>
+          </div>
+
+          <div class="tools">
+            <div class="toolTitle">세공 순서</div>
+            <div class="tool active" id="tool1"><b>01 · 돌 깨기</b><span>전체 범위</span></div>
+            <div class="tool" id="tool2"><b>02 · 왼쪽 윗면</b><span>원석 다듬기</span></div>
+            <div class="tool" id="tool3"><b>03 · 오른쪽 윗면</b><span>원석 다듬기</span></div>
+            <div class="tool" id="tool4"><b>04 · 왼쪽 아랫면</b><span>완성형 세공</span></div>
+            <div class="tool" id="tool5"><b>05 · 오른쪽 아랫면</b><span>마무리 세공</span></div>
+          </div>
+        </div>
+
+        <div class="meterBox">
+          <div class="stepTitle">
+            <b id="stepTitle">1단계 · 돌 깨기</b>
+            <span id="stepDesc">빛나는 구간 중앙에서 멈추세요.</span>
+          </div>
+          <div class="track">
+            <div class="zone" id="zone"></div>
+            <div class="marker" id="marker"></div>
+          </div>
+          <div class="actionRow">
+            <button class="cutBtn" id="actionBtn">세공 · 스페이스바</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="side">
+        <h3>세공 결과</h3>
+        <div class="readout">
+          <div class="read" id="read1"><small>돌 깨기</small><b>대기 중</b></div>
+          <div class="read" id="read2"><small>왼쪽 윗면</small><b>대기 중</b></div>
+          <div class="read" id="read3"><small>오른쪽 윗면</small><b>대기 중</b></div>
+          <div class="read" id="read4"><small>왼쪽 아랫면</small><b>대기 중</b></div>
+          <div class="read" id="read5"><small>오른쪽 아랫면</small><b>대기 중</b></div>
+        </div>
+
+        <div class="material" id="materialInfo">
+          <b>선택한 탄생석</b><br>
+          탄생석을 선택하면 세공 메모가 표시됩니다.
+        </div>
+
+        <div class="progressBox">
+          <h4>진행 단계</h4>
+          <div class="steps">
+            <div class="step" id="p1">01 · 돌 깨기</div>
+            <div class="step" id="p2">02 · 왼쪽 윗면</div>
+            <div class="step" id="p3">03 · 오른쪽 윗면</div>
+            <div class="step" id="p4">04 · 왼쪽 아랫면</div>
+            <div class="step" id="p5">05 · 오른쪽 아랫면</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="result" class="view">
+    <div class="resultCard">
+      <div class="finishedGemWrap" id="finishedGemWrap">
+        <img class="finishedGemDisplay" id="finishedGemImage" alt="완성된 보석">
+      </div>
+      <div class="eyebrow">보석 감정 결과</div>
+      <div class="rank" id="rank">S</div>
+      <h2 id="resultTitle">최고의 세공</h2>
+      <p id="resultText"></p>
+      <div class="resultStats">
+        <div class="rs">완성도<b id="finalQuality">0%</b></div>
+        <div class="rs">가치<b id="finalValue">0</b></div>
+        <div class="rs">완벽 횟수<b id="perfectCount">0/5</b></div>
+        <div class="rs">최고 점수<b id="bestCut">0</b></div>
+      </div>
+      <div class="actions">
+        <button class="primary" id="retryBtn">다시 세공하기</button>
+        <button class="ghost" id="changeBtn">보석 변경</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="musicBar">
+    <div class="musicCredit">
+      <strong>MUSIC · </strong>
+      <a href="https://pixabay.com/music/video-games-retro-8bit-happy-videogame-music-418475/" target="_blank" rel="noopener noreferrer">Retro 8bit happy videogame music</a>
+      <span> · NiKneT_Art · Pixabay</span>
+    </div>
+    <button class="musicToggle" id="musicToggle" type="button" aria-pressed="true" aria-label="배경음악 끄기">♪ MUSIC ON</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const gems=[
+  {m:1,n:"Garnet",kr:"가넷",raw:"01_garnet_raw.png",polished:"01_garnet.png",crack:"01_garnet_crack.png",c:"#a92339",s:"#ef7f90",info:"깊은 붉은빛 · 중심면이 흐트러지면 탁해 보임"},
+  {m:2,n:"Amethyst",kr:"자수정",raw:"02_amethyst_raw.png",polished:"02_amethyst.png",crack:"02_amethyst_crack.png",c:"#8d63c8",s:"#d4a4ee",info:"보라빛 결정 · 좌우 균형이 중요"},
+  {m:3,n:"Aquamarine",kr:"아쿠아마린",raw:"03_aquamarine_raw.png",polished:"03_aquamarine.png",crack:"03_aquamarine_crack.png",c:"#68cae8",s:"#b9f1ff",info:"맑은 청색 · 각이 반듯할수록 빛이 살아남"},
+  {m:4,n:"Diamond",kr:"다이아몬드",raw:"04_diamond_raw.png",polished:"04_diamond.png",crack:"04_diamond_crack.png",c:"#dff6ff",s:"#ffffff",info:"투명한 광채 · 작은 오차도 티가 큼"},
+  {m:5,n:"Emerald",kr:"에메랄드",raw:"05_emerald_raw.png",polished:"05_emerald.png",crack:"05_emerald_crack.png",c:"#22a86a",s:"#8be1b7",info:"선명한 초록 · 하단 컷 대칭이 중요"},
+  {m:6,n:"Pearl",kr:"진주",raw:"06_pearl_raw.png",polished:"06_pearl.png",crack:"06_pearl_crack.png",c:"#fff0c8",s:"#ffd9e5",info:"부드러운 유광 · 지나치게 거칠면 손해"},
+  {m:7,n:"Ruby",kr:"루비",raw:"07_ruby_raw.png",polished:"07_ruby.png",crack:"07_ruby_crack.png",c:"#dd3156",s:"#ff9db5",info:"강한 붉은빛 · 상단 크라운 면이 포인트"},
+  {m:8,n:"Peridot",kr:"페리도트",raw:"08_peridot_raw.png",polished:"08_peridot.png",crack:"08_peridot_crack.png",c:"#a6d64b",s:"#dff698",info:"라임빛 결정 · 좌우 대칭이 중요"},
+  {m:9,n:"Sapphire",kr:"사파이어",raw:"09_sapphire_raw.png",polished:"09_sapphire.png",crack:"09_sapphire_crack.png",c:"#3d70d8",s:"#a3c7ff",info:"깊은 푸른빛 · 파빌리온 컷에서 깊이감이 살아남"},
+  {m:10,n:"Opal",kr:"오팔",raw:"10_opal_raw.png",polished:"10_opal.png",crack:"10_opal_crack.png",c:"#f3bad8",s:"#c5e7ff",info:"몽환적 반짝임 · 면 리듬이 흐트러지지 않게"},
+  {m:11,n:"Topaz",kr:"토파즈",raw:"11_topaz_raw.png",polished:"11_topaz.png",crack:"11_topaz_crack.png",c:"#efb33f",s:"#ffe18b",info:"황금빛 결정 · 후반 속도에 흔들리기 쉬움"},
+  {m:12,n:"Turquoise",kr:"터키석",raw:"12_turquoise_raw.png",polished:"12_turquoise.png",crack:"12_turquoise_crack.png",c:"#46c6c7",s:"#a0eeef",info:"청록빛 원석 · 깔끔한 컷이 어울림"}
+];
+
+const starterStone="보석깨기처음.png";
+const failurePowder="보석실패가루.png";
+const BREAK_HITS=4;
+
+const splineLoading=document.getElementById("splineLoading");
+const splineLoadingStartedAt=performance.now();
+let splineLoadingFailsafe;
+
+function hideSplineLoading(){
+  if(!splineLoading || splineLoading.dataset.closing) return;
+  splineLoading.dataset.closing="true";
+  const remaining=Math.max(0,500-(performance.now()-splineLoadingStartedAt));
+  setTimeout(()=>{
+    document.body.classList.remove("is-loading");
+    document.body.classList.add("is-ready");
+    splineLoading.classList.add("is-hidden");
+    setTimeout(()=>splineLoading.remove(),700);
+  },remaining);
+}
+
+const pageLoaded=new Promise(resolve=>{
+  if(document.readyState==="complete") resolve();
+  else window.addEventListener("load",resolve,{once:true});
+});
+const coreImagesLoaded=Promise.all(
+  [starterStone,failurePowder,...gems.flatMap(g=>[g.raw,g.polished,g.crack])].map(src=>new Promise(resolve=>{
+    const image=new Image();
+    image.onload=resolve;
+    image.onerror=resolve;
+    image.src=src;
+  }))
+);
+
+splineLoadingFailsafe=setTimeout(hideSplineLoading,6000);
+Promise.all([pageLoaded,coreImagesLoaded]).then(()=>{
+  clearTimeout(splineLoadingFailsafe);
+  requestAnimationFrame(()=>requestAnimationFrame(hideSplineLoading));
+});
+
+const steps = [
+  {title:"1단계 · 돌 깨기", desc:"어느 위치에서 눌러도 돌이 부서집니다.", left:0, width:100, speed:0.080, pace:"자유", facet:".f1"},
+  {title:"2단계 · 왼쪽 윗면", desc:"왼쪽 윗면을 날카롭게 다듬으세요.", left:43, width:16, speed:0.102, pace:"1.25배", facet:".f2"},
+  {title:"3단계 · 오른쪽 윗면", desc:"오른쪽 윗면을 대칭에 맞춰 다듬으세요.", left:43, width:14, speed:0.118, pace:"1.5배", facet:".f3"},
+  {title:"4단계 · 왼쪽 아랫면", desc:"왼쪽 아랫면을 안정적으로 정리하세요.", left:44, width:12, speed:0.135, pace:"1.8배", facet:".f4"},
+  {title:"5단계 · 오른쪽 아랫면", desc:"마지막 세공입니다. 침착하게 마무리하세요.", left:45, width:10, speed:0.155, pace:"2.1배", facet:".f5"}
+];
+
+const chipMap = ["chipTop","chipLT","chipRT","chipLB","chipRB"];
+
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+
+const audioFiles={
+  hover:"캐릭터호버.mp3",
+  select:"캐릭터선택.mp3",
+  stoneHit:"돌때리기.mp3",
+  stoneBreak:"돌부숴짐.mp3",
+  gemCut:"보석세공.mp3",
+  gemFail:"보석세공실패.mp3"
+};
+const effectVolume={hover:.34,select:.56,stoneHit:.72,stoneBreak:.78,gemCut:1,gemFail:.76};
+const activeEffects=new Set();
+const hoverAudio=new Audio(audioFiles.hover);
+hoverAudio.preload="auto";
+hoverAudio.volume=effectVolume.hover;
+
+Object.values(audioFiles).forEach(src=>{
+  const preload=new Audio();
+  preload.preload="auto";
+  preload.src=src;
+});
+
+const bgm=new Audio("보석세공음악.mp3");
+bgm.preload="auto";
+bgm.loop=true;
+bgm.volume=.32;
+let musicEnabled=true;
+
+function startMusic(){
+  if(musicEnabled && bgm.paused) bgm.play().catch(()=>{});
+}
+
+function updateMusicToggle(){
+  const button=$("#musicToggle");
+  button.textContent=musicEnabled ? "♪ MUSIC ON" : "♪ MUSIC OFF";
+  button.classList.toggle("off",!musicEnabled);
+  button.setAttribute("aria-pressed",String(musicEnabled));
+  button.setAttribute("aria-label",musicEnabled ? "배경음악 끄기" : "배경음악 켜기");
+}
+
+function playEffect(type){
+  const src=audioFiles[type];
+  if(!src)return;
+  if(type==="hover"){
+    hoverAudio.pause();
+    hoverAudio.currentTime=0;
+    hoverAudio.play().catch(()=>{});
+    return;
+  }
+  const audio=new Audio(src);
+  audio.preload="auto";
+  audio.volume=effectVolume[type]??.65;
+  activeEffects.add(audio);
+  const release=()=>activeEffects.delete(audio);
+  audio.addEventListener("ended",release,{once:true});
+  audio.addEventListener("error",release,{once:true});
+  audio.play().catch(release);
+}
+
+function stopEffects(){
+  hoverAudio.pause();
+  hoverAudio.currentTime=0;
+  activeEffects.forEach(audio=>{
+    audio.pause();
+    audio.currentTime=0;
+  });
+  activeEffects.clear();
+}
+
+function bindUiSounds(){
+  $$("button").forEach(button=>{
+    button.addEventListener("mouseenter",()=>{
+      if(!button.disabled)playEffect("hover");
+    });
+    if(button.id!=="actionBtn"){
+      button.addEventListener("click",()=>{
+        if(!button.disabled)playEffect("select");
+      });
+    }
+  });
+}
+
+let selected=null;
+let step=0;
+let marker=0;
+let dir=1;
+let running=false;
+let lastTs=0;
+let raf=null;
+let results=[];
+let perfects=0;
+let badChips=[];
+let gemDamaged=false;
+let damageCount=0;
+let cutFailures=0;
+let gemPulverized=false;
+let currentGemSrc="";
+let gamePhase="break";
+let breakHits=0;
+let finishTimer=null;
+let currentScreenId="start";
+
+function updateNavigation(id){
+  currentScreenId=id;
+  const button=$("#navControl");
+  if(!button)return;
+  const atHome=id==="start";
+  button.textContent=atHome?"메인메뉴":"← 뒤로가기";
+  button.setAttribute("aria-label",atHome?"메인메뉴로 이동":"이전 화면으로 돌아가기");
+}
+function show(id){
+  $$(".view").forEach(v=>v.classList.remove("on"));
+  $("#"+id).classList.add("on");
+  updateNavigation(id);
+}
+function handleNavigation(){
+  if(currentScreenId==="start"){
+    window.location.href="The_gem_I_am.html";
+    return;
+  }
+  running=false;
+  clearTimeout(finishTimer);
+  finishTimer=null;
+  cancelAnimationFrame(raf);
+  stopEffects();
+  show("start");
+}
+
+gems.forEach(g=>{
+  const b=document.createElement("button");
+  b.className="month";
+    b.innerHTML=`<img class="monthGem" src="${g.polished}" alt="${g.kr}"><b>${g.m}월</b><span>${g.n.toUpperCase()}</span>`;
+  b.addEventListener("click",()=>{
+    selected=g;
+    $$(".month").forEach(x=>x.classList.remove("sel"));
+    b.classList.add("sel");
+    document.documentElement.style.setProperty("--target",g.c);
+    document.documentElement.style.setProperty("--soft",g.s);
+    $("#startBtn").disabled=false;
+  });
+  $("#months").appendChild(b);
+});
+
+function startGame(){
+  if(!selected)return;
+  startMusic();
+  stopEffects();
+  cancelAnimationFrame(raf);
+  clearTimeout(finishTimer);
+  finishTimer=null;
+  step=0;
+  marker=Math.random()*100;
+  dir=Math.random()>.5?1:-1;
+  running=false;
+  lastTs=0;
+  results=[];
+  perfects=0;
+  badChips=[];
+  gemDamaged=false;
+  damageCount=0;
+  cutFailures=0;
+  gemPulverized=false;
+  currentGemSrc="";
+  gamePhase="break";
+  breakHits=0;
+
+  document.documentElement.style.setProperty("--target",selected.c);
+  document.documentElement.style.setProperty("--soft",selected.s);
+  $("#missionTitle").textContent=`${selected.kr} 세공하기`;
+  $("#materialInfo").innerHTML=`<b>${selected.kr}</b><br>${selected.info}`;
+  $("#missionGemIcon").src=selected.polished;
+  $("#missionGemIcon").alt=selected.kr;
+  $("#finishedGemImage").src=selected.polished;
+  $("#finishedGemImage").alt=selected.kr;
+
+  $("#crack").style.opacity="0";
+  $("#gemImage").style.filter="";
+  $("#gemImage").style.transform="translate(-50%,-50%) scale(1)";
+  $(".innerSpark").style.opacity="0";
+  $$(".facet").forEach(f=>f.style.opacity=0);
+  $$(".chip").forEach(c=>c.classList.remove("show"));
+  $$(".breakShard").forEach(c=>c.remove());
+
+  for(let i=1;i<=5;i++){
+    $("#read"+i).className="read";
+    $("#read"+i).querySelector("b").textContent="대기 중";
+    $("#p"+i).className="step";
+    $("#tool"+i).className="tool";
+  }
+  $("#tool1").classList.add("active");
+  $("#p1").classList.add("current");
+  $("#actionBtn").disabled=false;
+
+  setGemForStage(0,false);
+  setupBreak();
+  updateStats();
+  show("game");
+}
+
+function setupBreak(){
+  $("#stepTitle").textContent="준비 · 돌 깨기";
+  $("#stepDesc").textContent="스페이스바를 네 번 눌러 시작 돌에 균열을 만드세요.";
+  $("#missionSub").textContent=`돌 안에 숨은 ${selected.kr}을 꺼낼 준비를 합니다.`;
+  $("#zone").style.left="0%";
+  $("#zone").style.width="0%";
+  $("#marker").style.opacity="0";
+  $("#paceStat").textContent="4회";
+  $("#stepStat").textContent="준비";
+  $("#actionBtn").textContent="타격 0/4 · 스페이스바";
+}
+
+function setupStep(){
+  const s=steps[step];
+  $("#stepTitle").textContent=s.title;
+  const stateText=step===0?"돌을 내려쳐 원석을 꺼내세요.":step<=2?"발견한 원석을 다듬으세요.":gemDamaged?"금이 간 보석을 조심해서 마무리하세요.":"완성형 보석을 정교하게 마무리하세요.";
+  $("#stepDesc").textContent=stateText;
+  $("#missionSub").textContent=`${s.desc} ${stateText}`;
+  $("#zone").style.left=s.left+"%";
+  $("#zone").style.width=s.width+"%";
+  $("#marker").style.opacity="1";
+  $("#paceStat").textContent=s.pace;
+  $("#stepStat").textContent=(step+1)+"/5";
+  $("#actionBtn").textContent=step===0?"돌 깨기 · 스페이스바":"세공 · 스페이스바";
+}
+
+function setGemForStage(stageIndex,animate=true){
+  let src=starterStone;
+  let alt="깨기 전 시작 돌";
+  let stateClass="starterStone";
+
+  if(gemPulverized){
+    src=failurePowder;
+    alt="완전히 가루가 된 보석";
+    stateClass="powderGem";
+  }else if(stageIndex>=1 && stageIndex<=2){
+    src=gemDamaged?selected.crack:selected.raw;
+    alt=gemDamaged?`깨진 ${selected.kr} 원석`:`${selected.kr} 원석`;
+    stateClass=gemDamaged?"crackedGem":"rawGem";
+  }else if(stageIndex>=3){
+    src=gemDamaged?selected.crack:selected.polished;
+    alt=gemDamaged?`금이 간 ${selected.kr}`:`완성형 ${selected.kr}`;
+    stateClass=gemDamaged?"crackedGem":"polishedGem";
+  }
+
+  if(currentGemSrc===src)return;
+  currentGemSrc=src;
+  const img=$("#gemImage");
+  img.src=src;
+  img.alt=alt;
+  img.className=`gemSprite ${stateClass}${animate?" rawReveal":""}`;
+  img.style.filter="";
+  img.style.transform="translate(-50%,-50%) scale(1)";
+  if(stageIndex>=1){
+    $("#crack").style.opacity="0";
+    $(".innerSpark").style.opacity=".38";
+  }
+  if(animate)setTimeout(()=>img.classList.remove("rawReveal"),650);
+}
+
+function strikeAnimation(shards=3){
+  const img=$("#gemImage");
+  img.classList.remove("rawReveal","breakHit");
+  void img.offsetWidth;
+  img.classList.add("breakHit");
+  setTimeout(()=>img.classList.remove("breakHit"),260);
+  emitBreakShards(shards);
+}
+
+function loop(ts){
+  if(!running)return;
+  if(!lastTs)lastTs=ts;
+  const dt=Math.min(32,ts-lastTs);
+  lastTs=ts;
+
+  const s=steps[step];
+  marker += dir*s.speed*dt;
+  if(marker>=100){marker=100;dir=-1}
+  if(marker<=0){marker=0;dir=1}
+  $("#marker").style.left=marker+"%";
+
+  raf=requestAnimationFrame(loop);
+}
+
+function emitBreakShards(count){
+  const box=$("#gemBox");
+  for(let i=0;i<count;i++){
+    const shard=document.createElement("i");
+    shard.className="breakShard";
+    const angle=(Math.PI*2*i/count)+(Math.random()-.5)*.45;
+    const distance=48+Math.random()*72;
+    shard.style.setProperty("--dx",`${Math.cos(angle)*distance}px`);
+    shard.style.setProperty("--dy",`${Math.sin(angle)*distance}px`);
+    shard.style.setProperty("--rot",`${Math.round((Math.random()-.5)*360)}deg`);
+    shard.style.setProperty("--chip",`${7+Math.round(Math.random()*8)}px`);
+    box.appendChild(shard);
+    setTimeout(()=>shard.remove(),560);
+  }
+}
+
+function hitStarterStone(){
+  if(gamePhase!=="break")return;
+  breakHits++;
+  playEffect("stoneHit");
+  strikeAnimation(breakHits===BREAK_HITS?11:4);
+  spark();
+
+  $("#zone").style.width=(breakHits/BREAK_HITS*100)+"%";
+  $("#actionBtn").textContent=`타격 ${breakHits}/${BREAK_HITS} · 스페이스바`;
+  $("#stepDesc").textContent=breakHits<BREAK_HITS
+    ? `돌에 균열이 생겼어요 · ${BREAK_HITS-breakHits}번 남음`
+    : "준비 완료! 돌의 모습 그대로 1단계 타이밍 세공을 시작합니다.";
+
+  if(breakHits<BREAK_HITS){
+    toast(`돌 타격 ${breakHits}/${BREAK_HITS}`);
+    return;
+  }
+
+  gamePhase="ready";
+  $("#actionBtn").disabled=true;
+  $("#actionBtn").textContent="1단계 준비 완료";
+  toast("1단계 준비 완료");
+  setTimeout(beginStepOne,650);
+}
+
+function beginStepOne(){
+  if(gamePhase!=="ready")return;
+  gamePhase="cut";
+  marker=Math.random()*100;
+  dir=Math.random()>.5?1:-1;
+  running=true;
+  lastTs=0;
+  $("#actionBtn").disabled=false;
+  setupStep();
+  raf=requestAnimationFrame(loop);
+}
+
+function grade(){
+  if(step===0)return {name:"완벽",score:100,cls:"good",type:"great"};
+  const s=steps[step];
+  const center=s.left + s.width/2;
+  const dist=Math.abs(marker-center);
+  const half=s.width/2;
+
+  if(dist<=half*0.22) return {name:"완벽",score:100,cls:"good",type:"great"};
+  if(dist<=half*0.5) return {name:"훌륭",score:86,cls:"good",type:"great"};
+  if(dist<=half*0.9) return {name:"좋음",score:70,cls:"mid",type:"ok"};
+  if(dist<=half*1.35) return {name:"불안정",score:50,cls:"mid",type:"bad"};
+  return {name:"실패",score:25,cls:"bad",type:"bad"};
+}
+
+function spark(){
+  const s=$("#spark");
+  s.style.opacity="1";
+  setTimeout(()=>s.style.opacity="0",180);
+}
+
+function addChip(){
+  const available = chipMap.filter(id => !badChips.includes(id));
+  if(!available.length) return;
+  const id = available[0];
+  badChips.push(id);
+  $("#"+id).classList.add("show");
+}
+
+function updateGemShape(){
+  const wear = badChips.length;
+  const scale = 1 - wear*0.012;
+  const saturation = 1 - wear*0.08;
+  const brightness = 1 - wear*0.035;
+  $("#gemImage").style.filter = `drop-shadow(0 14px 18px rgba(112,72,94,.15)) saturate(${saturation}) brightness(${brightness})`;
+  $("#gemImage").style.transform = `translate(-50%,-50%) scale(${scale})`;
+}
+
+
+function reflectCut(result){
+  const facet = $(steps[step].facet);
+
+  if(result.type==="great"){
+    facet.style.opacity=".22";
+  }else if(result.type==="ok"){
+    facet.style.opacity=".14";
+  }else{
+    facet.style.opacity=".08";
+    if(step>=1){
+      gemDamaged=true;
+      setGemForStage(step,true);
+    }
+  }
+
+  if(step>=2) $(".f6").style.opacity=".10";
+  updateGemShape();
+}
+
+function act(){
+  if(gamePhase==="break"){
+    hitStarterStone();
+    return;
+  }
+  if(gamePhase==="ready")return;
+  if(!running)return;
+  const result=grade();
+  strikeAnimation(step===0?12:4);
+  if(step===0){
+    playEffect("stoneBreak");
+  }else if(result.type==="bad"){
+    playEffect("gemFail");
+  }else{
+    playEffect("gemCut");
+  }
+  results.push(result.score);
+  if(result.score===100) perfects++;
+  if(step>=1 && result.type==="bad") damageCount++;
+  if(step>=1 && result.score===25) cutFailures++;
+
+  const read=$("#read"+(step+1));
+  read.className="read "+result.cls;
+  read.querySelector("b").textContent=result.name;
+
+  $("#p"+(step+1)).classList.remove("current");
+  $("#p"+(step+1)).classList.add("done");
+
+  spark();
+  const pulverizedNow=step===4 && cutFailures===4;
+  reflectCut(result);
+  if(pulverizedNow){
+    gemPulverized=true;
+    setGemForStage(step,true);
+    $("#missionSub").textContent="2단계부터 모든 세공에 실패해 보석이 완전히 가루가 되었습니다.";
+  }
+  toast(pulverizedNow?"완전 실패 · 보석이 가루가 됐어요":result.name);
+  updateStats();
+
+  if(step<4){
+    step++;
+    $$(".tool").forEach(t=>t.classList.remove("active"));
+    $("#tool"+(step+1)).classList.add("active");
+    $("#p"+(step+1)).classList.add("current");
+    marker=Math.random()*100;
+    dir=Math.random()>.5?1:-1;
+    setGemForStage(step,true);
+    setupStep();
+  }else{
+    running=false;
+    cancelAnimationFrame(raf);
+    finishTimer=setTimeout(finishGame,650);
+  }
+}
+
+function updateStats(){
+  const total=results.reduce((a,b)=>a+b,0);
+  const quality=results.length?Math.round(total/(results.length*100)*100):0;
+  $("#qualityStat").textContent=quality+"%";
+  $("#valueStat").textContent=Math.round(total*14);
+}
+
+function finishGame(){
+  const total=results.reduce((a,b)=>a+b,0);
+  const quality=Math.round(total/500*100);
+  const value=Math.round(total*14);
+  const bestCut=results.length?Math.max(...results):0;
+
+  const rankByDamage=[
+    {rank:"S",title:"완벽한 세공"},
+    {rank:"A",title:"조금 아쉬운 세공"},
+    {rank:"B",title:"균열이 남은 세공"},
+    {rank:"C",title:"많이 손상된 세공"},
+    {rank:"D",title:"실패한 세공"}
+  ];
+  const resultGrade=rankByDamage[Math.min(damageCount,4)];
+  const rank=gemPulverized?"D":resultGrade.rank;
+  const title=gemPulverized?"완전 실패":resultGrade.title;
+
+  $("#rank").textContent=rank;
+  $("#resultTitle").textContent=title;
+  $("#finalQuality").textContent=quality+"%";
+  $("#finalValue").textContent=value;
+  $("#perfectCount").textContent=perfects+"/5";
+  $("#bestCut").textContent=bestCut;
+
+  $("#finishedGemImage").src=gemPulverized?failurePowder:gemDamaged?selected.crack:selected.polished;
+  $("#finishedGemImage").alt=gemPulverized?"완전히 가루가 된 보석":gemDamaged?`금이 간 ${selected.kr}`:`완성형 ${selected.kr}`;
+  const wrap=$("#finishedGemWrap");
+  [...wrap.querySelectorAll('.finishedChip')].forEach(x=>x.remove());
+  const chipStyles = {
+    chipTop:'width:16px;height:10px;left:48px;top:2px;clip-path:polygon(50% 0,100% 100%,0 100%)',
+    chipLT:'width:14px;height:18px;left:4px;top:34px;clip-path:polygon(0 0,100% 30%,100% 100%)',
+    chipRT:'width:14px;height:18px;right:4px;top:34px;clip-path:polygon(0 30%,100% 0,0 100%)',
+    chipLB:'width:16px;height:16px;left:10px;bottom:18px;clip-path:polygon(0 100%,100% 0,100% 100%)',
+    chipRB:'width:16px;height:16px;right:10px;bottom:18px;clip-path:polygon(0 0,100% 100%,0 100%)'
+  };
+  badChips.forEach(id=>{
+    const d=document.createElement('div');
+    d.className='finishedChip';
+    d.style.cssText=chipStyles[id]+';opacity:1;';
+    wrap.appendChild(d);
+  });
+
+  let text="";
+  if(gemPulverized){
+    text=`2단계부터 네 번의 세공을 모두 실패해 ${selected.kr}이 검은 가루가 되었어요. 보석의 형태가 전혀 남지 않은 완전 실패입니다.`;
+  }else if(damageCount===0){
+    text=`${selected.kr}을 한 번도 깨뜨리지 않고 완성했어요. 면과 형태가 깨끗하게 살아난 완벽한 세공입니다.`;
+  }else if(damageCount===1){
+    text=`세공 중 한 번 금이 가서 조금 아쉬움이 남아요. 전체 형태는 잘 살아났지만 최고 등급에는 닿지 못했습니다.`;
+  }else if(damageCount===2){
+    text=`두 번의 실수로 균열이 눈에 띄게 남았어요. 보석의 형태는 완성했지만 조금 더 조심스러운 세공이 필요합니다.`;
+  }else if(damageCount===3){
+    text=`세 번이나 깨져 ${selected.kr}의 형태가 많이 손상됐어요. 간신히 보석 모양은 남겼지만 결과가 꽤 아쉽습니다.`;
+  }else{
+    text=`네 번의 세공에서 모두 손상이 생겨 ${selected.kr}의 상태가 심하게 망가졌어요. 형태는 겨우 남았지만 D등급의 실패한 세공입니다.`;
+  }
+  $("#resultText").textContent=text;
+  show("result");
+}
+
+function toast(msg){
+  const t=$("#toast");
+  t.textContent=msg;
+  t.classList.add("on");
+  clearTimeout(window.__tt);
+  window.__tt=setTimeout(()=>t.classList.remove("on"),900);
+}
+
+$("#startBtn").addEventListener("click",startGame);
+$("#retryBtn").addEventListener("click",startGame);
+$("#musicToggle").addEventListener("click",()=>{
+  musicEnabled=!musicEnabled;
+  if(musicEnabled) startMusic();
+  else bgm.pause();
+  updateMusicToggle();
+});
+$("#changeBtn").addEventListener("click",()=>{
+  running=false;
+  cancelAnimationFrame(raf);
+  stopEffects();
+  show("start");
+});
+$("#actionBtn").addEventListener("click",act);
+
+$("#navControl").addEventListener("click",handleNavigation);
+updateNavigation("start");
+bindUiSounds();
+
+document.addEventListener("keydown",e=>{
+  if(!$("#game").classList.contains("on"))return;
+  const tag=document.activeElement?.tagName;
+  if(tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT")return;
+  if(e.code==="Space"){
+    e.preventDefault();
+    act();
+  }
+});
+</script>
+</body>
+</html>
