@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>GEM RUSH — BIRTHSTONE GAME</title>
+<style>
+:root{
+  --bg:#fff8f6;
+  --text:#4f3d49;
+  --muted:rgba(79,61,73,.67);
+  --line:rgba(139,101,122,.17);
+  --glass:rgba(255,255,255,.7);
+  --accent:#c96f9b;
+  --accent2:#9a88c5;
+  --gold:#c3a269;
+  --target:#b59ac7;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{
+  color:var(--text);
+  font-family:Inter,Pretendard,"Noto Sans KR",system-ui,sans-serif;
+  background:
+    radial-gradient(circle at 14% 17%,rgba(255,187,211,.56),transparent 28%),
+    radial-gradient(circle at 85% 12%,rgba(202,197,255,.55),transparent 30%),
+    radial-gradient(circle at 73% 89%,rgba(255,223,190,.5),transparent 31%),
+    linear-gradient(145deg,#fffaf6 0%,#fceff5 48%,#f4effc 100%);
+}
+.spline-loading{
+  position:fixed;
+  inset:0;
+  z-index:200;
+  display:grid;
+  place-items:center;
+  background:inherit;
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transition:
+    opacity .65s cubic-bezier(.22,1,.36,1),
+    visibility 0s linear .65s
+}
+.spline-loading.is-hidden{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none
+}
+.spline-loading-inner{
+  width:min(38vw,260px);
+  text-align:center;
+  color:rgba(31,48,88,.76)
+}
+.spline-loading-title{
+  display:block;
+  margin-bottom:.8rem;
+  font-size:clamp(13px,1.05vw,18px);
+  font-weight:500;
+  letter-spacing:.24em
+}
+.spline-loading-line{
+  position:relative;
+  width:100%;
+  height:1px;
+  overflow:hidden;
+  background:rgba(46,68,116,.18)
+}
+.spline-loading-line::after{
+  content:"";
+  position:absolute;
+  inset:0 auto 0 0;
+  width:42%;
+  background:linear-gradient(90deg,transparent,rgba(95,151,224,.94),rgba(183,134,223,.94),transparent);
+  animation:splineLoadingSweep 1.15s ease-in-out infinite
+}
+@keyframes splineLoadingSweep{
+  from{transform:translateX(-120%)}
+  to{transform:translateX(340%)}
+}
+body.is-loading .wrap{
+  opacity:0;
+  transform:translateY(8px)
+}
+body.is-ready .wrap{
+  opacity:1;
+  transform:translateY(0);
+  transition:
+    opacity .65s cubic-bezier(.22,1,.36,1),
+    transform .65s cubic-bezier(.22,1,.36,1)
+}
+@media(prefers-reduced-motion:reduce){
+  .spline-loading-line::after{animation:none;left:29%}
+  body.is-ready .wrap{transition:none}
+}
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.38;
+  background-image:
+    radial-gradient(circle,rgba(191,137,165,.48) 1px,transparent 1.4px),
+    radial-gradient(circle,rgba(255,255,255,.95) 1.5px,transparent 1.8px);
+  background-size:120px 120px,185px 185px;
+  background-position:22px 30px,70px 12px;
+  animation:stars 26s linear infinite;
+}
+@keyframes stars{to{transform:translateY(80px)}}
+button{font:inherit}
+.wrap{position:relative;z-index:1;height:100%;padding:18px;display:grid;place-items:center}
+.panel{
+  position:relative;isolation:isolate;
+  width:min(1180px,100%);height:min(780px,calc(100vh - 36px));
+  min-height:590px;overflow:hidden;border-radius:32px;border:1px solid rgba(255,255,255,.92);
+  background:linear-gradient(145deg,rgba(255,255,255,.83),rgba(255,249,250,.6));
+  backdrop-filter:blur(22px);box-shadow:0 30px 90px rgba(132,84,111,.18),inset 0 1px 0 #fff;
+  display:grid;grid-template-rows:auto 1fr;
+}
+.panel:before{
+  content:"";position:absolute;z-index:0;inset:-26%;pointer-events:none;opacity:.18;
+  background:radial-gradient(circle at 72% 42%,var(--target),transparent 24%);
+  filter:blur(36px);transition:background .45s ease
+}
+.topbar,.stage{position:relative;z-index:1}
+.topbar{
+  min-height:76px;padding:14px 18px;display:flex;align-items:center;gap:14px;
+  border-bottom:1px solid var(--line);background:rgba(255,255,255,.48);
+}
+.logo{margin-right:auto}
+.logo small{display:block;font-size:9px;letter-spacing:.3em;color:#aa7c94;margin-bottom:4px}
+.logo h1{margin:0;font:500 clamp(20px,2.4vw,31px)/1 Georgia,serif;letter-spacing:.08em;color:#513c49}
+.stats{display:flex;gap:8px}
+.stat{
+  min-width:74px;padding:8px 10px;text-align:center;border:1px solid rgba(155,114,137,.14);
+  border-radius:14px;background:rgba(255,255,255,.58);font-size:9px;letter-spacing:.09em;color:var(--muted);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9)
+}
+.stat b{display:block;color:#5a414f;font-size:17px;letter-spacing:0;margin-top:2px}
+.stat.combo b{color:#bd668f}
+.stage{position:relative;min-height:0}
+.screen{display:none;position:absolute;inset:0}
+.screen.on{display:flex}
+
+/* intro */
+#intro,#characterSelect{overflow:auto;align-items:center;justify-content:center;padding:26px}
+.introbox{width:min(940px,100%);text-align:center}
+.characterbox{width:min(900px,100%);text-align:center}
+.characterbox .title{font-size:clamp(38px,5vw,62px);line-height:.96}
+.kicker{font-size:10px;letter-spacing:.3em;color:#a77b91;margin-bottom:10px}
+.title{margin:0;font:400 clamp(44px,7vw,82px)/.92 Georgia,serif;letter-spacing:-.03em}
+.title em{font-style:italic;color:#c16f98;text-shadow:0 9px 25px rgba(193,111,152,.13)}
+.sub{max-width:620px;margin:16px auto 20px;color:var(--muted);font-size:13px;line-height:1.75}
+.rulebar{
+  max-width:760px;margin:0 auto 18px;padding:10px 14px;border-radius:14px;
+  border:1px solid var(--line);background:rgba(255,255,255,.52);
+  display:flex;justify-content:center;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--muted);
+  box-shadow:0 9px 24px rgba(125,82,106,.06)
+}
+.rulebar b{color:#6a4c5c}
+.months{max-width:790px;margin:0 auto 14px;display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.month{
+  min-height:92px;border:1px solid rgba(151,111,134,.13);background:rgba(255,255,255,.52);color:#5d4654;
+  border-radius:17px;padding:10px 5px 9px;cursor:pointer;transition:.18s;box-shadow:0 9px 22px rgba(115,76,98,.055);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px
+}
+.month:hover{background:rgba(255,255,255,.86);transform:translateY(-3px);box-shadow:0 13px 28px rgba(115,76,98,.1)}
+.month.sel{border-color:color-mix(in srgb,var(--gem) 55%,#fff);background:rgba(255,255,255,.92);transform:translateY(-3px);box-shadow:0 0 0 2px color-mix(in srgb,var(--gem) 13%,transparent),0 15px 32px color-mix(in srgb,var(--gem) 18%,transparent)}
+.month img{display:block;width:42px;height:42px;object-fit:contain;image-rendering:pixelated;margin:0 auto 2px;filter:drop-shadow(0 4px 6px rgba(100,63,84,.14))}
+.month b{display:block;font-size:11px;line-height:1.05}
+.month span{font-size:8px;opacity:.58;letter-spacing:.08em}
+.characters{max-width:820px;margin:0 auto 22px;display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.character{
+  min-height:118px;border:1px solid rgba(151,111,134,.13);background:rgba(255,255,255,.54);color:#5d4654;
+  border-radius:20px;padding:8px 5px 7px;cursor:pointer;transition:.18s;box-shadow:0 9px 22px rgba(115,76,98,.055)
+}
+.character:hover{background:rgba(255,255,255,.9);transform:translateY(-3px);box-shadow:0 13px 28px rgba(115,76,98,.1)}
+.character.sel{border-color:color-mix(in srgb,var(--gem) 55%,#fff);background:rgba(255,255,255,.94);transform:translateY(-3px);box-shadow:0 0 0 2px color-mix(in srgb,var(--gem) 13%,transparent),0 15px 32px color-mix(in srgb,var(--gem) 18%,transparent)}
+.character img{display:block;width:82px;height:82px;object-fit:contain;margin:0 auto 2px;image-rendering:pixelated;filter:drop-shadow(0 5px 7px rgba(100,63,84,.12))}
+.character b{display:block;font-size:10px}
+.character span{font-size:8px;opacity:.57;letter-spacing:.03em}
+.difficultySelect{max-width:650px;margin:0 auto 18px}
+.difficultyTitle{margin:0 0 8px;font-size:10px;font-weight:800;letter-spacing:.13em;color:#9e738a}
+.difficulties{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.difficultyOption{
+  --level:#b58aaa;min-height:66px;border:1px solid rgba(151,111,134,.14);border-radius:16px;
+  padding:9px 8px;background:rgba(255,255,255,.52);color:#654c5b;cursor:pointer;transition:.18s;
+  box-shadow:0 8px 20px rgba(115,76,98,.05)
+}
+.difficultyOption[data-difficulty="normal"]{--level:#bd7798}
+.difficultyOption[data-difficulty="hard"]{--level:#b95870}
+.difficultyOption:hover{background:rgba(255,255,255,.9);transform:translateY(-2px)}
+.difficultyOption.sel{
+  border-color:color-mix(in srgb,var(--level) 58%,#fff);background:rgba(255,255,255,.95);
+  transform:translateY(-2px);box-shadow:0 0 0 2px color-mix(in srgb,var(--level) 14%,transparent),0 12px 28px color-mix(in srgb,var(--level) 18%,transparent)
+}
+.difficultyOption b{display:block;font-size:12px;color:var(--level);margin-bottom:3px}
+.difficultyOption span{display:block;font-size:8px;line-height:1.35;color:var(--muted)}
+.selectActions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap}
+.primary,.secondary{
+  border:0;border-radius:999px;cursor:pointer;font-weight:800;transition:.16s
+}
+.primary{padding:13px 24px;color:white;background:linear-gradient(100deg,#c56f99,#9a87c2);box-shadow:0 13px 30px rgba(157,99,136,.24)}
+.primary:hover{transform:translateY(-2px) scale(1.02)}
+.primary:disabled{opacity:.3;cursor:not-allowed;transform:none}
+.secondary{padding:12px 19px;color:#674d5c;background:rgba(255,255,255,.64);border:1px solid var(--line)}
+
+/* game */
+#game{flex-direction:column}
+.gameline{
+  padding:10px 14px;display:flex;align-items:center;gap:12px;
+  border-bottom:1px solid var(--line);background:rgba(255,255,255,.5)
+}
+.target{display:flex;align-items:center;gap:10px;margin-right:auto}
+.iconGem{width:38px;height:38px;object-fit:contain;filter:drop-shadow(0 5px 8px color-mix(in srgb,var(--target) 30%,transparent))}
+.target small{display:block;font-size:9px;color:#a0788c;letter-spacing:.08em}
+.target strong{display:block;font-size:13px;color:#5b4250}
+.effects{display:flex;gap:7px;align-items:center}
+.effect{
+  display:none;padding:7px 10px;border-radius:999px;font-size:10px;font-weight:800;
+  border:1px solid var(--line);background:rgba(255,255,255,.74);color:#6a5060
+}
+.effect.on{display:block}
+.effect.fever{box-shadow:0 0 26px rgba(255,145,198,.26)}
+.rankGoal{
+  padding:7px 10px;border-radius:999px;font-size:9px;font-weight:800;letter-spacing:.05em;
+  border:1px solid var(--line);background:rgba(255,255,255,.74);color:#76576a;white-space:nowrap
+}
+.rankGoal b{color:var(--target);font-size:11px;margin-left:4px}
+.difficultyBadge{
+  padding:7px 10px;border-radius:999px;font-size:9px;font-weight:900;letter-spacing:.05em;
+  border:1px solid color-mix(in srgb,var(--target) 24%,var(--line));background:rgba(255,255,255,.78);
+  color:#76576a;white-space:nowrap
+}
+
+.arena{
+  position:relative;flex:1;overflow:hidden;
+  touch-action:none;
+  background-color:#fff9fb;
+  background-image:
+    linear-gradient(180deg,rgba(255,255,255,.68),rgba(255,250,253,.74)),
+    radial-gradient(circle at 50% 112%,color-mix(in srgb,var(--target) 12%,#fff),transparent 38%),
+    url("보석게임배경.jpg");
+  background-position:center,center,center;
+  background-size:100% 100%,100% 100%,cover;
+  background-repeat:no-repeat;
+}
+.arena.fevering{animation:feverbg .55s ease-in-out infinite alternate}
+@keyframes feverbg{
+  from{box-shadow:inset 0 0 0 rgba(255,153,208,0)}
+  to{box-shadow:inset 0 0 110px rgba(255,153,208,.22)}
+}
+.centerHint{
+  position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;
+  font:italic 400 clamp(22px,4vw,48px)/1.05 Georgia,serif;color:rgba(133,91,114,.1);text-align:center
+}
+.item{
+  position:absolute;top:-90px;border:0;background:transparent;padding:5px;pointer-events:none;
+  animation:drop linear forwards;filter:drop-shadow(0 9px 14px rgba(0,0,0,.22))
+}
+@keyframes drop{to{transform:translateY(calc(100vh + 150px)) rotate(30deg)}}
+.item.gem{padding:0}
+.gemImage{
+  display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;
+  filter:drop-shadow(0 7px 9px rgba(106,66,87,.16)) drop-shadow(0 0 9px rgba(255,255,255,.52));transition:transform .11s
+}
+.player{
+  position:absolute;z-index:6;left:50%;bottom:4px;width:98px;height:118px;
+  transform:translateX(-50%);pointer-events:none;will-change:left
+}
+.player img{
+  display:block;width:100%;height:100%;object-fit:contain;image-rendering:pixelated;
+  filter:drop-shadow(0 8px 9px rgba(97,61,81,.18));transform-origin:50% 78%
+}
+.player.eat img{animation:playerEat .24s ease}
+@keyframes playerEat{50%{transform:translateY(-5px) scale(1.06)}}
+.player.hurt img{animation:playerHurt .5s steps(2,end)}
+@keyframes playerHurt{
+  0%,100%{filter:drop-shadow(0 8px 9px rgba(97,61,81,.18));transform:translateX(0) scale(1)}
+  20%{filter:brightness(.72) sepia(1) saturate(10) hue-rotate(315deg) drop-shadow(0 0 16px rgba(255,28,62,.85));transform:translateX(-7px) scale(.96)}
+  48%{filter:brightness(.72) sepia(1) saturate(10) hue-rotate(315deg) drop-shadow(0 0 16px rgba(255,28,62,.85));transform:translateX(7px) scale(.96)}
+  74%{filter:brightness(.82) sepia(1) saturate(8) hue-rotate(320deg);transform:translateX(-4px) scale(.98)}
+}
+.float{
+  position:absolute;pointer-events:none;font-weight:900;animation:float .68s ease forwards;text-shadow:0 3px 10px rgba(255,255,255,.85)
+}
+@keyframes float{
+  0%{opacity:0;transform:translate(-50%,-20%) scale(.7)}
+  25%{opacity:1}
+  100%{opacity:0;transform:translate(-50%,-140%) scale(1.16)}
+}
+.comboFlash{
+  position:absolute;left:50%;top:18%;transform:translate(-50%,-50%);
+  font:italic 700 clamp(30px,7vw,72px)/1 Georgia,serif;letter-spacing:-.03em;
+  pointer-events:none;opacity:0;color:#b9618a;text-shadow:0 10px 30px rgba(255,255,255,.75)
+}
+.comboFlash.show{animation:flash .65s ease}
+@keyframes flash{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}
+  35%{opacity:1}
+  100%{opacity:0;transform:translate(-50%,-70%) scale(1.08)}
+}
+.shake{animation:shake .22s linear}
+@keyframes shake{25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
+
+/* result */
+#result{align-items:center;justify-content:center;padding:26px;overflow:auto}
+.resultbox{
+  width:min(700px,100%);text-align:center;border:1px solid rgba(255,255,255,.92);
+  background:rgba(255,255,255,.57);border-radius:28px;padding:28px 24px;
+  box-shadow:0 24px 58px rgba(120,78,102,.12),inset 0 1px 0 #fff
+}
+.resultVisual{position:relative;width:158px;height:150px;margin:-4px auto 8px}
+.resultCharacter{
+  display:block;width:150px;height:150px;object-fit:contain;image-rendering:pixelated;
+  filter:drop-shadow(0 13px 14px rgba(104,65,86,.17))
+}
+.biggem{
+  position:absolute;right:-2px;bottom:2px;width:48px;height:48px;object-fit:contain;padding:5px;
+  border-radius:50%;border:1px solid rgba(151,111,134,.15);background:rgba(255,255,255,.88);
+  box-shadow:0 8px 20px color-mix(in srgb,var(--target) 20%,transparent)
+}
+#resultStatus.win{color:#8d6ca8}
+#resultStatus.lose{color:#c65570}
+.grade{font:italic 500 clamp(54px,9vw,96px)/.8 Georgia,serif;margin:0;color:#bc688f;text-shadow:0 9px 24px rgba(188,104,143,.13)}
+.resultbox h2{font:400 clamp(30px,5vw,48px)/1 Georgia,serif;margin:10px 0 8px}
+.resultbox p{margin:0 auto 18px;max-width:560px;line-height:1.7;color:var(--muted);font-size:13px}
+.resultstats{max-width:540px;margin:0 auto 22px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.rstat{padding:11px 7px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.55);font-size:9px;color:var(--muted)}
+.rstat b{display:block;color:#5c4251;font-size:20px;margin-top:3px}
+.actions{display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
+
+@media(max-width:760px){
+  .wrap{padding:0}
+  .panel{width:100%;height:100dvh;min-height:0;border-radius:0;border:0}
+  .topbar{padding:10px 11px;min-height:62px}
+  .logo small{display:none}.logo h1{font-size:16px}
+  .stats{gap:3px}.stat{min-width:48px;padding:6px 4px;font-size:7px}.stat b{font-size:13px}
+  #intro,#characterSelect,#result{padding:15px 12px}
+  .title{font-size:44px}
+  .characterbox .title{font-size:36px}
+  .months{grid-template-columns:repeat(4,1fr);gap:6px}
+  .month{min-height:84px;padding:8px 3px}
+  .month img{width:38px;height:38px}
+  .characters{grid-template-columns:repeat(4,1fr);gap:6px}
+  .character{min-height:94px;padding:5px 2px}
+  .character img{width:62px;height:62px}
+  .difficultySelect{margin-bottom:12px}.difficultyOption{min-height:58px;padding:7px 4px}.difficultyOption span{font-size:7px}
+  .rulebar{gap:9px;font-size:9px}
+  .gameline{padding:8px 10px}.effects{gap:4px}.effect,.rankGoal,.difficultyBadge{font-size:8px;padding:5px 7px}.rankGoal b{font-size:9px}
+  .item{max-width:92px;max-height:92px}
+  .player{width:84px;height:104px;bottom:2px}
+  .resultbox{padding:20px 13px}
+  .resultstats{grid-template-columns:repeat(2,1fr)}
+}
+
+
+/* UNIFIED GAME NAVIGATION */
+.top,.topbar{position:relative}
+.navControl{
+  flex:none;min-width:88px;padding:9px 13px;border:1px solid rgba(151,111,134,.17);
+  border-radius:999px;background:rgba(255,255,255,.72);color:#684d5c;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.94),0 7px 18px rgba(115,76,98,.07);
+  cursor:pointer;font-size:9px;font-weight:900;letter-spacing:.05em;white-space:nowrap;
+  transition:transform .16s ease,background .16s ease,box-shadow .16s ease
+}
+.navControl:hover{transform:translateY(-1px);background:rgba(255,255,255,.97);box-shadow:inset 0 1px 0 #fff,0 10px 22px rgba(115,76,98,.11)}
+.navControl:active{transform:translateY(0)}
+.navControl:focus-visible{outline:2px solid rgba(193,111,152,.42);outline-offset:2px}
+.legacyBack{display:none}
+@media(max-width:860px){
+  .navControl{min-width:70px;padding:7px 9px;font-size:8px}
+}
+@media(max-width:430px){
+  .top,.topbar{gap:4px}
+  .navControl{min-width:58px;padding:7px 6px;font-size:7px;letter-spacing:0}
+  .brand small,.logo small{display:none}
+  .brand h1,.logo h1{font-size:14px}
+  .stats,.meta{gap:2px}
+  .stat,.badge{min-width:43px;padding:5px 3px}
+}
+</style>
+</head>
+<body class="is-loading">
+<div class="spline-loading" id="splineLoading" role="status" aria-live="polite">
+  <div class="spline-loading-inner">
+    <span class="spline-loading-title">LOADING...</span>
+    <div class="spline-loading-line" aria-hidden="true"></div>
+  </div>
+</div>
+<div class="wrap">
+  <div class="panel" id="panel">
+    <div class="topbar">
+    <button class="navControl" id="navControl" type="button" aria-label="메인메뉴로 이동">메인메뉴</button>
+      <div class="logo">
+        <small>BIRTHSTONE COLLECTION</small>
+        <h1>GEM RUSH</h1>
+      </div>
+      <div class="stats">
+        <div class="stat">SCORE<b id="score">0</b></div>
+        <div class="stat combo">COMBO<b id="combo">x1</b></div>
+        <div class="stat">TIME<b id="time">20</b></div>
+        <div class="stat">LIFE<b id="life">♥♥♥♥</b></div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <section id="intro" class="screen on">
+        <div class="introbox">
+          <div class="kicker">CHOOSE YOUR MONTH · FOLLOW THE LIGHT</div>
+          <h2 class="title">A gem for<br><em>Your own light.</em></h2>
+          <p class="sub">먼저 태어난 달의 보석을 선택하세요. 다음 화면에서는 탄생석과 관계없이 마음에 드는 캐릭터를 자유롭게 고를 수 있어요.</p>
+          <div class="rulebar">
+            <span>내 탄생석 <b>+10 × COMBO</b></span>
+            <span>다른 탄생석 <b>LIFE -1 · 실수 +1</b></span>
+            <span>내 탄생석 놓침 <b>SCORE -20 · LIFE -1 · 실수 +1</b></span>
+            <span>등급 <b>실수 0=S · 1=A · 2=B · 3=C · 4+=D</b></span>
+            <span>마우스로 이동 <b>자동으로 먹기</b></span>
+          </div>
+          <div class="months" id="months"></div>
+          <button class="primary" id="chooseCharacterBtn" disabled>다음 · 캐릭터 / 난이도 선택</button>
+        </div>
+      </section>
+
+      <section id="characterSelect" class="screen">
+        <div class="characterbox">
+          <div class="kicker">STEP 2 · CHARACTER & DIFFICULTY</div>
+          <h2 class="title">Who will catch<br><em>your birthstone?</em></h2>
+          <p class="sub">원하는 캐릭터를 고른 다음 플레이할 난이도를 선택하세요. 보통과 어려움은 초반 5초 이후부터 보석 수가 점점 늘어나며 후반 러시가 더 강해집니다.</p>
+          <div class="characters" id="characters"></div>
+          <div class="difficultySelect">
+            <p class="difficultyTitle">난이도 선택</p>
+            <div class="difficulties" id="difficulties">
+              <button class="difficultyOption" data-difficulty="easy"><b>쉬움</b><span>현재 속도 · 여유로운 플레이</span></button>
+              <button class="difficultyOption" data-difficulty="normal"><b>보통</b><span>초반 여유 · 후반 보석 UP</span></button>
+              <button class="difficultyOption" data-difficulty="hard"><b>어려움</b><span>고속 낙하 · 마지막 5초 MAX RUSH</span></button>
+            </div>
+          </div>
+          <div class="selectActions">
+            <button class="secondary legacyBack" id="backGemBtn">이전 · 보석 선택</button>
+            <button class="primary" id="startBtn" disabled>게임 시작</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="game" class="screen">
+        <div class="gameline">
+          <div class="target">
+            <img class="iconGem" id="targetGemImage" alt="선택한 탄생석">
+            <div>
+              <small>TARGET GEM</small>
+              <strong id="targetName"></strong>
+            </div>
+          </div>
+          <div class="effects">
+            <div class="difficultyBadge" id="difficultyBadge">쉬움</div>
+            <div class="rankGoal">실수 <b id="rankProgress">0 / 4</b></div>
+            <div class="effect fever" id="feverEffect">FEVER</div>
+          </div>
+        </div>
+        <div class="arena" id="arena">
+          <div class="centerHint">Move your character.<br>Catch your birthstone.</div>
+          <div class="comboFlash" id="comboFlash">COMBO!</div>
+          <div class="player" id="player">
+            <img id="playerImage" alt="선택한 캐릭터" draggable="false">
+          </div>
+        </div>
+      </section>
+
+      <section id="result" class="screen">
+        <div class="resultbox">
+          <div class="resultVisual">
+            <img class="resultCharacter" id="resultCharacterImage" alt="선택한 캐릭터">
+            <img class="biggem" id="resultGemImage" alt="선택한 탄생석">
+          </div>
+          <div class="kicker win" id="resultStatus">YOU WIN</div>
+          <div class="grade" id="grade">D</div>
+          <h2 id="resultTitle"></h2>
+          <p id="resultText"></p>
+          <div class="resultstats">
+            <div class="rstat">SCORE<b id="finalScore">0</b></div>
+            <div class="rstat">BEST COMBO<b id="bestCombo">0</b></div>
+            <div class="rstat">TARGET GEMS<b id="finalGems">0 / 20</b></div>
+            <div class="rstat">BEST SCORE<b id="bestScore">0</b></div>
+          </div>
+          <div class="actions">
+            <button class="primary" id="retryBtn">다시 하기</button>
+            <button class="secondary" id="changeBtn">보석 / 캐릭터 변경</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+const gems=[
+ {m:1,n:"Garnet",kr:"가넷",c:"#ad2439",s:"#ef7f90",img:"01_garnet.png"},
+ {m:2,n:"Amethyst",kr:"자수정",c:"#8a60c6",s:"#d4a4ee",img:"02_amethyst.png"},
+ {m:3,n:"Aquamarine",kr:"아쿠아마린",c:"#69c8e8",s:"#b9f1ff",img:"03_aquamarine.png"},
+ {m:4,n:"Diamond",kr:"다이아몬드",c:"#dff6ff",s:"#ffffff",img:"04_diamond.png"},
+ {m:5,n:"Emerald",kr:"에메랄드",c:"#22a86a",s:"#8be1b7",img:"05_emerald.png"},
+ {m:6,n:"Pearl",kr:"진주",c:"#fff0c8",s:"#ffd9e5",img:"06_pearl.png"},
+ {m:7,n:"Ruby",kr:"루비",c:"#dd3155",s:"#ff9db5",img:"07_ruby.png"},
+ {m:8,n:"Peridot",kr:"페리도트",c:"#a5d54c",s:"#dff698",img:"08_peridot.png"},
+ {m:9,n:"Sapphire",kr:"사파이어",c:"#3e70d8",s:"#a3c7ff",img:"09_sapphire.png"},
+ {m:10,n:"Opal",kr:"오팔",c:"#f5b8d7",s:"#c5e7ff",img:"10_opal.png"},
+ {m:11,n:"Topaz",kr:"토파즈",c:"#f0b33f",s:"#ffe18b",img:"11_topaz.png"},
+ {m:12,n:"Turquoise",kr:"터키석",c:"#45c6c6",s:"#a0eeef",img:"12_turquoise.png"}
+];
+
+const characters=[
+ {n:"Garnet",kr:"가넷",c:"#ad2439",img:"Garnet_mobile_character4.gif",hurtImg:"Garnet_character_hurt.gif"},
+ {n:"Amethyst",kr:"자수정",c:"#8a60c6",img:"Amethyst_mobile_character4.gif",hurtImg:"Amethyst_character_hurt.gif"},
+ {n:"Aquamarine",kr:"아쿠아마린",c:"#69c8e8",img:"Aquamarine_mobile_character4.gif",hurtImg:"Aquamarine_character_hurt.gif"},
+ {n:"Diamond",kr:"다이아몬드",c:"#9dcfea",img:"Diamond_mobile_character4.gif",hurtImg:"Diamond_character_hurt.gif"},
+ {n:"Emerald",kr:"에메랄드",c:"#22a86a",img:"Emerald_mobile_character4.gif",hurtImg:"Emerald_character_hurt.gif"},
+ {n:"Pearl",kr:"진주",c:"#d8b983",img:"Pearl_mobile_character4.gif",hurtImg:"Pearl_character_hurt.gif"},
+ {n:"Ruby",kr:"루비",c:"#dd3155",img:"Ruby_mobile_character4.gif",hurtImg:"Ruby_character_hurt.gif"},
+ {n:"Peridot",kr:"페리도트",c:"#8fc73f",img:"Peridot_mobile_character4.gif",hurtImg:"Peridot_character_hurt.gif"},
+ {n:"Sapphire",kr:"사파이어",c:"#3e70d8",img:"Sapphire_mobile_character4.gif",hurtImg:"Sapphire_character_hurt.gif"},
+ {n:"Opal",kr:"오팔",c:"#e89ac5",img:"Opal_mobile_character4.gif",hurtImg:"Opal_character_hurt.gif"},
+ {n:"Topaz",kr:"토파즈",c:"#e0a536",img:"Topaz_mobile_character4.gif",hurtImg:"Topaz_character_hurt.gif"},
+ {n:"Turquoise",kr:"터키석",c:"#45c6c6",img:"Turquoise_mobile_character4.gif",hurtImg:"Turquoise_character_hurt.gif"}
+];
+
+const splineLoading=document.getElementById("splineLoading");
+const splineLoadingStartedAt=performance.now();
+let splineLoadingFailsafe;
+
+function hideSplineLoading(){
+  if(!splineLoading || splineLoading.dataset.closing) return;
+  splineLoading.dataset.closing="true";
+  const remaining=Math.max(0,500-(performance.now()-splineLoadingStartedAt));
+  setTimeout(()=>{
+    document.body.classList.remove("is-loading");
+    document.body.classList.add("is-ready");
+    splineLoading.classList.add("is-hidden");
+    setTimeout(()=>splineLoading.remove(),700);
+  },remaining);
+}
+
+const pageLoaded=new Promise(resolve=>{
+  if(document.readyState==="complete") resolve();
+  else window.addEventListener("load",resolve,{once:true});
+});
+const coreImagesLoaded=Promise.all(
+  [...gems.map(g=>g.img),"보석게임배경.jpg"].map(src=>new Promise(resolve=>{
+    const image=new Image();
+    image.onload=resolve;
+    image.onerror=resolve;
+    image.src=src;
+  }))
+);
+
+splineLoadingFailsafe=setTimeout(hideSplineLoading,6000);
+Promise.all([pageLoaded,coreImagesLoaded]).then(()=>{
+  clearTimeout(splineLoadingFailsafe);
+  requestAnimationFrame(()=>requestAnimationFrame(hideSplineLoading));
+});
+
+const audioFiles={
+  hurt:"캐릭터다침.mp3",
+  point:"보석포인트.mp3",
+  miss:"보석못먹음.mp3",
+  lose:"보석게임짐.mp3",
+  win:"보석게임이김.mp3",
+  bgm:"보석게임노래.mp3",
+  hover:"캐릭터호버.mp3",
+  select:"캐릭터선택.mp3",
+  ting:"ting.mp3"
+};
+const effectVolume={hurt:.72,point:.56,miss:.68,lose:.72,win:.68,hover:.34,select:.56,ting:.55};
+const activeEffects=new Set();
+const bgm=new Audio(audioFiles.bgm);
+bgm.preload="auto";
+bgm.loop=true;
+bgm.volume=.24;
+const hoverAudio=new Audio(audioFiles.hover);
+hoverAudio.preload="auto";
+hoverAudio.volume=effectVolume.hover;
+
+Object.values(audioFiles).forEach(src=>{
+  const preload=new Audio();
+  preload.preload="auto";
+  preload.src=src;
+});
+
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+const months=$("#months"),charactersGrid=$("#characters"),arena=$("#arena"),player=$("#player"),playerImage=$("#playerImage");
+const difficultyModes={
+  easy:{label:"쉬움",fallScale:1,spawnScales:[1,1,1,1],targetGapScale:1,targetTotal:17,spacingPenalty:0,minSpawnGaps:[120,120,120,120],ranks:{a:15,b:12,c:8}},
+  normal:{label:"보통",fallScale:.86,spawnScales:[.86,.8,.74,.68],targetGapScale:.9,targetTotal:18,spacingPenalty:.06,minSpawnGaps:[120,110,100,90],ranks:{a:16,b:13,c:9}},
+  hard:{label:"어려움",fallScale:.62,spawnScales:[.68,.58,.48,.38],targetGapScale:.72,targetTotal:22,spacingPenalty:.14,minSpawnGaps:[110,95,75,60],ranks:{a:20,b:17,c:13}}
+};
+let selected=null,selectedCharacter=null,selectedDifficulty=null,playing=false,ending=false;
+const GAME_TIME=20;
+const TARGET_GAPS=[1100,1100,1100,1100,1050,1050,1050,1050,1000,1000,1000,1000,900,900,900,900];
+let score=0,time=GAME_TIME,life=4,combo=0,maxCombo=0,hits=0,misses=0,wrongHits=0,targetSpawned=0;
+let targetScheduleIndex=0,lastTargetX=null,lastTargetSpawnAt=0,lastGemSpawnAt=0;
+let distractorBag=[],lastDistractor=null;
+let fever=false;
+let spawnTimer=null,targetSpawnTimer=null,clockTimer=null,feverTimer=null,redTimer=null,hurtTimer=null,endTimer=null,collisionFrame=null;
+
+gems.forEach(g=>{
+  const preload=new Image();
+  preload.src=g.img;
+  const b=document.createElement("button");
+  b.className="month";
+  b.style.setProperty("--gem",g.c);
+  b.innerHTML=`<img src="${g.img}" alt="${g.kr}" draggable="false"><b>${g.m}월</b><span>${g.n.toUpperCase()}</span>`;
+  b.addEventListener("mouseenter",()=>playEffect("hover"));
+  b.onclick=()=>{
+    playEffect("select");
+    selected=g;
+    $$(".month").forEach(x=>x.classList.remove("sel"));
+    b.classList.add("sel");
+    $("#chooseCharacterBtn").disabled=false;
+    document.documentElement.style.setProperty("--target",g.c);
+  };
+  months.appendChild(b);
+});
+
+characters.forEach(ch=>{
+  const hurtPreload=new Image();
+  hurtPreload.src=ch.hurtImg;
+  const b=document.createElement("button");
+  b.className="character";
+  b.style.setProperty("--gem",ch.c);
+  b.innerHTML=`<img src="${ch.img}" alt="" draggable="false"><b>${ch.kr}</b><span>${ch.n}</span>`;
+  b.addEventListener("mouseenter",()=>playEffect("hover"));
+  b.onclick=()=>{
+    playEffect("select");
+    selectedCharacter=ch;
+    $$(".character").forEach(x=>x.classList.remove("sel"));
+    b.classList.add("sel");
+    syncStartButton();
+  };
+  charactersGrid.appendChild(b);
+});
+
+function syncStartButton(){
+  $("#startBtn").disabled=!(selectedCharacter&&selectedDifficulty);
+}
+
+$$(".difficultyOption").forEach(button=>{
+  button.addEventListener("mouseenter",()=>playEffect("hover"));
+  button.onclick=()=>{
+    playEffect("select");
+    selectedDifficulty=button.dataset.difficulty;
+    $$(".difficultyOption").forEach(x=>x.classList.remove("sel"));
+    button.classList.add("sel");
+    syncStartButton();
+  };
+});
+
+function getDifficulty(){
+  return difficultyModes[selectedDifficulty]||difficultyModes.easy;
+}
+
+function getTimePhase(){
+  return time>15?0:time>10?1:time>5?2:3;
+}
+
+let currentScreenId="intro";
+function updateNavigation(id){
+  currentScreenId=id;
+  const button=$("#navControl");
+  if(!button)return;
+  const atHome=id==="intro";
+  button.textContent=atHome?"메인메뉴":"← 뒤로가기";
+  button.setAttribute("aria-label",atHome?"메인메뉴로 이동":"이전 화면으로 돌아가기");
+}
+function show(id){
+  $$(".screen").forEach(x=>x.classList.remove("on"));
+  $("#"+id).classList.add("on");
+  updateNavigation(id);
+}
+function handleNavigation(){
+  if(currentScreenId==="intro"){
+    window.location.href="The_gem_I_am_games.html";
+    return;
+  }
+  playEffect("ting");
+  if(currentScreenId==="characterSelect"){
+    show("intro");
+    return;
+  }
+  cleanTimers();
+  stopEffects();
+  stopBgm();
+  playing=false;
+  show("characterSelect");
+}
+
+$("#chooseCharacterBtn").onclick=()=>{if(selected){playEffect("ting");show("characterSelect")}};
+$("#backGemBtn").onclick=()=>{playEffect("ting");show("intro")};
+
+function updateHUD(){
+  const mode=getDifficulty();
+  $("#score").textContent=score;
+  $("#combo").textContent="x"+Math.min(5,1+Math.floor(combo/3));
+  $("#time").textContent=Math.max(0,time);
+  $("#life").textContent="♥".repeat(life)+"♡".repeat(Math.max(0,4-life));
+  const rankProgress=$("#rankProgress");
+  if(rankProgress)rankProgress.textContent=`${misses} / 4`;
+}
+
+function cleanTimers(){
+  clearTimeout(spawnTimer);clearTimeout(targetSpawnTimer);clearInterval(clockTimer);
+  clearTimeout(feverTimer);clearTimeout(redTimer);clearTimeout(hurtTimer);clearTimeout(endTimer);
+  cancelAnimationFrame(collisionFrame);
+}
+
+function playEffect(type){
+  const src=audioFiles[type];
+  if(!src)return;
+  if(type==="hover"){
+    hoverAudio.pause();
+    hoverAudio.currentTime=0;
+    hoverAudio.play().catch(()=>{});
+    return;
+  }
+  const audio=new Audio(src);
+  audio.preload="auto";
+  audio.volume=effectVolume[type]??.65;
+  activeEffects.add(audio);
+  const release=()=>activeEffects.delete(audio);
+  audio.addEventListener("ended",release,{once:true});
+  audio.addEventListener("error",release,{once:true});
+  audio.play().catch(release);
+}
+
+function stopEffects(){
+  hoverAudio.pause();
+  hoverAudio.currentTime=0;
+  activeEffects.forEach(audio=>{
+    audio.pause();
+    audio.currentTime=0;
+  });
+  activeEffects.clear();
+}
+
+function startBgm(){
+  bgm.currentTime=0;
+  bgm.play().catch(()=>{});
+}
+
+function stopBgm(){
+  bgm.pause();
+  bgm.currentTime=0;
+}
+
+function resetRun(){
+  cleanTimers();
+  score=0;time=GAME_TIME;life=4;combo=0;maxCombo=0;hits=0;misses=0;wrongHits=0;targetSpawned=0;
+  targetScheduleIndex=0;lastTargetX=null;lastTargetSpawnAt=0;lastGemSpawnAt=0;
+  distractorBag=[];lastDistractor=null;
+  fever=false;playing=true;ending=false;
+  $("#feverEffect").classList.remove("on");
+  arena.classList.remove("fevering");
+  arena.querySelectorAll(".item,.float").forEach(x=>x.remove());
+  player.classList.remove("hurt","eat");
+  updateHUD();
+}
+
+function startGame(){
+  if(!selected||!selectedCharacter||!selectedDifficulty)return;
+  const mode=getDifficulty();
+  stopEffects();
+  stopBgm();
+  resetRun();show("game");
+  $("#targetName").textContent=`${selected.n} · ${selected.m}월`;
+  $("#targetGemImage").src=selected.img;
+  $("#targetGemImage").alt=selected.kr;
+  $("#difficultyBadge").textContent=mode.label;
+  playerImage.src=selectedCharacter.img;
+  playerImage.alt=`${selectedCharacter.kr} 캐릭터`;
+  document.documentElement.style.setProperty("--target",selected.c);
+  player.style.left=arena.clientWidth/2+"px";
+  playEffect("ting");
+  startBgm();
+
+  startTargetSchedule();
+  scheduleNextSpawn();
+  startCollisionLoop();
+  clockTimer=setInterval(()=>{
+    time--;
+    updateHUD();
+    if(time<=0)endGame();
+  },1000);
+}
+$("#startBtn").onclick=startGame;
+$("#retryBtn").onclick=startGame;
+$("#changeBtn").onclick=()=>{cleanTimers();stopEffects();stopBgm();playEffect("ting");playing=false;show("intro")};
+$("#navControl").onclick=handleNavigation;
+updateNavigation("intro");
+
+function movePlayer(e){
+  if(!playing||ending)return;
+  if(e.cancelable)e.preventDefault();
+  const ar=arena.getBoundingClientRect();
+  const half=player.offsetWidth/2;
+  const x=Math.max(half,Math.min(ar.width-half,e.clientX-ar.left));
+  player.style.left=x+"px";
+}
+arena.addEventListener("pointermove",movePlayer);
+arena.addEventListener("pointerdown",movePlayer);
+
+function refillDistractorBag(){
+  const bag=gems.filter(g=>g!==selected);
+  for(let i=bag.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [bag[i],bag[j]]=[bag[j],bag[i]];
+  }
+  if(lastDistractor&&bag.length>1&&bag[bag.length-1]===lastDistractor){
+    [bag[0],bag[bag.length-1]]=[bag[bag.length-1],bag[0]];
+  }
+  distractorBag=bag;
+}
+
+function nextDistractorGem(){
+  if(!distractorBag.length)refillDistractorBag();
+  const activeTypes=new Set(
+    [...arena.querySelectorAll('.item.gem[data-correct="0"]')]
+      .filter(item=>item.dataset.caught!=="1")
+      .map(item=>item.dataset.gem)
+  );
+  let index=-1;
+  for(let i=distractorBag.length-1;i>=0;i--){
+    const candidate=distractorBag[i];
+    if(candidate!==lastDistractor&&!activeTypes.has(candidate.n)){
+      index=i;
+      break;
+    }
+  }
+  if(index<0)index=distractorBag.findIndex(g=>g!==lastDistractor);
+  if(index<0)index=distractorBag.length-1;
+  const [gem]=distractorBag.splice(index,1);
+  lastDistractor=gem;
+  return gem;
+}
+
+function spawnItem(correct=false,nearX=null){
+  if(!playing)return null;
+  const now=performance.now();
+  const mode=getDifficulty();
+  const phase=getTimePhase();
+  const rush=[0,.35,.7,1][phase];
+  const baseSeparation=[.85,.78,.72,.65][phase];
+  const separationChance=Math.max(.5,baseSeparation-mode.spacingPenalty*rush);
+  const targetAvoidChance=Math.max(.25,.45-mode.spacingPenalty*rush*1.5);
+  if(!correct&&now-lastGemSpawnAt<mode.minSpawnGaps[phase])return null;
+  if(!correct&&now-lastTargetSpawnAt<180&&Math.random()<targetAvoidChance)return null;
+
+  let gem=selected;
+  if(!correct){
+    gem=nextDistractorGem();
+  }
+
+  const item=document.createElement("button");
+  item.className="item gem";
+  item.dataset.correct=correct?"1":"0";
+  item.dataset.gem=gem.n;
+  item.dataset.spawnedAt=String(now);
+  const sizes=arena.clientWidth<=760?[44,52,60,68,76,84,92]:[48,58,68,78,88,98,108];
+  const sz=sizes[Math.floor(Math.random()*sizes.length)];
+  item.style.width=sz+"px";item.style.height=sz+"px";
+  let minLeft=0,maxLeft=Math.max(0,arena.clientWidth-sz);
+  if(correct && Number.isFinite(nearX)){
+    const spread=time>15?Math.min(90,arena.clientWidth*.1):Math.min(150,arena.clientWidth*.16);
+    minLeft=Math.max(0,nearX-sz/2-spread);
+    maxLeft=Math.min(arena.clientWidth-sz,nearX-sz/2+spread);
+  }
+  const shouldSeparate=Math.random()<separationChance;
+  const enforceHardMinimum=selectedDifficulty==="hard";
+  const blockers=(shouldSeparate||enforceHardMinimum)?[...arena.querySelectorAll(".item.gem")].filter(other=>{
+    const spawnedAt=Number(other.dataset.spawnedAt||0);
+    return other.dataset.caught!=="1"&&now-spawnedAt<900;
+  }):[];
+  let left=minLeft,bestClearance=-Infinity;
+  for(let attempt=0;attempt<18;attempt++){
+    const candidate=minLeft+Math.random()*Math.max(0,maxLeft-minLeft);
+    const center=candidate+sz/2;
+    let clearance=Infinity;
+    blockers.forEach(other=>{
+      const otherLeft=parseFloat(other.style.left)||0;
+      const otherSize=parseFloat(other.style.width)||other.offsetWidth;
+      const otherCenter=otherLeft+otherSize/2;
+      const gapPadding=shouldSeparate?(arena.clientWidth<=760?18:24):-Math.min(sz,otherSize)*.2;
+      const safeDistance=(sz+otherSize)/2+gapPadding;
+      clearance=Math.min(clearance,Math.abs(center-otherCenter)-safeDistance);
+    });
+    if(clearance>=0){left=candidate;break}
+    if(clearance>bestClearance){bestClearance=clearance;left=candidate}
+  }
+  item.style.left=left+"px";
+  const fallTime=correct
+    ?(time>15?3.1+Math.random()*.6:time>10?2.95+Math.random()*.6:time>5?2.75+Math.random()*.6:2.55+Math.random()*.5)
+    :(time>15?2.8+Math.random()*.65:time>10?2.65+Math.random()*.65:time>5?2.5+Math.random()*.6:2.3+Math.random()*.55);
+  const adjustedFallTime=(fever?Math.min(correct?2.7:2.4,fallTime):fallTime)*mode.fallScale;
+  item.style.animationDuration=adjustedFallTime+"s";
+
+  const stone=document.createElement("img");
+  stone.className="gemImage";
+  stone.src=gem.img;
+  stone.alt=gem.kr;
+  stone.draggable=false;
+  item.appendChild(stone);
+
+  item.addEventListener("animationend",()=>{
+    if(item.dataset.correct==="1"&&item.dataset.caught!=="1"&&playing&&!ending)missTargetGem(item);
+    else item.remove();
+  });
+  arena.appendChild(item);
+  lastGemSpawnAt=now;
+  if(correct)lastTargetSpawnAt=now;
+  return left+sz/2;
+}
+
+function startTargetSchedule(){
+  if(!playing||ending)return;
+  const playerX=player.offsetLeft||arena.clientWidth/2;
+  lastTargetX=spawnItem(true,playerX);
+  targetSpawned=1;
+  targetScheduleIndex=0;
+  clearTimeout(targetSpawnTimer);
+  scheduleNextTarget();
+}
+
+function scheduleNextTarget(){
+  const mode=getDifficulty();
+  if(!playing||ending||targetSpawned>=mode.targetTotal)return;
+  const gap=Math.round((TARGET_GAPS[targetScheduleIndex]??900)*mode.targetGapScale);
+  targetScheduleIndex++;
+  clearTimeout(targetSpawnTimer);
+  targetSpawnTimer=setTimeout(()=>{
+    if(!playing||ending||targetSpawned>=mode.targetTotal)return;
+    const playerX=player.offsetLeft||arena.clientWidth/2;
+    const anchor=time>15?playerX:time>10?lastTargetX:null;
+    lastTargetX=spawnItem(true,anchor);
+    targetSpawned++;
+    scheduleNextTarget();
+  },gap);
+}
+
+function scheduleNextSpawn(){
+  if(!playing||ending)return;
+  clearTimeout(spawnTimer);
+  const mode=getDifficulty();
+  const phase=getTimePhase();
+  const baseDelay=[420,400,375,350][phase];
+  const delay=Math.round(baseDelay*mode.spawnScales[phase]);
+  spawnTimer=setTimeout(()=>{
+    if(!playing||ending)return;
+    spawnItem(false);
+    scheduleNextSpawn();
+  },delay);
+}
+
+function startCollisionLoop(){
+  cancelAnimationFrame(collisionFrame);
+  const tick=()=>{
+    if(!playing||ending)return;
+    const pr=player.getBoundingClientRect();
+    const playerHit={
+      left:pr.left+pr.width*.2,
+      right:pr.right-pr.width*.2,
+      top:pr.top+pr.height*.14,
+      bottom:pr.bottom-pr.height*.03
+    };
+
+    arena.querySelectorAll(".item.gem").forEach(item=>{
+      if(item.dataset.caught==="1")return;
+      const ir=item.getBoundingClientRect();
+      const insetX=ir.width*.16,insetY=ir.height*.12;
+      const touching=ir.left+insetX<playerHit.right&&ir.right-insetX>playerHit.left&&ir.top+insetY<playerHit.bottom&&ir.bottom-insetY>playerHit.top;
+      if(touching){
+        collectGem(item);
+        return;
+      }
+      if(ir.top+insetY>=playerHit.bottom){
+        if(item.dataset.correct==="1")missTargetGem(item);
+        else{
+          item.dataset.caught="1";
+          item.remove();
+        }
+      }
+    });
+
+    if(playing&&!ending)collisionFrame=requestAnimationFrame(tick);
+  };
+  collisionFrame=requestAnimationFrame(tick);
+}
+
+function collectGem(item){
+  if(item.dataset.caught==="1"||!playing||ending)return;
+  item.dataset.caught="1";
+  const ir=item.getBoundingClientRect(),ar=arena.getBoundingClientRect();
+  const x=ir.left-ar.left+ir.width/2,y=ir.top-ar.top+ir.height/2;
+  if(item.dataset.correct==="1")hitCorrect(x,y);
+  else hitWrong(x,y);
+  updateHUD();
+  item.remove();
+}
+
+function hitCorrect(x,y){
+  combo++;hits++;maxCombo=Math.max(maxCombo,combo);
+  const mult=Math.min(5,1+Math.floor(combo/3));
+  const feverMult=fever?2:1;
+  const pts=10*mult*feverMult;
+  score+=pts;
+  pulsePlayer();
+  floatText(x,y,"+"+pts,selected.s);
+  playEffect("point");
+  if(combo===4||combo===8||combo===12)flashCombo(combo+" COMBO");
+  if(combo>0 && combo%8===0)activateFever();
+}
+
+function hitWrong(x,y){
+  combo=0;life--;misses++;wrongHits++;
+  hurtPlayer();
+  floatText(x,y,"MISS","#ff8e9f");
+  playEffect("hurt");shake();
+  scheduleLoss();
+}
+
+function missTargetGem(item){
+  if(item.dataset.caught==="1"||!playing||ending)return;
+  item.dataset.caught="1";
+  const x=parseFloat(item.style.left||"0")+item.offsetWidth/2;
+  const y=Math.max(80,arena.clientHeight-138);
+  item.remove();
+  combo=0;life--;misses++;
+  score-=20;
+  hurtPlayer();
+  floatText(x,y,"-20 · MISS","#ff627c");
+  playEffect("miss");shake();
+  updateHUD();
+  scheduleLoss();
+}
+
+function scheduleLoss(){
+  if(life>0)return;
+  ending=true;
+  clearTimeout(spawnTimer);clearTimeout(targetSpawnTimer);clearInterval(clockTimer);
+  cancelAnimationFrame(collisionFrame);
+  endTimer=setTimeout(endGame,1200);
+}
+
+function pulsePlayer(){
+  player.classList.remove("eat");
+  void player.offsetWidth;
+  player.classList.add("eat");
+  setTimeout(()=>player.classList.remove("eat"),260);
+}
+
+function hurtPlayer(){
+  clearTimeout(redTimer);
+  clearTimeout(hurtTimer);
+  playerImage.src=selectedCharacter.hurtImg||selectedCharacter.img;
+  player.classList.remove("hurt");
+  void player.offsetWidth;
+  player.classList.add("hurt");
+  redTimer=setTimeout(()=>player.classList.remove("hurt"),520);
+  hurtTimer=setTimeout(()=>playerImage.src=selectedCharacter.img,1200);
+}
+
+function activateFever(){
+  fever=true;
+  $("#feverEffect").classList.add("on");
+  arena.classList.add("fevering");
+  flashCombo("FEVER");
+  clearTimeout(feverTimer);
+  feverTimer=setTimeout(()=>{
+    fever=false;
+    $("#feverEffect").classList.remove("on");
+    arena.classList.remove("fevering");
+  },5000);
+}
+
+function floatText(x,y,t,c){
+  const el=document.createElement("div");el.className="float";el.textContent=t;
+  el.style.left=x+"px";el.style.top=y+"px";el.style.color=c;
+  arena.appendChild(el);setTimeout(()=>el.remove(),720);
+}
+
+function flashCombo(t){
+  const el=$("#comboFlash");el.textContent=t;el.classList.remove("show");
+  void el.offsetWidth;el.classList.add("show");
+}
+
+function shake(){
+  $("#panel").classList.remove("shake");void $("#panel").offsetWidth;$("#panel").classList.add("shake");
+}
+
+function endGame(){
+  if(!playing)return;
+  playing=false;cleanTimers();
+
+  const mode=getDifficulty();
+  const missedTargets=Math.max(0,mode.targetTotal-hits);
+  const mistakeCount=wrongHits+missedTargets;
+  const won=life>0&&mistakeCount<4;
+  stopBgm();
+  stopEffects();
+  playEffect(won?"win":"lose");
+  let grade="D";
+  if(mistakeCount===0&&hits===mode.targetTotal)grade="S";
+  else if(mistakeCount===1)grade="A";
+  else if(mistakeCount===2)grade="B";
+  else if(mistakeCount===3)grade="C";
+
+  const key=`gemrush_best_${selected.n}_${selectedDifficulty}`;
+  const old=Number(localStorage.getItem(key)||0);
+  if(score>old)localStorage.setItem(key,String(score));
+  const best=Math.max(old,score);
+
+  $("#grade").textContent=grade;
+  $("#resultTitle").textContent=selected.n.toUpperCase();
+  const useHurtResult=!won || grade==="C" || grade==="D";
+  $("#resultCharacterImage").src=useHurtResult?selectedCharacter.hurtImg:selectedCharacter.img;
+  $("#resultCharacterImage").alt=useHurtResult?`${selectedCharacter.kr} 아픈 캐릭터`:`${selectedCharacter.kr} 승리 캐릭터`;
+  const status=$("#resultStatus");
+  status.textContent=won?"YOU WIN":"YOU LOSE";
+  status.className="kicker "+(won?"win":"lose");
+  $("#resultGemImage").src=selected.img;
+  $("#resultGemImage").alt=selected.kr;
+  $("#finalScore").textContent=score;
+  $("#bestCombo").textContent=maxCombo;
+  $("#finalGems").textContent=`${hits} / ${mode.targetTotal}`;
+  $("#bestScore").textContent=best;
+
+  let msg="";
+  if(grade==="S")msg=`${mode.label} 난이도에서 다른 보석을 한 번도 먹지 않고, 지정 보석 ${mode.targetTotal}개를 전부 모았어요. 완벽한 S등급입니다.`;
+  else if(grade==="A")msg=`실수 1회로 A등급이에요. 다른 보석을 피하고 놓친 지정 보석 하나만 더 챙기면 S등급입니다.`;
+  else if(grade==="B")msg=`실수 2회로 B등급이에요. 지정 보석의 위치를 조금 더 빠르게 따라가 보세요.`;
+  else if(grade==="C")msg=`실수 3회로 C등급이에요. 다른 보석과 지정 보석의 색을 먼저 구분해보세요.`;
+  else if(life<=0)msg=`목숨 4개를 모두 소진해 D등급이에요. 다른 보석을 피하고 지정 보석을 놓치지 않도록 다시 도전해보세요.`;
+  else msg=`실수 ${mistakeCount}회로 D등급이에요. 지정 보석을 놓치지 않도록 이동 경로를 다시 잡아보세요.`;
+  $("#resultText").textContent=msg;
+
+  show("result");
+}
+
+</script>
+</body>
+</html>
