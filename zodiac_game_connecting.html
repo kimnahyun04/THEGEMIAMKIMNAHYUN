@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CONSTELLATION RESTORE</title>
+<link rel="preload" href="zodiac_pixel_star_4point.png" as="image" type="image/png" />
+<link rel="preload" href="zodiac_pixel_star_5point.png" as="image" type="image/png" />
+<style>
+  :root{
+    --bg:#070914;
+    --panel:#0d1124;
+    --panel2:#11172f;
+    --line:#dfe8ff;
+    --muted:#8d97b7;
+    --white:#f7f9ff;
+    --blue:#8fb3ff;
+    --violet:#b8a6ff;
+    --pink:#f0b6df;
+    --danger:#ff8caa;
+    --good:#b9ffea;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:#03050d;color:var(--white);font-family:Inter,Pretendard,"Noto Sans KR",system-ui,sans-serif}
+  body{min-height:100vh;display:grid;place-items:center;padding:18px;overflow-x:hidden}
+
+  .game-shell{
+    width:min(1120px,100%);height:min(780px,calc(100vh - 36px));min-height:590px;
+    margin:0;display:flex;flex-direction:column;position:relative;overflow:hidden;
+    border:1px solid rgba(255,255,255,.16);border-radius:26px;
+    background:
+      radial-gradient(circle at 52% 18%,rgba(124,151,255,.12),transparent 32%),
+      linear-gradient(180deg,#0a0d1d 0%,#060914 55%,#040611 100%);
+    box-shadow:0 26px 90px rgba(0,0,0,.42),inset 0 1px rgba(255,255,255,.05)
+  }
+
+  .topbar{min-height:72px;padding:15px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid rgba(255,255,255,.11);background:rgba(7,10,22,.82);backdrop-filter:blur(12px)}
+  .brand{display:flex;align-items:center;gap:12px;min-width:0}
+  .brand-mark{width:38px;height:38px;display:grid;place-items:center;flex:0 0 auto;border:1px solid rgba(255,255,255,.28);border-radius:50%;font-size:18px;box-shadow:0 0 24px rgba(145,177,255,.18) inset}
+  .brand h1{margin:0 0 4px;white-space:nowrap;font:500 clamp(20px,3vw,31px)/1 Georgia,serif;letter-spacing:.08em}
+  .brand p{margin:0;font-size:10px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+
+  .hud{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+  .hud-box{min-width:74px;padding:8px 9px;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(255,255,255,.035);text-align:center}
+  .hud-box span{display:block;margin-bottom:4px;color:#7f89a8;font-size:8px;letter-spacing:.16em}
+  .hud-box strong{font-size:15px;letter-spacing:.04em}
+  .hud-box.lives-box strong{color:var(--danger);font-size:13px;letter-spacing:.1em}
+
+  .game-area{display:grid;grid-template-columns:minmax(0,1fr) 280px;flex:1;min-height:0}
+  .space-wrap{position:relative;min-width:0;min-height:0;overflow:hidden}
+  #space{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:crosshair;image-rendering:pixelated;background:radial-gradient(circle at 22% 15%,rgba(128,89,255,.08),transparent 27%),radial-gradient(circle at 80% 78%,rgba(88,164,255,.06),transparent 31%)}
+  .scanline{position:absolute;inset:0;pointer-events:none;opacity:.14;background:repeating-linear-gradient(180deg,rgba(255,255,255,.04) 0 1px,transparent 1px 4px)}
+  .corner-label{position:absolute;left:18px;top:16px;z-index:3;font-size:10px;letter-spacing:.14em;color:#7580a3}
+  .time-meter{position:absolute;left:50%;bottom:61px;z-index:4;transform:translateX(-50%);width:min(450px,78%);height:5px;overflow:hidden;border:1px solid rgba(255,255,255,.12);border-radius:99px;background:rgba(7,10,24,.72)}
+  .time-meter i{display:block;width:100%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#92b5ff,#c6b0ff,#f0b6df);transition:width .12s linear}
+  .time-meter i.urgent{background:linear-gradient(90deg,#ff8caa,#f0b6df)}
+  .status-pill{position:absolute;left:50%;bottom:18px;z-index:4;transform:translateX(-50%);min-width:min(450px,78%);padding:10px 16px;border:1px solid rgba(255,255,255,.14);border-radius:999px;background:rgba(7,10,24,.74);backdrop-filter:blur(10px);text-align:center;font-size:10px;letter-spacing:.04em;color:#dce4ff}
+
+  .side{min-height:0;overflow:auto;border-left:1px solid rgba(255,255,255,.1);padding:18px;display:flex;flex-direction:column;gap:12px;background:linear-gradient(180deg,rgba(15,19,40,.84),rgba(8,11,24,.92))}
+  .panel{padding:15px;border:1px solid rgba(255,255,255,.1);border-radius:16px;background:rgba(255,255,255,.025)}
+  .panel-label{margin-bottom:9px;font-size:9px;letter-spacing:.15em;color:#7f89a8}
+  .zodiac-symbol{margin:3px 0 8px;text-align:center;color:var(--white);font:54px/1 Georgia,serif;text-shadow:0 0 24px rgba(178,197,255,.28)}
+  .zodiac-name{margin-bottom:4px;text-align:center;font:500 16px/1.2 Georgia,serif;letter-spacing:.12em}
+  .zodiac-ko{text-align:center;font-size:11px;color:#8d97b7}
+  .level-tag{margin:11px auto 0;width:max-content;max-width:100%;padding:5px 8px;border:1px solid rgba(180,197,255,.27);border-radius:99px;background:rgba(146,181,255,.08);color:#c6d0ff;font-size:8px;letter-spacing:.04em}
+  .rule{font-size:10px;line-height:1.78;color:#aab3cf}
+  .rule b{color:#eef2ff;font-weight:normal}
+  .progress-title{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px;font-size:9px;color:#8d97b7}
+  .bar{height:7px;overflow:hidden;border:1px solid rgba(255,255,255,.1);border-radius:999px;background:#080b19}
+  .bar>i{display:block;width:0;height:100%;background:linear-gradient(90deg,#92b5ff,#c6b0ff,#f0b6df);transition:width .18s ease}
+  .mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .mini-star{height:31px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.09);border-radius:8px;background:rgba(255,255,255,.02);color:#66708f;font-size:11px}
+  .mini-star.done{border-color:rgba(188,206,255,.34);background:rgba(133,167,255,.10);color:#fff;box-shadow:inset 0 0 14px rgba(146,183,255,.08)}
+  .button-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto}
+  button{appearance:none;min-height:44px;padding:0 10px;border:1px solid rgba(255,255,255,.16);border-radius:12px;background:rgba(255,255,255,.055);color:#f2f5ff;font:inherit;font-size:10px;letter-spacing:.09em;cursor:pointer;transition:.18s ease}
+  button:hover{background:rgba(255,255,255,.09);box-shadow:0 0 12px rgba(145,177,255,.16)}
+  button:active{transform:translateY(1px)}
+  button:disabled{opacity:.46;cursor:wait;box-shadow:none}
+  button.primary{border-color:rgba(180,197,255,.33);background:linear-gradient(180deg,rgba(161,183,255,.22),rgba(128,115,255,.13))}
+
+  .overlay{position:absolute;inset:0;z-index:20;display:grid;place-items:center;padding:24px;background:rgba(3,5,14,.64);backdrop-filter:blur(8px);transition:opacity .28s ease}
+  .overlay.hidden{opacity:0;pointer-events:none}
+  .modal{width:min(460px,100%);padding:28px 26px 24px;border:1px solid rgba(255,255,255,.18);border-radius:22px;background:linear-gradient(180deg,rgba(17,22,47,.96),rgba(8,11,26,.96));text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.36)}
+  .modal-symbol{margin-bottom:10px;color:#eef3ff;font:58px/1 Georgia,serif;text-shadow:0 0 26px rgba(188,203,255,.34)}
+  .modal h2{margin:0 0 12px;font:500 19px/1.35 Georgia,serif;letter-spacing:.12em}
+  .modal p{margin:0 0 19px;font-size:10px;line-height:1.9;color:#a8b1cd}
+  .modal p b{color:#fff;font-weight:normal}
+  .modal button{min-width:170px}
+
+
+  /* PAGE LOADING — CONSTELLATION THEME */
+  .spline-loading{
+    position:fixed;
+    inset:0;
+    z-index:200;
+    display:grid;
+    place-items:center;
+    background:
+      radial-gradient(circle at 50% 42%,rgba(143,179,255,.16),transparent 30%),
+      radial-gradient(circle at 18% 16%,rgba(92,121,214,.20),transparent 26%),
+      radial-gradient(circle at 84% 14%,rgba(86,132,232,.14),transparent 24%),
+      linear-gradient(180deg,#0d1530 0%,#091126 52%,#050915 100%);
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+    transition:
+      opacity .65s cubic-bezier(.22,1,.36,1),
+      visibility 0s linear .65s;
+  }
+  .spline-loading.is-hidden{
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+  }
+  .spline-loading-inner{
+    width:min(38vw,260px);
+    text-align:center;
+    color:rgba(220,228,255,.76);
+  }
+  .spline-loading-title{
+    display:block;
+    margin-bottom:.8rem;
+    font-size:clamp(13px,1.05vw,18px);
+    font-weight:500;
+    letter-spacing:.24em;
+  }
+  .spline-loading-line{
+    position:relative;
+    width:100%;
+    height:1px;
+    overflow:hidden;
+    background:rgba(143,179,255,.18);
+  }
+  .spline-loading-line::after{
+    content:"";
+    position:absolute;
+    inset:0 auto 0 0;
+    width:42%;
+    background:linear-gradient(90deg,transparent,rgba(143,179,255,.95),rgba(184,166,255,.95),rgba(240,182,223,.72),transparent);
+    animation:splineLoadingSweep 1.15s ease-in-out infinite;
+  }
+  @keyframes splineLoadingSweep{
+    from{transform:translateX(-120%)}
+    to{transform:translateX(340%)}
+  }
+  body.is-loading .game-shell{
+    opacity:0;
+    transform:translateY(8px);
+  }
+  body.is-ready .game-shell{
+    opacity:1;
+    transform:translateY(0);
+    transition:
+      opacity .65s cubic-bezier(.22,1,.36,1),
+      transform .65s cubic-bezier(.22,1,.36,1);
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    .spline-loading-line::after{animation:none;left:29%}
+    body.is-ready .game-shell{transition:none}
+  }
+
+  .flash{position:absolute;inset:0;z-index:10;pointer-events:none;opacity:0;background:rgba(255,255,255,.09)}
+  .flash.good{animation:goodflash .36s ease}
+  .flash.bad{background:rgba(255,80,128,.12);animation:badflash .34s ease}
+  @keyframes goodflash{0%{opacity:0}35%{opacity:1}100%{opacity:0}}
+  @keyframes badflash{0%{opacity:0}35%{opacity:1}100%{opacity:0}}
+
+  @media(max-width:920px){
+    .topbar{align-items:flex-start}.hud{gap:5px}.hud-box{min-width:66px;padding:7px}.hud-box strong{font-size:13px}
+  }
+  @media(max-width:820px){
+    body{display:block;padding:0;background:#040611}.game-shell{width:100%;height:auto;min-height:100vh;border-radius:0;border-left:0;border-right:0}
+    .topbar{padding:12px 14px}.brand p{display:none}.brand h1{font-size:18px}.brand-mark{width:34px;height:34px;font-size:17px}
+    .game-area{grid-template-columns:1fr;min-height:0}.space-wrap{height:62vh;min-height:430px}
+    .side{border-left:0;border-top:1px solid rgba(255,255,255,.1);display:grid;grid-template-columns:1fr 1fr;padding:12px}
+    .panel{padding:12px}.zodiac-symbol{font-size:42px}.zodiac-name{font-size:11px}.rule{font-size:10px}.button-row{grid-column:1/-1;margin-top:0}
+    .mini-grid{grid-template-columns:repeat(6,1fr)}
+  }
+  @media(max-width:520px){
+    .topbar{flex-direction:column}.hud{width:100%;justify-content:stretch}.hud-box{flex:1;min-width:0}
+    .side{grid-template-columns:1fr}.mini-grid{grid-template-columns:repeat(6,1fr)}.space-wrap{height:58vh;min-height:390px}
+    .status-pill{font-size:9px;bottom:12px}.time-meter{bottom:52px}.corner-label{font-size:8px;left:12px;top:12px}.modal{padding:25px 19px 22px}.modal h2{font-size:16px}.modal p{font-size:10px}
+  }
+</style>
+</head>
+<body class="is-loading">
+<div class="spline-loading" id="splineLoading" role="status" aria-live="polite">
+  <div class="spline-loading-inner">
+    <span class="spline-loading-title">LOADING...</span>
+    <div class="spline-loading-line" aria-hidden="true"></div>
+  </div>
+</div>
+<div class="game-shell" id="gameShell">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">✦</div>
+      <div>
+        <h1>THE STAR I AM</h1>
+        <p>CONSTELLATION MEMORY · MINI GAME</p>
+      </div>
+    </div>
+    <div class="hud">
+      <div class="hud-box"><span>ROUND</span><strong id="roundText">01</strong></div>
+      <div class="hud-box"><span>SCORE</span><strong id="scoreText">0000</strong></div>
+      <div class="hud-box"><span>COMBO</span><strong id="comboText">×0</strong></div>
+      <div class="hud-box"><span>TIME</span><strong id="timeText">10.8</strong></div>
+      <div class="hud-box lives-box"><span>LIFE</span><strong id="lifeText">♥♥♥♥</strong></div>
+    </div>
+  </header>
+
+  <main class="game-area">
+    <section class="space-wrap" id="spaceWrap">
+      <canvas id="space"></canvas>
+      <div class="scanline"></div>
+      <div class="corner-label">STAR MAP // MEMORY TRACE</div>
+      <div class="time-meter" aria-label="남은 시간"><i id="timeBar"></i></div>
+      <div class="status-pill" id="statusText">선이 사라지기 전, 별자리의 모양과 순서를 기억하세요.</div>
+      <div class="flash" id="flash"></div>
+    </section>
+
+    <aside class="side">
+      <div class="panel">
+        <div class="panel-label">NOW READING</div>
+        <div class="zodiac-symbol" id="symbolText">♈</div>
+        <div class="zodiac-name" id="nameText">ARIES</div>
+        <div class="zodiac-ko" id="koText">양자리</div>
+        <div class="level-tag" id="levelText">STAR LEVEL 01</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-label">HOW TO PLAY</div>
+        <div class="rule">
+          1. 처음 나타나는 <b>별자리 선</b>을 기억합니다.<br>
+          2. 선이 사라지면 <b>두 종류의 은빛 픽셀 별</b>을 같은 순서로 누릅니다.<br>
+          3. 진짜 별과 가짜 별은 <b>같은 크기와 빛</b>으로 나타납니다.<br>
+          4. 가짜 별·이미 누른 별을 누르면 <b>실수</b>입니다.
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="progress-title"><span>CONSTELLATION</span><span id="progressText">0 / 0</span></div>
+        <div class="bar"><i id="progressBar"></i></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-label">ZODIAC COLLECTION</div>
+        <div class="mini-grid" id="collection"></div>
+      </div>
+
+      <div class="button-row">
+        <button type="button" id="previewBtn">미리보기 ·100</button>
+        <button type="button" class="primary" id="restartBtn">다시 시작</button>
+      </div>
+    </aside>
+  </main>
+
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <div class="modal-symbol">✦</div>
+      <h2>별자리 기억하기</h2>
+      <p>
+        실제 별자리 모양의 선이 잠깐 나타납니다.<br>
+        선이 사라지면 뒤섞인 은빛 픽셀 별을 같은 순서로 눌러 이어주세요.<br><br>
+        실수하면 <b>목숨과 시간이 함께 줄고</b>, 라운드가 오를수록<br>
+        가짜 별이 움직이며 미리보기 시간이 짧아집니다.
+      </p>
+      <button type="button" class="primary" id="startBtn" disabled>별 이미지 로딩중…</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+const splineLoading=document.getElementById("splineLoading");
+const splineLoadingStartedAt=performance.now();
+let splineLoadingFailsafe;
+
+function hideSplineLoading(){
+  if(!splineLoading || splineLoading.dataset.closing) return;
+  splineLoading.dataset.closing="true";
+  const remaining=Math.max(0,500-(performance.now()-splineLoadingStartedAt));
+  setTimeout(()=>{
+    document.body.classList.remove("is-loading");
+    document.body.classList.add("is-ready");
+    splineLoading.classList.add("is-hidden");
+    setTimeout(()=>splineLoading.remove(),700);
+  },remaining);
+}
+
+splineLoadingFailsafe=setTimeout(hideSplineLoading,6000);
+if(document.readyState==="complete"){
+  clearTimeout(splineLoadingFailsafe);
+  requestAnimationFrame(()=>requestAnimationFrame(hideSplineLoading));
+}else{
+  window.addEventListener("load",()=>{
+    clearTimeout(splineLoadingFailsafe);
+    requestAnimationFrame(()=>requestAnimationFrame(hideSplineLoading));
+  },{once:true});
+}
+
+(() => {
+  const canvas = document.getElementById('space');
+  const ctx = canvas.getContext('2d');
+  const wrap = document.getElementById('spaceWrap');
+  const roundText = document.getElementById('roundText');
+  const scoreText = document.getElementById('scoreText');
+  const comboText = document.getElementById('comboText');
+  const timeText = document.getElementById('timeText');
+  const lifeText = document.getElementById('lifeText');
+  const timeBar = document.getElementById('timeBar');
+  const statusText = document.getElementById('statusText');
+  const symbolText = document.getElementById('symbolText');
+  const nameText = document.getElementById('nameText');
+  const koText = document.getElementById('koText');
+  const levelText = document.getElementById('levelText');
+  const progressText = document.getElementById('progressText');
+  const progressBar = document.getElementById('progressBar');
+  const collection = document.getElementById('collection');
+  const overlay = document.getElementById('overlay');
+  const startBtn = document.getElementById('startBtn');
+  const restartBtn = document.getElementById('restartBtn');
+  const previewBtn = document.getElementById('previewBtn');
+  const flash = document.getElementById('flash');
+
+  const starSprites = {
+    four: new Image(),
+    five: new Image()
+  };
+  let starSpritesReady = false;
+  let loadedSpriteCount = 0;
+  const spriteLoaded = () => {
+    loadedSpriteCount++;
+    if(loadedSpriteCount !== Object.keys(starSprites).length) return;
+    starSpritesReady = true;
+    startBtn.disabled = false;
+    startBtn.textContent = '게임 시작';
+  };
+  const spriteFailed = () => {
+    starSpritesReady = false;
+    startBtn.disabled = true;
+    startBtn.textContent = 'PNG 파일을 확인해주세요';
+  };
+  Object.values(starSprites).forEach(sprite => {
+    sprite.decoding = 'async';
+    sprite.onload = spriteLoaded;
+    sprite.onerror = spriteFailed;
+  });
+  starSprites.four.src = 'zodiac_pixel_star_4point.png';
+  starSprites.five.src = 'zodiac_pixel_star_5point.png';
+
+  const zodiac = [
+    {symbol:'♈',name:'ARIES',ko:'양자리',points:[[.23,.62],[.31,.50],[.39,.39],[.47,.33],[.54,.40],[.59,.50]]},
+    {symbol:'♉',name:'TAURUS',ko:'황소자리',points:[[.24,.60],[.34,.50],[.44,.42],[.53,.50],[.61,.40],[.70,.29],[.60,.58]]},
+    {symbol:'♊',name:'GEMINI',ko:'쌍둥이자리',points:[[.32,.25],[.30,.42],[.30,.62],[.45,.66],[.60,.62],[.60,.42],[.58,.25],[.45,.35]]},
+    {symbol:'♋',name:'CANCER',ko:'게자리',points:[[.24,.50],[.35,.43],[.46,.48],[.56,.58],[.66,.56],[.56,.69],[.42,.66]]},
+    {symbol:'♌',name:'LEO',ko:'사자자리',points:[[.20,.60],[.30,.48],[.39,.38],[.51,.37],[.60,.44],[.67,.55],[.76,.61],[.70,.43]]},
+    {symbol:'♍',name:'VIRGO',ko:'처녀자리',points:[[.19,.34],[.28,.44],[.37,.38],[.46,.49],[.56,.42],[.65,.52],[.73,.45],[.80,.57],[.71,.69]]},
+    {symbol:'♎',name:'LIBRA',ko:'천칭자리',points:[[.21,.60],[.33,.53],[.45,.44],[.57,.53],[.70,.60],[.60,.64],[.45,.66],[.30,.64]]},
+    {symbol:'♏',name:'SCORPIO',ko:'전갈자리',points:[[.18,.36],[.27,.44],[.36,.50],[.45,.54],[.54,.59],[.63,.65],[.72,.71],[.81,.66],[.76,.54]]},
+    {symbol:'♐',name:'SAGITTARIUS',ko:'사수자리',points:[[.22,.68],[.33,.57],[.44,.48],[.56,.38],[.69,.28],[.61,.48],[.53,.61],[.73,.63]]},
+    {symbol:'♑',name:'CAPRICORN',ko:'염소자리',points:[[.19,.39],[.29,.50],[.39,.45],[.49,.56],[.60,.67],[.72,.58],[.66,.45],[.54,.37]]},
+    {symbol:'♒',name:'AQUARIUS',ko:'물병자리',points:[[.17,.39],[.27,.34],[.37,.46],[.47,.39],[.57,.49],[.67,.43],[.77,.55],[.67,.64],[.56,.56]]},
+    {symbol:'♓',name:'PISCES',ko:'물고기자리',points:[[.24,.35],[.34,.42],[.43,.50],[.52,.59],[.62,.67],[.74,.59],[.67,.47],[.57,.38],[.45,.32]]}
+  ];
+
+  let dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+  let W = 1, H = 1;
+  let bgStars = [];
+  let targets = [];
+  let decoys = [];
+  let current = 0;
+  let round = 1;
+  let score = 0;
+  let combo = 0;
+  let bestCombo = 0;
+  let nextIndex = 0;
+  const MAX_LIVES = 4;
+  let lives = MAX_LIVES;
+  let mistakes = 0;
+  let roundMistakes = 0;
+  let roundTimeLimit = 10.8;
+  let timeLeft = roundTimeLimit;
+  let mode = 'idle';
+  let previewUntil = 0;
+  let lastTime = performance.now();
+  let collected = new Set();
+  let pointer = {x:-100,y:-100};
+  let pulses = [];
+  let mirageLines = [];
+  let raf = 0;
+
+  const rand=(a,b)=>a+Math.random()*(b-a);
+
+  function resize(){
+    const r = wrap.getBoundingClientRect();
+    W = Math.max(320, r.width);
+    H = Math.max(320, r.height);
+    canvas.width = Math.round(W*dpr);
+    canvas.height = Math.round(H*dpr);
+    canvas.style.width = W+'px';
+    canvas.style.height = H+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    makeBackground();
+    if(mode!=='idle'&&mode!=='over') buildRound(false);
+  }
+
+  function makeBackground(){
+    bgStars = [];
+    const count = Math.floor((W*H)/5600);
+    for(let i=0;i<count;i++){
+      bgStars.push({
+        x:Math.random()*W,
+        y:Math.random()*H,
+        r:rand(.5,1.35),
+        a:rand(.12,.48),
+        tw:rand(.45,1.4),
+        p:rand(0,Math.PI*2),
+        blink:rand(1.8,4.2),
+        duty:rand(.18,.42)
+      });
+    }
+  }
+
+  function buildCollection(){
+    collection.innerHTML='';
+    zodiac.forEach((z,i)=>{
+      const el=document.createElement('div');
+      el.className='mini-star'+(collected.has(i)?' done':'');
+      el.textContent=z.symbol;
+      collection.appendChild(el);
+    });
+  }
+
+  function hud(){
+    roundText.textContent=String(round).padStart(2,'0');
+    scoreText.textContent=String(score).padStart(4,'0');
+    comboText.textContent='×'+combo;
+    timeText.textContent=Math.max(0,timeLeft).toFixed(1);
+    lifeText.textContent='♥'.repeat(lives)+'♡'.repeat(MAX_LIVES-lives);
+    const timeRatio=roundTimeLimit?Math.max(0,Math.min(1,timeLeft/roundTimeLimit)):1;
+    timeBar.style.width=(timeRatio*100)+'%';
+    timeBar.classList.toggle('urgent',timeRatio<.36);
+    const z=zodiac[current];
+    symbolText.textContent=z.symbol;
+    nameText.textContent=z.name;
+    koText.textContent=z.ko;
+    levelText.textContent='STAR LEVEL '+String(round).padStart(2,'0');
+    progressText.textContent=nextIndex+' / '+targets.length;
+    progressBar.style.width=(targets.length?nextIndex/targets.length*100:0)+'%';
+    buildCollection();
+  }
+
+  function buildRound(startPreview=true){
+    const z=zodiac[current];
+    const marginX=Math.max(48,Math.min(70,W*.08));
+    const marginY=Math.max(52,Math.min(76,H*.1));
+    const usableW=Math.max(220,W-marginX*2);
+    const usableH=Math.max(220,H-marginY*2);
+    const mapped=z.points.map(p=>({x:marginX+p[0]*usableW,y:marginY+p[1]*usableH}));
+    const xs=mapped.map(p=>p.x),ys=mapped.map(p=>p.y);
+    const mapCenterX=(Math.min(...xs)+Math.max(...xs))/2;
+    const mapCenterY=(Math.min(...ys)+Math.max(...ys))/2;
+    const offsetX=W*.5-mapCenterX;
+    const offsetY=H*.46-mapCenterY;
+    const wobble=Math.min(8,round*.52);
+    const starRadius=Math.max(5.05,5.95-(round-1)*.075);
+    targets=mapped.map((p,i)=>({
+      x:p.x+offsetX+rand(-wobble,wobble),
+      y:p.y+offsetY+rand(-wobble,wobble),
+      r:starRadius+rand(-.38,.38),
+      hit:i<nextIndex,
+      idx:i,
+      tw:rand(.72,1.75),
+      phase:rand(0,Math.PI*2),
+      alpha:rand(.76,.91),
+      glow:rand(8,12),
+      sprite:Math.random()<.5?'four':'five'
+    }));
+    decoys=[];
+    const count=Math.min(36,10+Math.floor(round*2));
+    let tries=0;
+    while(decoys.length<count&&tries<1000){
+      tries++;
+      const nearCenter=Math.random()<.62;
+      const p={
+        x:nearCenter?rand(Math.max(32,W*.16),Math.min(W-32,W*.84)):rand(32,W-32),
+        y:nearCenter?rand(Math.max(42,H*.13),Math.min(H-68,H*.74)):rand(42,H-68),
+        r:starRadius+rand(-.38,.38),tw:rand(.72,1.75),phase:rand(0,Math.PI*2),
+        alpha:rand(.76,.91),glow:rand(8,12),sprite:Math.random()<.5?'four':'five',
+        vx:rand(-26,26)*(round>=4?1:0),vy:rand(-18,18)*(round>=4?1:0)
+      };
+      const clearOfTargets=targets.every(t=>Math.hypot(t.x-p.x,t.y-p.y)>Math.max(25,30-round*.25));
+      const clearOfDecoys=decoys.every(d=>Math.hypot(d.x-p.x,d.y-p.y)>20);
+      if(clearOfTargets&&clearOfDecoys) decoys.push(p);
+    }
+    mirageLines=[];
+    const mirageCount=Math.min(4,1+Math.floor(round/3));
+    for(let i=0;i<mirageCount&&decoys.length>1;i++){
+      const a=decoys[(i*3)%decoys.length];
+      const b=decoys[(i*3+2)%decoys.length];
+      mirageLines.push([a,b]);
+    }
+    if(startPreview){
+      nextIndex=0;
+      roundMistakes=0;
+      targets.forEach(t=>t.hit=false);
+      mode='preview';
+      const previewMs=Math.max(650,1850-(round-1)*110);
+      previewUntil=performance.now()+previewMs;
+      roundTimeLimit=Math.max(5.7,10.8-(round-1)*.46);
+      timeLeft=roundTimeLimit;
+      statusText.textContent='별자리의 선과 시작점을 기억하세요 · '+Math.ceil(previewMs/1000)+'초';
+    }
+    hud();
+  }
+
+  function startGame(){
+    if(!starSpritesReady) return;
+    round=1;score=0;combo=0;bestCombo=0;nextIndex=0;current=0;collected.clear();
+    lives=MAX_LIVES;mistakes=0;roundMistakes=0;pulses=[];mirageLines=[];
+    overlay.classList.add('hidden');
+    buildRound(true);
+    lastTime=performance.now();
+  }
+
+  function previewAgain(){
+    if(mode!=='play') return;
+    score=Math.max(0,score-100);
+    combo=0;
+    mode='preview';
+    previewUntil=performance.now()+820;
+    statusText.textContent='힌트 사용 · 점수 -100';
+    hud();
+  }
+
+  function getRank(clearAll){
+    if(!clearAll) return 'D';
+    if(mistakes===0) return 'S';
+    if(mistakes<=3) return 'A';
+    if(mistakes<=7) return 'B';
+    return 'C';
+  }
+
+  function endGame(clearAll=false,reason=''){
+    mode='over';
+    const rank=getRank(clearAll);
+    const resultText=clearAll?'12개의 별자리를 모두 복원했습니다.':(reason||'별빛이 사라졌습니다.');
+    const modal=overlay.querySelector('.modal');
+    modal.innerHTML=`
+      <div class="modal-symbol">${clearAll?'✦':'☾'}</div>
+      <h2>${clearAll?'ZODIAC COMPLETE':'STAR MAP LOST'}</h2>
+      <p>${resultText}<br><br>FINAL SCORE <b>${String(score).padStart(4,'0')}</b><br>BEST COMBO <b>×${bestCombo}</b><br>RANK <b>${rank}</b></p>
+      <button type="button" class="primary" id="againBtn">한 판 더</button>`;
+    overlay.classList.remove('hidden');
+    modal.querySelector('#againBtn').addEventListener('click',startGame);
+  }
+
+  function clearRound(){
+    mode='clear';
+    collected.add(current);
+    score += Math.round(timeLeft*42) + 300;
+    combo += roundMistakes===0?3:1;
+    if(roundMistakes===0) score += 200 + round*12;
+    bestCombo=Math.max(bestCombo,combo);
+    hud();
+    statusText.textContent=roundMistakes===0?'PERFECT CONSTELLATION ✦':'CONSTELLATION COMPLETE ✦';
+    flash.className='flash good';
+    void flash.offsetWidth;
+    setTimeout(()=>{
+      if(collected.size>=12){endGame(true);return;}
+      current=(current+1)%zodiac.length;
+      round++;
+      buildRound(true);
+    },760);
+  }
+
+  function wrong(type='decoy'){
+    combo=0;
+    mistakes++;roundMistakes++;lives=Math.max(0,lives-1);
+    const penalty=type==='decoy'?1.45:type==='repeat'?1.1:1;
+    timeLeft=Math.max(0,timeLeft-penalty);
+    score=Math.max(0,score-45);
+    statusText.textContent=type==='decoy'?'가짜 별! · LIFE -1 · TIME -1.45':type==='repeat'?'이미 누른 별! · LIFE -1':'순서가 달라요! · LIFE -1';
+    flash.className='flash bad';
+    void flash.offsetWidth;
+    hud();
+    if(lives<=0) endGame(false,'목숨을 모두 잃었습니다.');
+    else if(timeLeft<=0) endGame(false,'시간 안에 별자리를 완성하지 못했습니다.');
+  }
+
+  function hitTest(x,y){
+    if(mode!=='play')return;
+    let nearest=null,dist=999;
+    [...targets,...decoys].forEach(obj=>{
+      const d=Math.hypot(obj.x-x,obj.y-y);
+      if(d<dist){dist=d;nearest=obj;}
+    });
+    const hitRadius=Math.max(16,25-(round-1)*.65);
+    if(!nearest||dist>hitRadius)return;
+
+    if('idx' in nearest){
+      if(nearest.idx===nextIndex){
+        nearest.hit=true;
+        pulses.push({x:nearest.x,y:nearest.y,t:0,good:true});
+        nextIndex++;
+        combo++;
+        bestCombo=Math.max(bestCombo,combo);
+        score += 82 + Math.min(combo,12)*21 + Math.round(timeLeft*2);
+        statusText.textContent=nextIndex===targets.length?'별자리 완성!':'GOOD ✦ '+nextIndex+' / '+targets.length;
+        hud();
+        if(nextIndex===targets.length) clearRound();
+      }else if(nearest.idx<nextIndex){
+        wrong('repeat');
+      }else wrong('order');
+    }else{
+      pulses.push({x:nearest.x,y:nearest.y,t:0,good:false});
+      wrong('decoy');
+    }
+  }
+
+  function drawSpriteStar(spriteKey,x,y,r,alpha,glow,state,twinkle){
+    if(!starSpritesReady) return;
+    const sprite=starSprites[spriteKey]||starSprites.five;
+    const baseSize=Math.max(17,Math.min(26,Math.round(r*3.25)));
+    const size=Math.max(16,Math.round(baseSize*(spriteKey==='four'?.92:1)));
+    const left=Math.round(x-size/2);
+    const top=Math.round(y-size/2);
+    const shimmer=.94+Math.max(0,twinkle)*.06;
+    const glowColor=state==='hit'?'#ffffff':'#dfe8ff';
+
+    ctx.save();
+    ctx.globalAlpha=alpha*.15;
+    const haloRadius=size*.55;
+    const halo=ctx.createRadialGradient(x,y,0,x,y,haloRadius);
+    halo.addColorStop(0,glowColor);
+    halo.addColorStop(.4,glowColor);
+    halo.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=halo;
+    ctx.beginPath();
+    ctx.arc(x,y,haloRadius,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.imageSmoothingEnabled=false;
+    ctx.globalAlpha=Math.min(1,alpha*shimmer);
+    ctx.shadowBlur=state==='hit'?glow+5:glow;
+    ctx.shadowColor=glowColor;
+    ctx.drawImage(sprite,left,top,size,size);
+    ctx.restore();
+  }
+
+  function draw(now){
+    ctx.clearRect(0,0,W,H);
+
+    bgStars.forEach(s=>{
+      const cycle = (now * 0.001 * s.tw + s.p) / s.blink;
+      const local = cycle - Math.floor(cycle);
+      const blinkWindow = Math.sin(Math.min(1, local / s.duty) * Math.PI);
+      const visible = local < s.duty ? Math.pow(Math.max(0, blinkWindow), 1.8) : 0;
+      const a = s.a * visible;
+      if(a > .01){
+        const glow = ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,s.r*6.5);
+        glow.addColorStop(0, `rgba(235,242,255,${a})`);
+        glow.addColorStop(.35, `rgba(205,221,255,${a*.55})`);
+        glow.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(s.x,s.y,s.r*6.5,0,Math.PI*2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+        ctx.fillStyle=`rgba(245,248,255,${Math.min(1,a+.08)})`;
+        ctx.fill();
+      }
+    });
+
+    ctx.save();
+    ctx.strokeStyle='rgba(141,164,220,.055)';
+    ctx.lineWidth=1;
+    for(let i=0;i<4;i++){
+      ctx.beginPath();
+      ctx.ellipse(W*.52,H*.48,110+i*74,62+i*40,-.18,0,Math.PI*2);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    if(mode==='preview'){
+      ctx.save();
+      ctx.lineWidth=1;
+      ctx.strokeStyle='rgba(141,125,195,.18)';
+      ctx.setLineDash([4,7]);
+      mirageLines.forEach(([a,b])=>{
+        ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+      });
+      ctx.restore();
+
+      ctx.save();
+      ctx.lineWidth=1.5;
+      ctx.strokeStyle='rgba(223,232,255,.86)';
+      ctx.shadowBlur=11;
+      ctx.shadowColor='rgba(144,181,255,.65)';
+      ctx.beginPath();
+      targets.forEach((t,i)=>{if(i===0)ctx.moveTo(t.x,t.y);else ctx.lineTo(t.x,t.y);});
+      ctx.stroke();
+      ctx.restore();
+
+      const start=targets[0];
+      if(start){
+        ctx.save();
+        ctx.setLineDash([]);
+        ctx.strokeStyle='rgba(229,237,255,.62)';
+        ctx.lineWidth=1;
+        ctx.strokeRect(Math.round(start.x-8)+.5,Math.round(start.y-8)+.5,16,16);
+        ctx.restore();
+      }
+    } else if(mode==='play'||mode==='clear'){
+      if(nextIndex>1){
+        ctx.save();
+        ctx.lineWidth=2;
+        ctx.strokeStyle='rgba(232,238,255,.93)';
+        ctx.shadowBlur=10;
+        ctx.shadowColor='rgba(151,183,255,.75)';
+        ctx.beginPath();
+        for(let i=0;i<nextIndex;i++){
+          const t=targets[i];
+          if(i===0)ctx.moveTo(t.x,t.y); else ctx.lineTo(t.x,t.y);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    decoys.forEach(d=>{
+      const tw=.55+.45*Math.sin(now*.002*d.tw+d.phase);
+      drawSpriteStar(d.sprite,d.x,d.y,d.r,d.alpha,d.glow,'star',tw);
+    });
+
+    targets.forEach(t=>{
+      let state='star',a=t.alpha,glow=t.glow,r=t.r;
+      const tw=.55+.45*Math.sin(now*.002*t.tw+t.phase);
+      if(t.hit){state='hit';a=Math.min(1,a+.1);glow+=4;r+=.35;}
+      drawSpriteStar(t.sprite,t.x,t.y,r,a,glow,state,tw);
+    });
+
+    if(mode==='play'&&pointer.x>=0){
+      const hitRadius=Math.max(16,25-(round-1)*.65);
+      let near=[...targets,...decoys].find(o=>Math.hypot(o.x-pointer.x,o.y-pointer.y)<hitRadius);
+      if(near){
+        const x=Math.round(near.x),y=Math.round(near.y),s=Math.round(hitRadius),c=5;
+        ctx.beginPath();
+        ctx.moveTo(x-s+c,y-s);ctx.lineTo(x-s,y-s);ctx.lineTo(x-s,y-s+c);
+        ctx.moveTo(x+s-c,y-s);ctx.lineTo(x+s,y-s);ctx.lineTo(x+s,y-s+c);
+        ctx.moveTo(x-s,y+s-c);ctx.lineTo(x-s,y+s);ctx.lineTo(x-s+c,y+s);
+        ctx.moveTo(x+s-c,y+s);ctx.lineTo(x+s,y+s);ctx.lineTo(x+s,y+s-c);
+        ctx.strokeStyle='rgba(205,220,255,.34)';
+        ctx.lineWidth=1;
+        ctx.stroke();
+      }
+    }
+
+    pulses=pulses.filter(p=>p.t<1);
+    pulses.forEach(p=>{
+      p.t+=.055;
+      const size=Math.round(10+p.t*24);
+      ctx.beginPath();
+      ctx.rect(Math.round(p.x-size),Math.round(p.y-size),size*2,size*2);
+      ctx.strokeStyle=p.good?`rgba(210,235,255,${1-p.t})`:`rgba(255,120,155,${1-p.t})`;
+      ctx.lineWidth=1.5;
+      ctx.stroke();
+    });
+  }
+
+  function moveDecoys(dt){
+    if(mode!=='play') return;
+    decoys.forEach(d=>{
+      if(!d.vx&&!d.vy) return;
+      d.x+=d.vx*dt;d.y+=d.vy*dt;
+      const pad=28;
+      if(d.x<pad||d.x>W-pad){d.vx*=-1;d.x=Math.max(pad,Math.min(W-pad,d.x));}
+      if(d.y<pad||d.y>H-pad){d.vy*=-1;d.y=Math.max(pad,Math.min(H-pad,d.y));}
+    });
+  }
+
+  function loop(now){
+    const dt=Math.min(.05,(now-lastTime)/1000);
+    lastTime=now;
+    moveDecoys(dt);
+    if(mode==='preview'&&now>=previewUntil){
+      mode='play';
+      statusText.textContent='START ✦ 움직이는 가짜 별을 피해 순서대로 눌러주세요.';
+    }else if(mode==='play'){
+      timeLeft-=dt;
+      if(timeLeft<=0){
+        timeLeft=0;
+        hud();
+        endGame(false,'시간 안에 별자리를 완성하지 못했습니다.');
+      } else if(Math.floor(timeLeft*10)%2===0){
+        hud();
+      }
+    }
+    draw(now);
+    raf=requestAnimationFrame(loop);
+  }
+
+  function pointerPos(e){
+    const r=canvas.getBoundingClientRect();
+    return {x:(e.clientX-r.left)*(W/r.width),y:(e.clientY-r.top)*(H/r.height)};
+  }
+  canvas.addEventListener('pointermove',e=>{pointer=pointerPos(e);});
+  canvas.addEventListener('pointerleave',()=>{pointer={x:-100,y:-100};});
+  canvas.addEventListener('pointerdown',e=>{const p=pointerPos(e);hitTest(p.x,p.y);});
+
+  startBtn.addEventListener('click',startGame);
+  restartBtn.addEventListener('click',startGame);
+  previewBtn.addEventListener('click',previewAgain);
+  window.addEventListener('resize',resize,{passive:true});
+
+  buildCollection();
+  hud();
+  resize();
+  raf=requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
