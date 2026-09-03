@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+  <link rel="preload" href="Opal_star_image.jpg" as="image" fetchpriority="high">
+  <title>Opal Star · Spline View</title>
+  <style>
+*,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      font-family: "Cormorant Garamond", serif;
+    }
+
+    .viewport {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .game-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #000;
+    }
+    /* ===== DESKTOP / LAPTOP FULL-RANGE RATIO LOCK =====
+       1920px / 브라우저 100%를 기준으로 rem 계열 UI를 viewport와 함께
+       양방향 비례 보정합니다.
+       브라우저 확대/축소 및 노트북 화면에서도 데스크탑 구도를 최대한 그대로 유지합니다. */
+    @media (any-hover: hover) and (any-pointer: fine) {
+      html {
+        font-size: 0.833333vw;
+      }
+    }
+
+/* ===== SPLINE ===== */
+    .poster-image {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 2;
+      opacity: 1;
+      visibility: visible;
+      pointer-events: none;
+      transform: scale(1.05) translateX(0.7%);
+      transition: opacity 1.4s ease, transform 1.8s ease;
+    }
+
+    .poster-image.hide {
+      opacity: 0;
+      transform: scale(1.03);
+    }
+
+    /* ===== LOADING (identical) ===== */
+    .space-loading-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.2rem;
+      pointer-events: none;
+      background:radial-gradient(circle at 50% 48%, rgba(255,190,225, 0.18), transparent 38%),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.045), transparent 55%),
+        rgba(0, 0, 0, 0.18);
+      opacity: 1;
+      transition: opacity 1.2s ease, visibility 1.2s ease;
+    }
+
+    .space-loading-overlay.hide {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .space-orbit {
+      position: relative;
+      width: 5.2rem;
+      height: 5.2rem;
+      border-radius: 50%;
+      filter:drop-shadow(0 0 18px rgba(255,210,235, 0.24));
+    }
+
+    .orbit-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border:1px solid rgba(255,220,240, 0.18);
+    }
+
+    .ring-1 {
+      animation: orbitSpin 5.5s linear infinite;
+    }
+
+    .ring-2 {
+      transform: rotate(62deg) scaleX(1.45);
+      animation: orbitSpinReverse 7s linear infinite;
+    }
+
+    .orbit-core {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 0.9rem;
+      height: 0.9rem;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      background:radial-gradient(circle, #fff, #ffd6ea 45%, rgba(255, 185, 225, 0.1) 78%);
+      box-shadow:0 0 14px rgba(255,220,240, 0.9), 0 0 30px rgba(255,185,225, 0.38);
+    }
+
+    @keyframes orbitSpin {
+      from {
+        transform: rotate(0deg) scaleX(1.45);
+      }
+
+      to {
+        transform: rotate(360deg) scaleX(1.45);
+      }
+    }
+
+    @keyframes orbitSpinReverse {
+      from {
+        transform: rotate(360deg) scaleX(1.1);
+      }
+
+      to {
+        transform: rotate(0deg) scaleX(1.1);
+      }
+    }
+
+    .space-loading-copy {
+      padding: 1rem 1.35rem;
+      min-width: min(86vw, 34rem);
+      max-width: min(94vw, 44rem);
+      border-radius: 1.1rem;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(8, 4, 8, 0.28);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      text-align: center;
+      box-shadow: 0 0 24px rgba(0, 0, 0, 0.22), inset 0 0 18px rgba(255, 255, 255, 0.035);
+      white-space: nowrap;
+    }
+
+    .space-loading-kicker {
+      margin-bottom: 0.48rem;
+      font-size: clamp(0.62rem, 0.8vw, 0.72rem);
+      letter-spacing: 0.26em;
+      color:rgba(255,220,240, 0.56);
+    }
+
+    .space-loading-text {
+      position: relative;
+      height: 1.8em;
+      overflow: hidden;
+      color:rgba(235,250,255, 0.94);
+      font-size: clamp(0.96rem, 1.35vw, 1.15rem);
+      letter-spacing: 0.04em;
+      text-shadow:0 0 10px rgba(255, 255, 255, 0.12), 0 0 20px rgba(255,210,235, 0.16);
+    }
+
+    .space-loading-text span {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: spaceSentence 7.2s infinite;
+      white-space: nowrap;
+    }
+
+    .space-loading-text span:nth-child(1) {
+      animation-delay: 0s;
+    }
+
+    .space-loading-text span:nth-child(2) {
+      animation-delay: 1.8s;
+    }
+
+    .space-loading-text span:nth-child(3) {
+      animation-delay: 3.6s;
+    }
+
+    .space-loading-text span:nth-child(4) {
+      animation-delay: 5.4s;
+    }
+
+    @keyframes spaceSentence {
+      0% {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      10% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      28% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      38% {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+    }
+/* ===== TOP NAV ===== */
+    .top-nav {
+      position: absolute;
+      top: 3%;
+      left: 2%;
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.65rem;
+    }
+
+    .menu-toggle-btn {
+      position: relative;
+      width: clamp(2.5rem, 3.2vw, 3.2rem);
+      height: clamp(2.5rem, 3.2vw, 3.2rem);
+      border-radius: 50%;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow:0 0 0.8vw rgba(255,205,230, 0.22), inset 0 0 0.35vw rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .menu-toggle-btn:hover {
+      transform: scale(1.08);
+    }
+
+    .menu-toggle-btn::before {
+      content: "";
+      width: clamp(0.72rem, 0.95vw, 0.95rem);
+      height: clamp(0.72rem, 0.95vw, 0.95rem);
+      border-radius: 50%;
+      background:#ffd6ea;
+      box-shadow:0 0 0.6vw rgba(255,205,230, 0.6), 0 0 1.2vw rgba(255,185,225, 0.35);
+    }
+
+    .menu-toggle-btn span {
+      position: absolute;
+      width: 1.1rem;
+      height: 1px;
+      border-radius: 999px;
+      background:rgba(235,250,255, 0.88);
+      box-shadow:0 0 0.35vw rgba(255,205,230, 0.45);
+      transition: transform 0.28s ease, opacity 0.28s ease;
+    }
+
+    .menu-toggle-btn span:nth-child(1) {
+      transform: translateY(-0.32rem);
+    }
+
+    .menu-toggle-btn span:nth-child(2) {
+      transform: translateY(0);
+    }
+
+    .menu-toggle-btn span:nth-child(3) {
+      transform: translateY(0.32rem);
+    }
+
+    .top-nav.open .menu-toggle-btn span:nth-child(1) {
+      transform: rotate(45deg);
+    }
+
+    .top-nav.open .menu-toggle-btn span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .top-nav.open .menu-toggle-btn span:nth-child(3) {
+      transform: rotate(-45deg);
+    }
+
+    .nav-menu {
+      min-width: 11.5rem;
+      padding: 0.9rem 1rem;
+      border-radius: 1.15rem;
+      margin-left: 0.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.72rem;
+      background: rgba(10, 4, 8, 0.36);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow:0 0 1vw rgba(255,190,220, 0.14), 0 0 1.8vw rgba(0, 0, 0, 0.22), inset 0 0 0.45vw rgba(255, 255, 255, 0.07);
+      opacity: 0;
+      transform: translateY(-0.35rem) scale(0.96);
+      pointer-events: none;
+      transition: opacity 0.32s ease, transform 0.32s ease;
+    }
+
+    .top-nav.open .nav-menu {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .nav-link {
+      width: 100%;
+      box-sizing: border-box;
+      font-size: clamp(0.78rem, 0.86vw, 0.92rem);
+      letter-spacing: 0.16em;
+      font-weight: 500;
+      color:rgba(215,245,255, 0.82);
+      cursor: pointer;
+      padding: 0.48rem 0.65rem;
+      border-radius: 999px;
+      transition: color 0.28s ease, background 0.28s ease, transform 0.28s ease;
+    }
+
+    .nav-link:hover {
+      color:rgba(245,254,255, 0.98);
+      background: rgba(255, 255, 255, 0.07);
+      transform: translateX(3px);
+    }
+
+    /* ===== MODE TOGGLE ===== */
+    .mode-toggle {
+      position: absolute;
+      top: 3%;
+      right: 3%;
+      width: 3.35rem;
+      height: 1.72rem;
+      border-radius: 999px;
+      z-index: 20;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: background 0.25s ease;
+    }
+
+    .mode-toggle.active {
+      background:rgba(255,190,225, 0.24);
+      border-color:rgba(255,215,235, 0.18);
+    }
+
+    .toggle-knob {
+      position: absolute;
+      top: 50%;
+      left: 0.18rem;
+      width: 1.28rem;
+      height: 1.28rem;
+      border-radius: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.88);
+      transition: left 0.28s ease, background 0.28s ease;
+    }
+
+    .mode-toggle.active .toggle-knob {
+      left: 1.88rem;
+      background:rgba(200,245,255, 0.95);
+    }
+
+    /* ===== MUSIC ===== */
+    .music-btn {
+      position: absolute;
+      bottom: 6%;
+      right: 4%;
+      width: clamp(2.5rem, 3.2vw, 3.2rem);
+      height: clamp(2.5rem, 3.2vw, 3.2rem);
+      border-radius: 50%;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow:0 0 0.8vw rgba(255,205,230, 0.25);
+      transition: all 0.3s ease;
+    }
+
+    .music-btn:hover {
+      transform: scale(1.08);
+    }
+
+    .music-inner {
+      width: clamp(0.7rem, 0.9vw, 0.9rem);
+      height: clamp(0.7rem, 0.9vw, 0.9rem);
+      border-radius: 50%;
+      background:#ffd6ea;
+      box-shadow:0 0 0.6vw rgba(255,205,230, 0.6);
+      position: relative;
+      z-index: 2;
+    }
+
+    .music-label {
+      position: absolute;
+      left: 50%;
+      bottom: -1.55rem;
+      transform: translateX(-50%);
+      display: block;
+      width: max-content;
+      min-width: 6.2rem;
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      text-align: center;
+      white-space: nowrap;
+      color: rgba(255, 255, 255, 0.62);
+      transition: color 0.35s ease;
+    }
+
+    .music-btn.playing .music-label {
+      color:rgba(255,205,230, 0.9);
+    }
+
+    .music-credit {
+      position: absolute;
+      right: 0;
+      bottom: calc(100% + 0.7rem);
+      width: max-content;
+      max-width: min(15rem, 72vw);
+      padding: 0.42rem 0.58rem;
+      border: 1px solid rgba(255, 205, 230, 0.22);
+      border-radius: 0.5rem;
+      background: rgba(24, 8, 18, 0.76);
+      box-shadow: 0 0.35rem 1.1rem rgba(0, 0, 0, 0.24);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: rgba(235, 250, 255, 0.82);
+      font-family: 'Jost', sans-serif;
+      font-size: clamp(0.58rem, 0.62vw, 0.7rem);
+      line-height: 1.35;
+      letter-spacing: 0.025em;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(0.35rem);
+      transition: opacity 0.28s ease, transform 0.28s ease, visibility 0.28s;
+      pointer-events: none;
+    }
+
+    .music-credit-title {
+      display: block;
+      color: rgba(255, 220, 240, 0.96);
+      font-weight: 600;
+    }
+
+    .music-credit-artist {
+      display: block;
+      margin-top: 0.08rem;
+      color: rgba(215, 245, 255, 0.64);
+    }
+
+    .music-btn.playing .music-credit {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    /* ===== TRANSITION OVERLAY ===== */
+    .transition-overlay {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 99999;
+      transition: opacity 0.8s ease;
+    }
+
+    .transition-overlay.show {
+      opacity: 1;
+    }
+/* ================================================================
+       STAR UI — hidden by default, shown only in full spline mode
+       ================================================================ */
+    .star-ui {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.7s ease;
+    }
+
+    .star-ui.show {
+      opacity: 1;
+    }
+
+    /* Guide text */
+    .guide-text {
+      position: absolute;
+      top: 11%;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 7;
+      font-size: clamp(0.62rem, 1vw, 1.1rem);
+      letter-spacing: 0.08em;
+      color:rgba(140,220,255, 0.85);
+      text-align: center;
+      white-space: nowrap;
+      text-shadow:0 0 0.5vw rgba(255, 255, 255, 0.4), 0 0 1.2vw rgba(255, 180, 200, 0.25);
+      animation: floatGuide 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes floatGuide {
+
+      0%,
+      100% {
+        transform: translateX(-50%) translateY(0);
+      }
+
+      50% {
+        transform: translateX(-50%) translateY(-0.4vw);
+      }
+    }
+
+    /* Magnifier */
+    .magnifier-start-btn {
+      position: absolute;
+      left: 50%;
+      bottom: 10%;
+      transform: translateX(-50%);
+      z-index: 17;
+      padding: 0.82rem 1.8rem;
+      border-radius: 999px;
+      border:1px solid rgba(255, 190, 205, 0.28);
+      background:radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.18), transparent 30%), linear-gradient(135deg, rgba(90, 35, 75, 0.5), rgba(20, 5, 12, 0.48));
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      color:rgba(255, 238, 242, 0.96);
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(0.72rem, 0.86vw, 0.92rem);
+      letter-spacing: 0.2em;
+      cursor: pointer;
+      box-shadow:0 0 1.1vw rgba(255,185,225, 0.25), 0 0 2.4vw rgba(255, 185, 225, 0.18);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .magnifier-start-btn.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .magnifier-start-btn:hover {
+      transform: translateX(-50%) translateY(-3px);
+    }
+
+    .magnifier-start-btn.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .magnifier-cancel-btn {
+      position: absolute;
+      left: 50%;
+      bottom: 7%;
+      transform: translateX(-50%);
+      z-index: 30;
+      padding: 0.48rem 1.15rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(10, 4, 8, 0.42);
+      color: rgba(255, 255, 255, 0.62);
+      font-family: "Cormorant Garamond", serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.16em;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s ease, color 0.28s ease;
+    }
+
+    .magnifier-cancel-btn.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .magnifier-cancel-btn:hover {
+      color:rgba(255, 220, 226, 0.94);
+    }
+
+    .magnifier-view {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 19;
+      width: clamp(8rem, 12vw, 13rem);
+      height: clamp(8rem, 12vw, 13rem);
+      border-radius: 50%;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(0.92);
+      overflow: hidden;
+      background:radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.15), transparent 35%), radial-gradient(circle at 60% 70%, rgba(255,175,215, 0.12), transparent 60%), radial-gradient(circle at center, rgba(22, 8, 18, 0.2), rgba(28, 10, 24, 0.37) 75%);
+      backdrop-filter: blur(5px) brightness(1.05);
+      -webkit-backdrop-filter: blur(5px) brightness(1.05);
+      border:1px solid rgba(180,240,255, 0.4);
+      box-shadow:0 0 1vw rgba(255,220,240, 0.25), 0 0 2.5vw rgba(255,175,215, 0.3), inset 0 0 1.5vw rgba(255, 255, 255, 0.08), inset 0 0 3vw rgba(95, 40, 80, 0.25);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      animation: magnifierFloat 5.5s ease-in-out infinite;
+    }
+
+    @keyframes magnifierFloat {
+
+      0%,
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      50% {
+        transform: translate(-50%, -52%) scale(1.02);
+      }
+    }
+
+    .magnifier-view.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .magnifier-view::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.18) 50%, transparent 70%);
+      opacity: 0.4;
+      animation: lensLight 4s linear infinite;
+    }
+
+    @keyframes lensLight {
+      from {
+        transform: translateX(-100%);
+      }
+
+      to {
+        transform: translateX(100%);
+      }
+    }
+
+    .hidden-star {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 4.2rem;
+      height: 4.2rem;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(0.5);
+      transition: opacity 0.28s ease, transform 0.28s ease;
+    }
+
+    .hidden-star.visible {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .hidden-star::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 0.52rem;
+      height: 0.52rem;
+      border-radius: 50%;
+      background:#ffc7e2;
+      transform: translate(-50%, -50%);
+      box-shadow:0 0 0.45rem rgba(255, 255, 255, 0.596), 0 0 1rem rgba(130,220,255, 0.705), 0 0 1.8rem rgba(255,170,210, 0.719), 0 0 3rem rgba(235,145,190, 0.719);
+      animation: starCorePulse 2s ease-in-out infinite;
+    }
+
+    @keyframes starCorePulse {
+
+      0%,
+      100% {
+        transform: translate(-50%, -50%) scale(0.9);
+        opacity: 0.7;
+      }
+
+      50% {
+        transform: translate(-50%, -50%) scale(1.6);
+        opacity: 1;
+        filter: brightness(1.8);
+      }
+    }
+
+    .hidden-star::after {
+      content: "";
+      position: absolute;
+      inset: -1.2rem;
+      border-radius: 50%;
+      background:radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.95) 0 1.1%, transparent 2%), radial-gradient(circle at 54% 46%, rgba(255, 205, 230, 0.85) 0 0.9%, transparent 1.8%), radial-gradient(circle at 43% 33%, rgb(255, 220, 240) 0 0.75%, transparent 1.5%), radial-gradient(circle at 58% 34%, rgba(255,200,230, 0.62) 0 0.7%, transparent 1.5%), radial-gradient(circle at 50% 50%, rgba(255, 185, 225, 0.096) 0 4.8rem, transparent 9rem);
+      filter:drop-shadow(0 0 0.35rem rgba(255, 180, 195, 0.8)) drop-shadow(0 0 1rem rgba(40,175,255, 0.4)) drop-shadow(0 0 2rem rgba(40,120,220, 0.25));
+      animation:opalParticleOrbit 9s ease-in-out infinite, starTwinkle 3.7s steps(10, end) infinite;
+      animation-delay: 0s, -1.3s;
+      animation-direction: normal, alternate;
+    }
+
+    @keyframes opalParticleOrbit {
+      0% {
+        transform: rotate(0deg) scale(0.92);
+        opacity: 0.45;
+      }
+
+      35% {
+        transform: rotate(120deg) scale(1.12);
+        opacity: 0.85;
+      }
+
+      70% {
+        transform: rotate(250deg) scale(1.02);
+        opacity: 0.65;
+      }
+
+      100% {
+        transform: rotate(360deg) scale(0.92);
+        opacity: 0.45;
+      }
+    }
+
+    @keyframes starTwinkle {
+      0% {
+        opacity: 0.42;
+        filter: brightness(0.85);
+      }
+
+      41% {
+        opacity: 0.95;
+        filter: brightness(1.65);
+      }
+
+      73% {
+        opacity: 0.82;
+        filter: brightness(1.45);
+      }
+
+      100% {
+        opacity: 0.42;
+        filter: brightness(0.85);
+      }
+    }
+
+    /* Found info */
+    .found-info-box {
+      position: absolute;
+      box-sizing: border-box;
+      left: 50%;
+      top: 50%;
+      z-index: 40;
+      width: min(88vw, 32rem);
+      max-height: 88vh;
+      padding: 1.15rem;
+      border-radius: 1.45rem;
+      border: 1px solid rgba(255, 220, 240, 0.34);
+      background:
+        radial-gradient(circle at 50% -12%, rgba(255, 185, 225, 0.38), transparent 42%),
+        linear-gradient(160deg, rgba(34, 15, 28, 0.96), rgba(20, 8, 18, 0.96));
+      backdrop-filter: blur(22px) brightness(1.06);
+      -webkit-backdrop-filter: blur(22px) brightness(1.06);
+      box-shadow:
+        0 1.5rem 4rem rgba(0, 0, 0, 0.52),
+        0 0 3.8rem rgba(255, 145, 205, 0.36),
+        inset 0 1px rgba(255, 255, 255, 0.11);
+      opacity: 0;
+      pointer-events: none;
+      overflow: hidden;
+      transform: translate(-50%, -50%) translateY(1rem) scale(0.9);
+      transition: opacity 0.38s ease, transform 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .found-info-box::before {
+      content: "";
+      position: absolute;
+      left: 12%;
+      right: 12%;
+      top: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(225, 245, 255, 0.9), transparent);
+      box-shadow: 0 0 1rem rgba(255, 195, 228, 0.7);
+    }
+
+    .found-info-box.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, -50%) translateY(0) scale(1);
+    }
+
+    .found-info-header,
+    .found-info-image-frame,
+    .found-info-unlock {
+      position: relative;
+      z-index: 2;
+    }
+
+    .found-info-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.15rem 3rem 0.95rem;
+      text-align: center;
+      border-bottom: 1px solid rgba(225, 245, 255, 0.1);
+    }
+
+    .found-discovery-mark {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 3.25rem;
+      height: 3.25rem;
+      margin-bottom: 0.7rem;
+      border-radius: 50%;
+      border: 1px solid rgba(225, 245, 255, 0.5);
+      background: radial-gradient(circle, rgba(255, 200, 230, 0.28), rgba(170, 80, 135, 0.13));
+      box-shadow: 0 0 1.6rem rgba(255, 160, 215, 0.34), inset 0 0 1rem rgba(255, 255, 255, 0.08);
+      color: rgba(245, 254, 255, 0.98);
+      font-size: 1.15rem;
+    }
+
+    .found-info-box.show .found-discovery-mark {
+      animation: discoveredPulse 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .found-info-kicker {
+      margin-bottom: 0.3rem;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: rgba(255, 205, 230, 0.72);
+    }
+
+    .found-info-title {
+      margin: 0;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.55rem, 2.2vw, 2.2rem);
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: rgba(245, 254, 255, 0.98);
+      text-shadow: 0 0 1rem rgba(255, 195, 228, 0.45);
+    }
+
+    .found-info-subtitle {
+      margin-top: 0.28rem;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.56rem;
+      letter-spacing: 0.2em;
+      color: rgba(225, 245, 255, 0.54);
+    }
+
+    .found-info-image-frame {
+      position: relative;
+      isolation: isolate;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: min(42vh, 22rem);
+      margin-top: 1rem;
+      overflow: hidden;
+      border-radius: 1rem;
+      border: 1px solid rgba(255, 220, 240, 0.28);
+      background: rgba(28, 10, 22, 0.72);
+      box-shadow: inset 0 0 1.8rem rgba(255, 145, 205, 0.2);
+    }
+
+    .found-info-box.show .found-info-image-frame {
+      animation: foundContentIn 0.6s ease 0.12s both;
+    }
+
+    .found-info-image-frame img {
+      position: relative;
+      z-index: 1;
+      display: block;
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      filter: brightness(1.03) saturate(1.04);
+      -webkit-mask-image: radial-gradient(ellipse closest-side at center, #000 48%, rgba(0, 0, 0, 0.92) 58%, rgba(0, 0, 0, 0.58) 72%, rgba(0, 0, 0, 0.16) 88%, transparent 100%);
+      mask-image: radial-gradient(ellipse closest-side at center, #000 48%, rgba(0, 0, 0, 0.92) 58%, rgba(0, 0, 0, 0.58) 72%, rgba(0, 0, 0, 0.16) 88%, transparent 100%);
+    }
+
+    .found-info-image-frame::before {
+      content: "";
+      position: absolute;
+      inset: -1.8rem;
+      z-index: 0;
+      pointer-events: none;
+      border-radius: inherit;
+      background:
+        linear-gradient(rgba(145, 70, 120, 0.28), rgba(32, 12, 25, 0.55)),
+        url("천칭자리-인포-2.jpg") center / cover no-repeat;
+      filter: blur(1.45rem) brightness(0.72) saturate(1.22);
+      opacity: 0.82;
+      transform: scale(1.08);
+    }
+
+    .found-info-image-frame::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      background: linear-gradient(145deg, rgba(255, 120, 190, 0.18), rgba(210, 240, 255, 0.08));
+      mix-blend-mode: color;
+    }
+
+    .found-info-unlock {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.48rem;
+      margin-top: 0.9rem;
+      padding: 0.52rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 205, 230, 0.18);
+      background: rgba(255, 185, 225, 0.08);
+      font-family: 'Jost', sans-serif;
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      color: rgba(225, 245, 255, 0.76);
+    }
+
+    .found-info-unlock::before {
+      content: "";
+      width: 0.38rem;
+      height: 0.38rem;
+      border-radius: 50%;
+      background: rgba(255, 210, 235, 0.95);
+      box-shadow: 0 0 0.65rem rgba(255, 200, 230, 0.8);
+    }
+
+    .found-info-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.15rem;
+      height: 2.15rem;
+      border: 1px solid rgba(225, 245, 255, 0.18);
+      border-radius: 50%;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.07);
+      color: rgba(235, 250, 255, 0.86);
+      font-size: 1.08rem;
+      line-height: 1;
+      transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+    }
+
+    .found-info-close:hover {
+      transform: rotate(90deg);
+      border-color: rgba(225, 245, 255, 0.38);
+      background: rgba(255, 205, 230, 0.14);
+    }
+
+    .found-info-open {
+      position: absolute;
+      left: 50%;
+      bottom: 10%;
+      z-index: 41;
+      padding: 0.78rem 1.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(225, 245, 255, 0.3);
+      background: linear-gradient(135deg, rgba(150, 65, 115, 0.5), rgba(18, 7, 15, 0.44));
+      color: rgba(245, 254, 255, 0.95);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(0.7rem, 0.85vw, 0.88rem);
+      letter-spacing: 0.18em;
+      cursor: pointer;
+      box-shadow: 0 0 1.2vw rgba(255, 185, 225, 0.28);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateX(-50%);
+      animation: foundButtonGlow 1.8s ease-in-out infinite;
+    }
+
+    .found-info-open.visible {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    @keyframes discoveredPulse {
+      0% {
+        opacity: 0;
+        transform: scale(0.4) rotate(-35deg);
+      }
+
+      65% {
+        opacity: 1;
+        transform: scale(1.14) rotate(6deg);
+      }
+
+      100% {
+        transform: scale(1) rotate(0);
+      }
+    }
+
+    @keyframes foundContentIn {
+      from {
+        opacity: 0;
+        transform: translateY(0.65rem);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes foundButtonGlow {
+      0%,
+      100% {
+        box-shadow: 0 0 0.8vw rgba(255, 185, 225, 0.24);
+      }
+
+      50% {
+        box-shadow: 0 0 1.9vw rgba(225, 245, 255, 0.48);
+      }
+    }
+
+    .info-particles {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .info-particle {
+      position: absolute;
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: rgba(255, 215, 235, 0.8);
+      box-shadow: 0 0 0.25rem rgba(255, 215, 235, 0.6), 0 0 0.6rem rgba(255, 150, 210, 0.35);
+      opacity: 0;
+      animation: infoParticleFloat 6.5s ease-in-out infinite;
+    }
+
+    @keyframes infoParticleFloat {
+      0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 0;
+      }
+
+      20% {
+        opacity: 0.5;
+      }
+
+      50% {
+        opacity: 0.7;
+      }
+
+      100% {
+        transform: translateY(-1.8rem) scale(0.9);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 640px) and (any-hover: none) {
+      .found-info-box {
+        width: min(92vw, 30rem);
+        padding: 0.9rem;
+      }
+
+      .found-info-header {
+        padding-bottom: 0.75rem;
+      }
+
+      .found-discovery-mark {
+        width: 2.8rem;
+        height: 2.8rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .found-info-image-frame {
+        height: min(40vh, 19rem);
+        margin-top: 0.75rem;
+      }
+
+      .found-info-unlock {
+        margin-top: 0.7rem;
+        font-size: 0.56rem;
+      }
+    }
+/* ===== BACK BUTTON ===== */
+    .back-btn {
+      position: absolute;
+      top: 3%;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      padding: 0.58rem 1.5rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      font-family: "Jost", sans-serif;
+      font-size: 0.7rem;
+      font-weight: 300;
+      letter-spacing: 0.24em;
+      color:rgba(255, 215, 225, 0.75);
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease, background 0.3s ease;
+    }
+
+    .back-btn.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color:rgba(255, 240, 245, 0.95);
+    }
+
+    .spline-host {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
+      background: transparent;
+      pointer-events: auto;
+      touch-action: none;
+    }
+
+    .spline-host spline-viewer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 3;
+      opacity: 0;
+      transform: scale(1.025);
+      pointer-events: auto;
+      touch-action: none;
+      transition: opacity 0.55s ease-out, transform 0.55s ease-out;
+    }
+
+    .spline-host spline-viewer.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+.found-info-box:not(.show) .info-particle {
+      animation-play-state: paused;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="viewport">
+    <div class="game-container">
+      <div class="top-nav" id="topNav">
+<button type="button" aria-label="메뉴 열기" class="menu-toggle-btn" id="menuToggleBtn">
+<span></span><span></span><span></span>
+</button>
+<div class="nav-menu">
+<div class="nav-link" onclick="goMenu()">메인메뉴</div>
+<div class="nav-link" onclick="goCollectStar()">COLLECT YOUR STAR</div>
+</div>
+</div>
+      <div class="mode-toggle active" id="modeToggle">
+<div class="toggle-knob"></div>
+</div>
+      <div class="spline-host" id="splineHost"></div>
+      <img id="posterImage" class="poster-image" src="Opal_star_image.jpg" alt="오팔 스타 프리뷰" fetchpriority="high">
+      <div class="space-loading-overlay" id="loadingOverlay">
+<div class="space-orbit">
+<span class="orbit-ring ring-1"></span>
+<span class="orbit-ring ring-2"></span>
+<span class="orbit-core"></span>
+</div>
+<div class="space-loading-copy">
+<div class="space-loading-kicker">ENTERING ORBIT</div>
+<div class="space-loading-text">
+<span>서로 다른 빛도 조화롭게 어우러질 수 있습니다</span>
+<span>균형은 어느 한쪽을 지우는 일이 아닙니다</span>
+<span>당신은 무엇과 조화를 이루고 싶나요?</span>
+<span>오팔의 다채로운 궤도가 천천히 열리고 있습니다</span>
+</div>
+</div>
+</div>
+<div class="guide-text star-ui" id="guideText">
+        마우스를 클릭하며 오팔 행성 주변을 둘러보세요!
+      </div>
+<button type="button" class="magnifier-start-btn star-ui" id="magnifierStartBtn">SEARCH STAR</button>
+<button type="button" class="magnifier-cancel-btn" id="magnifierCancelBtn">CANCEL SEARCH</button>
+<div class="magnifier-view" id="magnifierView">
+<div class="hidden-star" id="hiddenStar"></div>
+</div>
+<div class="found-info-box" id="foundInfoBox">
+<div class="info-particles" id="infoParticles"></div>
+<button type="button" aria-label="발견 정보 닫기" class="found-info-close" id="foundInfoClose">×</button>
+<div class="found-info-header">
+<div aria-hidden="true" class="found-discovery-mark">✦</div>
+<div class="found-info-kicker">STAR DISCOVERED</div>
+<h2 class="found-info-title">천칭자리</h2>
+<div class="found-info-subtitle">LIBRA · OCTOBER CONSTELLATION</div>
+</div>
+<div class="found-info-image-frame">
+<img alt="발견한 천칭자리" src="천칭자리-인포-2.jpg"/>
+</div>
+<div class="found-info-unlock">별자리 설명이 해금되었습니다</div>
+</div>
+<button type="button" class="found-info-open star-ui" id="foundInfoOpen">FOUND STAR</button>
+      <div class="back-btn show" id="backBtn">← Return to Overview</div>
+      <div class="music-btn" id="musicBtn">
+<div class="music-credit" aria-live="polite">
+<span class="music-credit-title">Lonely fairy's lament</span>
+<span class="music-credit-artist">Music by Alban_Gogh · Pixabay</span>
+</div>
+<div class="music-inner"></div>
+<div class="music-label">music on</div>
+</div>
+      <div class="transition-overlay" id="transitionOverlay"></div>
+      <audio id="bgm" loop="" src="탄생석음악.mp3"></audio>
+      <audio id="starClickSound" preload="auto" src="ting3.mp3"></audio>
+      <audio id="starCaptureSound" preload="auto" src="별자리_잡음.mp3"></audio>
+    </div>
+  </div>
+  <script>
+    const CONSTELLATION_UNLOCK_KEY = "opalConstellationUnlockedRouteV1";
+    const CONSTELLATION_RETURN_KEY = "opalConstellationReturnedRouteV1";
+
+    function resetConstellationUnlockState() {
+      try {
+        sessionStorage.removeItem(CONSTELLATION_UNLOCK_KEY);
+        sessionStorage.removeItem(CONSTELLATION_RETURN_KEY);
+      } catch (error) {
+        console.warn("별자리 해금 상태를 초기화할 수 없습니다.", error);
+      }
+    }
+
+    const SPLINE_MODULE = "https://unpkg.com/@splinetool/viewer@1.12.98/build/spline-viewer.js";
+    const SCENE_URL = "https://prod.spline.design/s4bJBE4vo8MDVIE1/scene.splinecode";
+    const MIN_LOADING_TIME = 3400;
+    const splineHost = document.getElementById("splineHost");
+    const posterImage = document.getElementById("posterImage");
+    const loadingOverlay = document.getElementById("loadingOverlay");
+    const audio = document.getElementById("bgm");
+    const starClickSound = document.getElementById("starClickSound");
+    const starCaptureSound = document.getElementById("starCaptureSound");
+    const musicBtn = document.getElementById("musicBtn");
+    const audioLabel = document.querySelector(".music-label");
+    const toggle = document.getElementById("modeToggle");
+    const overlay = document.getElementById("transitionOverlay");
+    const topNav = document.getElementById("topNav");
+    const menuToggleBtn = document.getElementById("menuToggleBtn");
+    const backBtn = document.getElementById("backBtn");
+    const guideText = document.getElementById("guideText");
+    const magnifierStartBtn = document.getElementById("magnifierStartBtn");
+    const magnifierCancelBtn = document.getElementById("magnifierCancelBtn");
+    const magnifierView = document.getElementById("magnifierView");
+    const hiddenStar = document.getElementById("hiddenStar");
+    const foundInfoBox = document.getElementById("foundInfoBox");
+    const foundInfoClose = document.getElementById("foundInfoClose");
+    const foundInfoOpen = document.getElementById("foundInfoOpen");
+    const infoParticles = document.getElementById("infoParticles");
+    let splineViewer = null;
+    let sceneMounted = false;
+    let sceneRevealed = false;
+    let isMagnifierOn = false;
+    let isStarFound = false;
+    const playStarClickSound = () => {
+      starClickSound.pause();
+      starClickSound.currentTime = 0;
+      starClickSound.volume = 0.75;
+      starClickSound.play().catch(() => {});
+    };
+    const playStarCaptureSound = () => {
+      starCaptureSound.pause();
+      starCaptureSound.currentTime = 0;
+      starCaptureSound.volume = 0.85;
+      starCaptureSound.play().catch(() => {});
+    };
+    const transitionTo = (href, delay = 550) => {
+      overlay.classList.add("show");
+      setTimeout(() => {
+        window.location.href = href;
+      }, delay);
+    };
+    const showInitialStarUi = () => {
+      guideText.classList.add("show");
+      magnifierStartBtn.classList.remove("hidden");
+      magnifierStartBtn.classList.add("show");
+    };
+    const revealScene = () => {
+      if (sceneRevealed || !splineViewer) return;
+      sceneRevealed = true;
+      splineViewer.classList.add("show");
+      posterImage.classList.add("hide");
+      loadingOverlay.classList.add("hide");
+      showInitialStarUi();
+      const removeLoading = () => {
+        if (loadingOverlay.isConnected) loadingOverlay.remove();
+      };
+      loadingOverlay.addEventListener("transitionend", removeLoading, { once: true });
+      setTimeout(removeLoading, 1400);
+    };
+    const waitForFirstCanvas = (viewer) => {
+      let finished = false;
+      let canvasTimer;
+      let safetyTimer;
+      const canvasReady = () => {
+        const canvas = viewer.shadowRoot?.querySelector("canvas");
+        if (!canvas) return false;
+        canvas.style.pointerEvents = "auto";
+        canvas.style.touchAction = "none";
+        return canvas.width > 0 && canvas.height > 0;
+      };
+      const finish = () => {
+        if (finished) return;
+        finished = true;
+        clearInterval(canvasTimer);
+        clearTimeout(safetyTimer);
+        requestAnimationFrame(() => requestAnimationFrame(revealScene));
+      };
+      viewer.addEventListener(
+        "load",
+        () => {
+          if (canvasReady()) finish();
+        },
+        { once: true },
+      );
+      canvasTimer = setInterval(() => {
+        if (canvasReady()) finish();
+      }, 70);
+      safetyTimer = setTimeout(() => {
+        if (canvasReady()) finish();
+      }, 12000);
+    };
+    const mountScene = async () => {
+      if (sceneMounted) return;
+      sceneMounted = true;
+      try {
+        await import(SPLINE_MODULE);
+        await customElements.whenDefined("spline-viewer");
+        const viewer = document.createElement("spline-viewer");
+        viewer.setAttribute("loading", "eager");
+        viewer.setAttribute("hint", "");
+        viewer.setAttribute("url", SCENE_URL);
+        viewer.style.pointerEvents = "auto";
+        viewer.style.touchAction = "none";
+        splineHost.appendChild(viewer);
+        splineViewer = viewer;
+        waitForFirstCanvas(viewer);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    window.addEventListener(
+      "load",
+      () => {
+        setTimeout(mountScene, MIN_LOADING_TIME);
+      },
+      { once: true },
+    );
+    magnifierStartBtn.addEventListener("click", () => {
+      playStarClickSound();
+      isMagnifierOn = true;
+      magnifierView.classList.add("active");
+      magnifierStartBtn.classList.remove("show");
+      magnifierStartBtn.classList.add("hidden");
+      magnifierCancelBtn.classList.add("show");
+      hiddenStar.classList.remove("visible");
+    });
+    window.addEventListener("mousemove", (event) => {
+      if (!isMagnifierOn || isStarFound) return;
+      magnifierView.style.left = `${event.clientX}px`;
+      magnifierView.style.top = `${event.clientY}px`;
+      const targetX = window.innerWidth * 0.5;
+      const targetY = window.innerHeight * 0.42;
+      const isNearStar =
+        Math.hypot(event.clientX - targetX, event.clientY - targetY) < 150;
+      hiddenStar.classList.toggle("visible", isNearStar);
+    });
+    magnifierView.addEventListener("click", () => {
+      if (
+        !isMagnifierOn ||
+        isStarFound ||
+        !hiddenStar.classList.contains("visible")
+      ) {
+        return;
+      }
+      playStarCaptureSound();
+      isStarFound = true;
+      isMagnifierOn = false;
+      magnifierView.classList.remove("active");
+      hiddenStar.classList.remove("visible");
+      magnifierCancelBtn.classList.remove("show");
+      magnifierStartBtn.classList.remove("show");
+      magnifierStartBtn.classList.add("hidden");
+      foundInfoOpen.classList.add("visible");
+      foundInfoBox.classList.add("show");
+    });
+    const cancelMagnifier = () => {
+      isMagnifierOn = false;
+      magnifierView.classList.remove("active");
+      hiddenStar.classList.remove("visible");
+      magnifierCancelBtn.classList.remove("show");
+      if (!isStarFound) {
+        magnifierStartBtn.classList.remove("hidden");
+        magnifierStartBtn.classList.add("show");
+      }
+    };
+    magnifierCancelBtn.addEventListener("click", cancelMagnifier);
+    foundInfoClose.addEventListener("click", () => {
+      foundInfoBox.classList.remove("show");
+    });
+    foundInfoOpen.addEventListener("click", () => {
+      playStarClickSound();
+      foundInfoBox.classList.add("show");
+    });
+    for (let index = 0; index < 34; index += 1) {
+      const particle = document.createElement("span");
+      const spread = Math.random();
+      particle.className = "info-particle";
+      particle.style.left = `${50 + (Math.random() - 0.5) * (55 + spread * 35)}%`;
+      particle.style.top = `${50 + (Math.random() - 0.5) * (45 + spread * 30)}%`;
+      particle.style.animationDuration = `${3.8 + Math.random() * 3}s`;
+      particle.style.animationDelay = `${Math.random() * 4}s`;
+      const size = 0.1 + Math.random() * 0.1;
+      particle.style.width = `${size}rem`;
+      particle.style.height = `${size}rem`;
+      infoParticles.appendChild(particle);
+    }
+    musicBtn.addEventListener("click", async (event) => {
+      event.stopPropagation();
+      audio.volume = 0.45;
+      try {
+        if (audio.paused) {
+          await audio.play();
+          musicBtn.classList.add("playing");
+          audioLabel.textContent = "music off";
+        } else {
+          audio.pause();
+          musicBtn.classList.remove("playing");
+          audioLabel.textContent = "music on";
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    });
+    menuToggleBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      topNav.classList.toggle("open");
+    });
+    window.addEventListener("click", (event) => {
+      if (!topNav.contains(event.target)) topNav.classList.remove("open");
+    });
+    backBtn.addEventListener("click", () => {
+      try {
+        if (isStarFound) {
+          sessionStorage.setItem(CONSTELLATION_RETURN_KEY, "true");
+        } else {
+          sessionStorage.removeItem(CONSTELLATION_RETURN_KEY);
+        }
+      } catch (error) {
+        console.warn("별자리 해금 복귀 상태를 저장할 수 없습니다.", error);
+      }
+
+      transitionTo("Opal_star_light.html", 550);
+    });
+    toggle.addEventListener("click", () => {
+      toggle.classList.remove("active");
+      resetConstellationUnlockState();
+      transitionTo("Opal_spline_view.html", 800);
+    });
+    function goMenu() {
+      resetConstellationUnlockState();
+      transitionTo("The_star_I_am.html", 700);
+    }
+    function goCollectStar() {
+      resetConstellationUnlockState();
+      transitionTo("zodiac_collection.html", 700);
+    }
+    window.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+      foundInfoBox.classList.remove("show");
+      cancelMagnifier();
+    });
+  </script>
+</body>
+</html>
