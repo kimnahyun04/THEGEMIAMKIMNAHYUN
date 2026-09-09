@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Zodiac Fortune Draw</title>
   <meta name="theme-color" content="#090814" />
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css" />
   <style>
     :root {
       --bg: #090814;
@@ -38,6 +39,20 @@
         radial-gradient(circle at 18% 82%, rgba(30, 42, 104, .18), transparent 30rem),
         linear-gradient(180deg, #1a2456 0%, #141c46 26%, #0d1332 52%, #080b1f 78%, #05070f 100%);
       overflow-x: hidden;
+    }
+
+
+    body {
+      animation: pageFadeIn .8s ease-out both;
+    }
+
+    @keyframes pageFadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
     }
 
     button, input {

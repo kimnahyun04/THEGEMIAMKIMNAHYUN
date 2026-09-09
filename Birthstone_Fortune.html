@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Birthstone Fortune Draw</title>
   <meta name="theme-color" content="#eee7fb" />
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css" />
   <style>
     :root {
       --bg: #090814;
@@ -34,6 +35,20 @@
       font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
       background: #eee7fb;
       overflow-x: hidden;
+    }
+
+
+    body {
+      animation: pageFadeIn .8s ease-out both;
+    }
+
+    @keyframes pageFadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
     }
 
     button, input {
