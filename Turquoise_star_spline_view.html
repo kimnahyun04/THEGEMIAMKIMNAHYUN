@@ -40,10 +40,7 @@
       overflow: hidden;
       background: #000;
     }
-    /* ===== DESKTOP / LAPTOP FULL-RANGE RATIO LOCK =====
-       1920px / 브라우저 100%를 기준으로 rem 계열 UI를 viewport와 함께
-       양방향 비례 보정합니다.
-       브라우저 확대/축소 및 노트북 화면에서도 데스크탑 구도를 최대한 그대로 유지합니다. */
+    
     @media (any-hover: hover) and (any-pointer: fine) {
       html {
         font-size: 0.833333vw;
@@ -69,7 +66,7 @@
       transform: scale(1.03);
     }
 
-    /* ===== LOADING (identical) ===== */
+    
     .space-loading-overlay {
       position: absolute;
       inset: 0;
@@ -231,7 +228,7 @@
         transform: translateY(-8px);
       }
     }
-/* ===== TOP NAV ===== */
+
     .top-nav {
       position: absolute;
       top: 3%;
@@ -352,7 +349,7 @@
       transform: translateX(3px);
     }
 
-    /* ===== MODE TOGGLE ===== */
+    
     .mode-toggle {
       position: absolute;
       top: 3%;
@@ -391,7 +388,7 @@
       background: rgba(215, 255, 250, 0.95);
     }
 
-    /* ===== MUSIC ===== */
+    
     .music-btn {
       position: absolute;
       bottom: 6%;
@@ -490,7 +487,7 @@
       transform: translateY(0);
     }
 
-    /* ===== TRANSITION OVERLAY ===== */
+    
     .transition-overlay {
       position: fixed;
       inset: 0;
@@ -504,9 +501,7 @@
     .transition-overlay.show {
       opacity: 1;
     }
-/* ================================================================
-       STAR UI — hidden by default, shown only in full spline mode
-       ================================================================ */
+
     .star-ui {
       opacity: 0;
       pointer-events: none;
@@ -517,7 +512,7 @@
       opacity: 1;
     }
 
-    /* Guide text */
+    
     .guide-text {
       position: absolute;
       top: 11%;
@@ -546,7 +541,7 @@
       }
     }
 
-    /* Magnifier */
+    
     .magnifier-start-btn {
       position: absolute;
       left: 50%;
@@ -775,7 +770,7 @@
       }
     }
 
-    /* Found info — 발견 완료 패널 */
+    
     .found-info-box {
       position: absolute;
       box-sizing: border-box;
@@ -1124,7 +1119,7 @@
       }
     }
 
-/* ===== BACK BUTTON ===== */
+
     .back-btn {
       position: absolute;
       top: 3%;

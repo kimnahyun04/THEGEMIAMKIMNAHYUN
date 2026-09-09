@@ -37,7 +37,7 @@
         cursor: default;
         user-select: none;
       }
-      /* 🎥 spline 배경 */
+      
       .spline-bg {
         position: fixed;
         inset: 0;
@@ -61,7 +61,7 @@
 
         pointer-events: none;
       }
-      /* ============= COSMIC BACKGROUND ============= */
+      
       .cosmos {
         position: fixed;
         inset: 0;
@@ -83,7 +83,7 @@
           radial-gradient(ellipse at 50% 50%, rgba(10, 18, 48, 0.25) 0%, rgba(5, 8, 24, 0.35) 80%);
       }
 
-      /* Stars - 3 layers for parallax twinkle */
+      
       .stars {
         position: absolute;
         inset: -10%;
@@ -138,7 +138,7 @@
         }
       }
 
-      /* Nebula clouds */
+      
       .nebula {
         position: absolute;
         width: 60vw;
@@ -208,7 +208,7 @@
         filter: blur(40px);
         pointer-events: none;
       }
-      /* Shooting star occasional */
+      
       .shooting-star {
         position: absolute;
         width: 2px;
@@ -249,7 +249,7 @@
         }
       }
 
-      /* ============= NAVIGATION ============= */
+      
       nav {
         position: fixed;
         top: 32px;
@@ -336,7 +336,7 @@
         transform: translateY(0);
         pointer-events: auto;
       }
-      /* Constellation art in upper portion */
+      
       .constellation-stage {
         position: absolute;
         left: 50%;
@@ -410,7 +410,7 @@
         }
       }
 
-      /* ============= ZODIAC WHEEL ============= */
+      
       .wheel-section {
         position: absolute;
         left: 50%;
@@ -437,7 +437,7 @@
         transform: rotate(0deg);
       }
 
-      /* Decorative circles */
+      
       .wheel-rings {
         position: absolute;
         inset: 0;
@@ -449,7 +449,7 @@
         opacity: 0.4;
       }
 
-      /* Center info display (doesn't rotate with wheel) */
+      
       .wheel-center {
         position: absolute;
         inset: 0;
@@ -475,9 +475,9 @@
         font-size: clamp(42px, 6.5vmin, 88px);
         font-weight: 600;
         letter-spacing: 10px;
-        white-space: nowrap; /* 줄바꿈 금지 */
+        white-space: nowrap; 
         display: inline-block;
-        color: #a78f53; /* ✔ 어두운 골드 (너무 탁하지 않게) */
+        color: #a78f53; 
 
         text-shadow:
           0 0 6px rgba(90, 75, 35, 0.4),
@@ -490,7 +490,7 @@
         font-style: italic;
         font-size: clamp(14px, 1.7vmin, 19px);
         line-height: 1.6;
-        color: #ffeab7; /* ✔ 어두운 골드 (너무 탁하지 않게) */
+        color: #ffeab7; 
 
         opacity: 0;
         transition: opacity 0.7s ease 0.4s;
@@ -500,7 +500,7 @@
         opacity: 1;
       }
 
-      /* Each zodiac segment */
+      
       .zodiac {
         position: absolute;
         inset: 0;
@@ -586,7 +586,7 @@
         font-size: calc(var(--wheel-size) * 0.012);
       }
 
-      /* Decorative flair lines on wheel */
+      
       .wheel-flairs {
         position: absolute;
         inset: 0;
@@ -598,7 +598,7 @@
         opacity: 0.3;
       }
 
-      /* Glowing dot indicator at top */
+      
       .top-indicator {
         position: absolute;
         top: -20px;
@@ -626,7 +626,7 @@
         }
       }
 
-      /* Viewport-anchored controls stay paired when the window height changes. */
+      
       .prev-btn,
       .next-btn {
         position: fixed;
@@ -685,7 +685,7 @@
         outline: 2px solid var(--gold-bright);
         outline-offset: 4px;
       }
-      /* Footer hint */
+      
       .hint {
         position: fixed;
         bottom: 24px;
@@ -703,7 +703,7 @@
         color: var(--gold);
       }
 
-      /* ============= ASTRO MEMO PANEL ============= */
+      
       .astro-backdrop {
         position: fixed;
         inset: 0;
@@ -1208,7 +1208,7 @@
         opacity: 0.8;
       }
 
-      /* Wheel and constellation move as one scene. */
+      
       main {
         position: fixed;
         inset: 0;
@@ -1220,7 +1220,7 @@
       }
 
       .astro-scene {
-        /* 기존 휠 크기 기준을 그대로 쓰되, 별자리와 휠을 한 몸으로 묶음 */
+        
         --scene-size: clamp(520px, min(88vw, 116vh), 1100px);
         position: absolute;
         left: 50%;
@@ -1232,7 +1232,7 @@
         pointer-events: none;
       }
 
-      /* Desktop/laptop adaptation: this project uses a separate mobile page. */
+      
       @media (max-height: 820px) and (min-width: 769px) {
         nav {
           top: 20px;
@@ -1455,7 +1455,7 @@
         },
         { once: true },
       );
-      // ====================== ZODIAC SVG ICONS ======================
+      
       const zodiacIcons = {
         ARIES: `<path d="M-11,9 C-11,-7 -7,-11 -3,-11 C-1,-11 0,-9 0,-5 C0,-9 1,-11 3,-11 C7,-11 11,-7 11,9" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
         TAURUS: `<circle cx="0" cy="4" r="7" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M-11,-8 C-9,-3 -5,-2 -2,-3 M11,-8 C9,-3 5,-2 2,-3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>`,
@@ -1947,7 +1947,7 @@
         SCORPIO: { scale: 1.3, x: "-2%", y: "15%" },
         SAGITTARIUS: { scale: 1.2, x: "-3%", y: "38%" },
       };
-      // ====================== BUILD CONSTELLATION SVGs ======================
+      
       const stage = document.getElementById("constellationStage");
       zodiacs.forEach((z) => {
         const data = constellations[z.name];
@@ -2011,12 +2011,12 @@
         stage.appendChild(svg);
       });
 
-      // ====================== BUILD ZODIAC WHEEL ======================
+      
       const wheel = document.getElementById("wheel");
       const dividers = document.getElementById("dividers");
       const segCount = zodiacs.length;
       const segmentAngle = 360 / segCount;
-      const segmentRefs = []; // store { seg, sym, info, angle } for fast counter-rotation
+      const segmentRefs = []; 
 
       zodiacs.forEach((z, i) => {
         const angle = i * segmentAngle;
@@ -2085,7 +2085,7 @@
         dividers.appendChild(line);
       }
 
-      // ====================== INTERACTION ======================
+      
       let currentIdx = -1;
       let moonRotation = 0;
       let wheelRotation = 0;
@@ -2222,7 +2222,7 @@
         mainMenuLink.tabIndex = isOpen ? 0 : -1;
       });
 
-      // ====================== ASTRO MEMO PANEL ======================
+      
       const astroColors = {
         CAPRICORN: "#E8D5A8",
         AQUARIUS: "#85D8FF",

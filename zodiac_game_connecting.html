@@ -44,7 +44,7 @@
   .hud-box{min-width:74px;padding:8px 9px;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(255,255,255,.035);text-align:center}
   .hud-box span{display:block;margin-bottom:4px;color:#7f89a8;font-size:8px;letter-spacing:.16em}
   .hud-box strong{font-size:15px;letter-spacing:.04em}
-  .hud-box.lives-box strong{color:var(--danger);font-size:13px;letter-spacing:.1em}
+  .hud-box.lives-box strong{color:var(--white);font-size:13px;letter-spacing:.1em}
 
   .game-area{display:grid;grid-template-columns:minmax(0,1fr) 280px;flex:1;min-height:0}
   .space-wrap{position:relative;min-width:0;min-height:0;overflow:hidden}
@@ -69,23 +69,42 @@
   .bar{height:7px;overflow:hidden;border:1px solid rgba(255,255,255,.1);border-radius:999px;background:#080b19}
   .bar>i{display:block;width:0;height:100%;background:linear-gradient(90deg,#92b5ff,#c6b0ff,#f0b6df);transition:width .18s ease}
   .mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-  .mini-star{height:31px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.09);border-radius:8px;background:rgba(255,255,255,.02);color:#66708f;font-size:11px}
+  .mini-star{height:31px;display:grid;place-items:center;padding:0 4px;border:1px solid rgba(255,255,255,.09);border-radius:8px;background:rgba(255,255,255,.02);color:#66708f;font-size:9px;line-height:1;text-align:center;word-break:keep-all}
   .mini-star.done{border-color:rgba(188,206,255,.34);background:rgba(133,167,255,.10);color:#fff;box-shadow:inset 0 0 14px rgba(146,183,255,.08)}
   .button-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto}
-  button{appearance:none;min-height:44px;padding:0 10px;border:1px solid rgba(255,255,255,.16);border-radius:12px;background:rgba(255,255,255,.055);color:#f2f5ff;font:inherit;font-size:10px;letter-spacing:.09em;cursor:pointer;transition:.18s ease}
-  button:hover{background:rgba(255,255,255,.09);box-shadow:0 0 12px rgba(145,177,255,.16)}
-  button:active{transform:translateY(1px)}
+  button,.button-link{appearance:none;min-height:44px;padding:0 10px;border:1px solid rgba(255,255,255,.16);border-radius:12px;background:rgba(255,255,255,.055);color:#f2f5ff;font:inherit;font-size:10px;letter-spacing:.09em;cursor:pointer;transition:.18s ease}
+  .button-link{display:grid;place-items:center;text-decoration:none}
+  button:hover,.button-link:hover{background:rgba(255,255,255,.09);box-shadow:0 0 12px rgba(145,177,255,.16)}
+  button:active,.button-link:active{transform:translateY(1px)}
   button:disabled{opacity:.46;cursor:wait;box-shadow:none}
   button.primary{border-color:rgba(180,197,255,.33);background:linear-gradient(180deg,rgba(161,183,255,.22),rgba(128,115,255,.13))}
 
   .overlay{position:absolute;inset:0;z-index:20;display:grid;place-items:center;padding:24px;background:rgba(3,5,14,.64);backdrop-filter:blur(8px);transition:opacity .28s ease}
   .overlay.hidden{opacity:0;pointer-events:none}
-  .modal{width:min(460px,100%);padding:28px 26px 24px;border:1px solid rgba(255,255,255,.18);border-radius:22px;background:linear-gradient(180deg,rgba(17,22,47,.96),rgba(8,11,26,.96));text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.36)}
+  .modal{width:min(520px,100%);padding:28px 26px 24px;border:1px solid rgba(255,255,255,.18);border-radius:22px;background:linear-gradient(180deg,rgba(17,22,47,.96),rgba(8,11,26,.96));text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.36)}
   .modal-symbol{margin-bottom:10px;color:#eef3ff;font:58px/1 Georgia,serif;text-shadow:0 0 26px rgba(188,203,255,.34)}
   .modal h2{margin:0 0 12px;font:500 19px/1.35 Georgia,serif;letter-spacing:.12em}
   .modal p{margin:0 0 19px;font-size:10px;line-height:1.9;color:#a8b1cd}
   .modal p b{color:#fff;font-weight:normal}
   .modal button{min-width:170px}
+  .difficulty-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:17px}
+  .difficulty-btn{min-width:0!important;min-height:88px;padding:12px 8px;border-color:rgba(180,197,255,.3);border-radius:14px;background:rgba(143,179,255,.05)}
+  .difficulty-btn strong{display:block;margin-bottom:7px;font:500 15px/1 Georgia,serif;letter-spacing:.08em}
+  .difficulty-btn span{display:block;color:#98a3c3;font-size:8px;line-height:1.65;letter-spacing:.02em;word-break:keep-all}
+  .difficulty-status{min-height:18px;margin-top:11px;color:#7f89a8;font-size:8px;letter-spacing:.08em}
+  .modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .modal-actions button{min-width:0}
+  .modal-back{display:inline-block;margin-top:14px;color:#8d97b7;font-size:9px;letter-spacing:.07em;text-decoration:none;transition:.18s ease}
+  .modal-back:hover{color:#f2f5ff}
+
+  .musicBar{position:relative;z-index:25;flex:none;min-height:42px;padding:7px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.1)}
+  .musicCredit{min-width:0;color:var(--muted);font-size:9px;line-height:1.35;letter-spacing:.02em}
+  .musicCredit strong{color:var(--white);font-weight:800}
+  .musicCredit a{color:inherit;text-decoration:none}
+  .musicCredit a:hover{text-decoration:underline}
+  .musicToggle{flex:none;min-width:92px;min-height:30px;padding:7px 11px;border:1px solid rgba(255,255,255,.14);border-radius:999px;background:rgba(255,255,255,.06);color:var(--white);cursor:pointer;font-size:9px;font-weight:900;letter-spacing:.07em;transition:.16s}
+  .musicToggle:hover{transform:translateY(-1px);background:rgba(255,255,255,.1)}
+  .musicToggle.off{opacity:.58}
 
 
   /* PAGE LOADING — CONSTELLATION THEME */
@@ -174,13 +193,16 @@
     .topbar{padding:12px 14px}.brand p{display:none}.brand h1{font-size:18px}.brand-mark{width:34px;height:34px;font-size:17px}
     .game-area{grid-template-columns:1fr;min-height:0}.space-wrap{height:62vh;min-height:430px}
     .side{border-left:0;border-top:1px solid rgba(255,255,255,.1);display:grid;grid-template-columns:1fr 1fr;padding:12px}
-    .panel{padding:12px}.zodiac-symbol{font-size:42px}.zodiac-name{font-size:11px}.rule{font-size:10px}.button-row{grid-column:1/-1;margin-top:0}
-    .mini-grid{grid-template-columns:repeat(6,1fr)}
+    .panel{padding:12px}.zodiac-symbol{font-size:22px}.zodiac-name{font-size:11px}.rule{font-size:10px}.button-row{grid-column:1/-1;margin-top:0}
+    .mini-grid{grid-template-columns:repeat(4,1fr)}
+    .musicBar{padding:7px 10px}.musicCredit{font-size:8px}
   }
   @media(max-width:520px){
     .topbar{flex-direction:column}.hud{width:100%;justify-content:stretch}.hud-box{flex:1;min-width:0}
-    .side{grid-template-columns:1fr}.mini-grid{grid-template-columns:repeat(6,1fr)}.space-wrap{height:58vh;min-height:390px}
+    .side{grid-template-columns:1fr}.mini-grid{grid-template-columns:repeat(4,1fr)}.space-wrap{height:58vh;min-height:390px}
     .status-pill{font-size:9px;bottom:12px}.time-meter{bottom:52px}.corner-label{font-size:8px;left:12px;top:12px}.modal{padding:25px 19px 22px}.modal h2{font-size:16px}.modal p{font-size:10px}
+    .difficulty-grid{grid-template-columns:1fr}.difficulty-btn{min-height:58px}.difficulty-btn strong{margin-bottom:4px}
+    .musicToggle{min-width:84px;padding:7px 9px}
   }
 </style>
 </head>
@@ -201,10 +223,10 @@
       </div>
     </div>
     <div class="hud">
-      <div class="hud-box"><span>ROUND</span><strong id="roundText">01</strong></div>
+      <div class="hud-box"><span>ROUND</span><strong id="roundText">01 / 04</strong></div>
       <div class="hud-box"><span>SCORE</span><strong id="scoreText">0000</strong></div>
       <div class="hud-box"><span>COMBO</span><strong id="comboText">×0</strong></div>
-      <div class="hud-box"><span>TIME</span><strong id="timeText">10.8</strong></div>
+      <div class="hud-box"><span>TIME</span><strong id="timeText">13.0</strong></div>
       <div class="hud-box lives-box"><span>LIFE</span><strong id="lifeText">♥♥♥♥</strong></div>
     </div>
   </header>
@@ -215,26 +237,26 @@
       <div class="scanline"></div>
       <div class="corner-label">STAR MAP // MEMORY TRACE</div>
       <div class="time-meter" aria-label="남은 시간"><i id="timeBar"></i></div>
-      <div class="status-pill" id="statusText">선이 사라지기 전, 별자리의 모양과 순서를 기억하세요.</div>
+      <div class="status-pill" id="statusText">선이 사라지기 전, 별자리의 모양을 기억하세요.</div>
       <div class="flash" id="flash"></div>
     </section>
 
     <aside class="side">
       <div class="panel">
         <div class="panel-label">NOW READING</div>
-        <div class="zodiac-symbol" id="symbolText">♈</div>
+        <div class="zodiac-symbol" id="symbolText">양자리</div>
         <div class="zodiac-name" id="nameText">ARIES</div>
-        <div class="zodiac-ko" id="koText">양자리</div>
-        <div class="level-tag" id="levelText">STAR LEVEL 01</div>
+        <div class="zodiac-ko" id="koText"></div>
+        <div class="level-tag" id="levelText">쉬움 · ROUND 1 / 4</div>
       </div>
 
       <div class="panel">
         <div class="panel-label">HOW TO PLAY</div>
         <div class="rule">
           1. 처음 나타나는 <b>별자리 선</b>을 기억합니다.<br>
-          2. 선이 사라지면 <b>두 종류의 은빛 픽셀 별</b>을 같은 순서로 누릅니다.<br>
+          2. 선이 사라지면 <b>어느 진짜 별에서든 시작해 연결된 별</b>을 눌러 완성합니다.<br>
           3. 진짜 별과 가짜 별은 <b>같은 크기와 빛</b>으로 나타납니다.<br>
-          4. 가짜 별·이미 누른 별을 누르면 <b>실수</b>입니다.
+          4. 가짜 별·아직 연결되지 않은 별을 누르면 <b>실수</b>입니다.
         </div>
       </div>
 
@@ -244,29 +266,30 @@
       </div>
 
       <div class="panel">
-        <div class="panel-label">ZODIAC COLLECTION</div>
+        <div class="panel-label" id="collectionLabel">LEVEL CONSTELLATIONS</div>
         <div class="mini-grid" id="collection"></div>
       </div>
 
       <div class="button-row">
-        <button type="button" id="previewBtn">미리보기 ·100</button>
+        <button type="button" id="previewBtn">힌트 보기 ·100</button>
         <button type="button" class="primary" id="restartBtn">다시 시작</button>
+        <button type="button" id="difficultyBtn">난이도 다시 선택</button>
+        <a class="button-link" href="./The_star_I_am_games.html">뒤로가기</a>
       </div>
     </aside>
   </main>
 
-  <div class="overlay" id="overlay">
-    <div class="modal">
-      <div class="modal-symbol">✦</div>
-      <h2>별자리 기억하기</h2>
-      <p>
-        실제 별자리 모양의 선이 잠깐 나타납니다.<br>
-        선이 사라지면 뒤섞인 은빛 픽셀 별을 같은 순서로 눌러 이어주세요.<br><br>
-        실수하면 <b>목숨과 시간이 함께 줄고</b>, 라운드가 오를수록<br>
-        가짜 별이 움직이며 미리보기 시간이 짧아집니다.
-      </p>
-      <button type="button" class="primary" id="startBtn" disabled>별 이미지 로딩중…</button>
+  <div class="musicBar">
+    <div class="musicCredit">
+      <strong>MUSIC · </strong>
+      <a href="https://pixabay.com/music/instrumental-quiz-thinking-timer-loop-551268/" target="_blank" rel="noopener noreferrer">Quiz Thinking Timer Loop</a>
+      <span> · Vadim_Makes_Sound · Pixabay</span>
     </div>
+    <button class="musicToggle" id="musicToggle" type="button" aria-pressed="true" aria-label="배경음악 끄기">♪ MUSIC ON</button>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="modal" id="gameModal"></div>
   </div>
 </div>
 
@@ -317,10 +340,13 @@ if(document.readyState==="complete"){
   const progressText = document.getElementById('progressText');
   const progressBar = document.getElementById('progressBar');
   const collection = document.getElementById('collection');
+  const collectionLabel = document.getElementById('collectionLabel');
   const overlay = document.getElementById('overlay');
-  const startBtn = document.getElementById('startBtn');
+  const modal = document.getElementById('gameModal');
   const restartBtn = document.getElementById('restartBtn');
   const previewBtn = document.getElementById('previewBtn');
+  const difficultyBtn = document.getElementById('difficultyBtn');
+  const musicToggle = document.getElementById('musicToggle');
   const flash = document.getElementById('flash');
 
   const starSprites = {
@@ -328,18 +354,19 @@ if(document.readyState==="complete"){
     five: new Image()
   };
   let starSpritesReady = false;
+  let starSpritesFailed = false;
   let loadedSpriteCount = 0;
   const spriteLoaded = () => {
     loadedSpriteCount++;
     if(loadedSpriteCount !== Object.keys(starSprites).length) return;
     starSpritesReady = true;
-    startBtn.disabled = false;
-    startBtn.textContent = '게임 시작';
+    starSpritesFailed = false;
+    if(mode==='idle') showDifficultySelect();
   };
   const spriteFailed = () => {
     starSpritesReady = false;
-    startBtn.disabled = true;
-    startBtn.textContent = 'PNG 파일을 확인해주세요';
+    starSpritesFailed = true;
+    if(mode==='idle') showDifficultySelect();
   };
   Object.values(starSprites).forEach(sprite => {
     sprite.decoding = 'async';
@@ -349,20 +376,101 @@ if(document.readyState==="complete"){
   starSprites.four.src = 'zodiac_pixel_star_4point.png';
   starSprites.five.src = 'zodiac_pixel_star_5point.png';
 
+  const sounds = {
+    pass:new Audio('별자리통과.mp3'),
+    click:new Audio('별자리클릭소리.mp3'),
+    connect:new Audio('별자리잇는소리.mp3'),
+    fail:new Audio('별자리불통.mp3')
+  };
+  sounds.pass.volume=.28;
+  sounds.click.volume=1;
+  sounds.connect.volume=1;
+  sounds.fail.volume=.34;
+  Object.values(sounds).forEach(sound=>{sound.preload='auto';});
+  let soundsUnlocked=false;
+  const stopSounds=()=>{
+    Object.values(sounds).forEach(sound=>{
+      sound.pause();
+      sound.currentTime=0;
+    });
+  };
+  const unlockSounds=()=>{
+    if(soundsUnlocked)return;
+    soundsUnlocked=true;
+    Object.values(sounds).forEach(sound=>{
+      const volume=sound.volume;
+      sound.volume=0;
+      const playback=sound.play();
+      if(!playback){sound.volume=volume;return;}
+      playback.then(()=>{
+        sound.pause();
+        sound.currentTime=0;
+        sound.volume=volume;
+      }).catch(()=>{
+        sound.volume=volume;
+        soundsUnlocked=false;
+      });
+    });
+  };
+  const playSound=name=>{
+    const sound=sounds[name];
+    if(!sound)return;
+    sound.pause();
+    sound.currentTime=0;
+    const playback=sound.play();
+    if(playback)playback.catch(()=>{});
+  };
+
+  const bgm=new Audio('보석퀴즈음악.mp3');
+  bgm.preload='auto';
+  bgm.loop=true;
+  bgm.volume=.32;
+  let musicEnabled=true;
+  const startMusic=()=>{
+    if(musicEnabled&&bgm.paused)bgm.play().catch(()=>{});
+  };
+  const updateMusicToggle=()=>{
+    musicToggle.textContent=musicEnabled?'♪ MUSIC ON':'♪ MUSIC OFF';
+    musicToggle.classList.toggle('off',!musicEnabled);
+    musicToggle.setAttribute('aria-pressed',String(musicEnabled));
+    musicToggle.setAttribute('aria-label',musicEnabled?'배경음악 끄기':'배경음악 켜기');
+  };
+
   const zodiac = [
-    {symbol:'♈',name:'ARIES',ko:'양자리',points:[[.23,.62],[.31,.50],[.39,.39],[.47,.33],[.54,.40],[.59,.50]]},
-    {symbol:'♉',name:'TAURUS',ko:'황소자리',points:[[.24,.60],[.34,.50],[.44,.42],[.53,.50],[.61,.40],[.70,.29],[.60,.58]]},
-    {symbol:'♊',name:'GEMINI',ko:'쌍둥이자리',points:[[.32,.25],[.30,.42],[.30,.62],[.45,.66],[.60,.62],[.60,.42],[.58,.25],[.45,.35]]},
-    {symbol:'♋',name:'CANCER',ko:'게자리',points:[[.24,.50],[.35,.43],[.46,.48],[.56,.58],[.66,.56],[.56,.69],[.42,.66]]},
-    {symbol:'♌',name:'LEO',ko:'사자자리',points:[[.20,.60],[.30,.48],[.39,.38],[.51,.37],[.60,.44],[.67,.55],[.76,.61],[.70,.43]]},
-    {symbol:'♍',name:'VIRGO',ko:'처녀자리',points:[[.19,.34],[.28,.44],[.37,.38],[.46,.49],[.56,.42],[.65,.52],[.73,.45],[.80,.57],[.71,.69]]},
-    {symbol:'♎',name:'LIBRA',ko:'천칭자리',points:[[.21,.60],[.33,.53],[.45,.44],[.57,.53],[.70,.60],[.60,.64],[.45,.66],[.30,.64]]},
-    {symbol:'♏',name:'SCORPIO',ko:'전갈자리',points:[[.18,.36],[.27,.44],[.36,.50],[.45,.54],[.54,.59],[.63,.65],[.72,.71],[.81,.66],[.76,.54]]},
-    {symbol:'♐',name:'SAGITTARIUS',ko:'사수자리',points:[[.22,.68],[.33,.57],[.44,.48],[.56,.38],[.69,.28],[.61,.48],[.53,.61],[.73,.63]]},
-    {symbol:'♑',name:'CAPRICORN',ko:'염소자리',points:[[.19,.39],[.29,.50],[.39,.45],[.49,.56],[.60,.67],[.72,.58],[.66,.45],[.54,.37]]},
-    {symbol:'♒',name:'AQUARIUS',ko:'물병자리',points:[[.17,.39],[.27,.34],[.37,.46],[.47,.39],[.57,.49],[.67,.43],[.77,.55],[.67,.64],[.56,.56]]},
-    {symbol:'♓',name:'PISCES',ko:'물고기자리',points:[[.24,.35],[.34,.42],[.43,.50],[.52,.59],[.62,.67],[.74,.59],[.67,.47],[.57,.38],[.45,.32]]}
+    {symbol:'♈',name:'ARIES',ko:'양자리',viewHeight:360,scale:1,points:[[130,210],[245,165],[365,145],[485,175],[555,230]],major:[0,1],links:[[0,1],[1,2],[2,3],[3,4]]},
+    {symbol:'♉',name:'TAURUS',ko:'황소자리',viewHeight:360,scale:1,points:[[220,110],[300,170],[350,230],[400,260],[460,290],[520,300],[570,340],[410,310],[450,350]],major:[0,2,4,6],links:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[3,7],[7,8]]},
+    {symbol:'♊',name:'GEMINI',ko:'쌍둥이자리',viewHeight:520,scale:1.5,points:[[230,150],[305,175],[360,220],[430,265],[500,300],[555,295],[475,345],[430,405],[380,355],[310,325],[245,285],[190,245],[185,205]],major:[0,5,6,7,12],links:[[0,1],[1,2],[2,3],[3,4],[4,5],[4,6],[6,7],[6,8],[8,9],[9,10],[10,11],[11,12],[12,0]]},
+    {symbol:'♋',name:'CANCER',ko:'게자리',viewHeight:520,scale:1.3,points:[[180,120],[285,230],[330,300],[520,365],[285,430]],major:[0,2],links:[[0,1],[1,2],[2,3],[2,4]]},
+    {symbol:'♌',name:'LEO',ko:'사자자리',viewHeight:360,scale:1,points:[[135,245],[195,175],[240,105],[305,80],[345,130],[365,200],[485,230],[565,200],[540,140]],major:[0,8],links:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[5,6],[6,7],[7,8]]},
+    {symbol:'♍',name:'VIRGO',ko:'처녀자리',viewHeight:520,scale:1.2,points:[[120,300],[220,250],[260,245],[300,235],[365,140],[410,200],[485,240],[555,205],[610,130],[445,325],[430,420],[335,445],[280,420],[220,455],[360,330]],major:[0,3,4,6,8,10,12],links:[[0,1],[1,2],[2,3],[3,5],[5,4],[5,6],[6,7],[7,8],[6,9],[9,10],[10,11],[11,12],[12,13],[3,14],[14,10],[10,9]]},
+    {symbol:'♎',name:'LIBRA',ko:'천칭자리',viewHeight:520,scale:1.3,points:[[260,115],[260,220],[170,300],[440,130],[520,270],[445,390],[465,440]],major:[0,1,3,4,5],links:[[0,1],[1,2],[0,3],[3,4],[4,0],[4,5],[5,6]]},
+    {symbol:'♏',name:'SCORPIO',ko:'전갈자리',viewHeight:360,scale:1.3,points:[[180,320],[230,300],[260,270],[240,240],[200,230],[300,330],[360,330],[360,260],[390,210],[430,180],[470,150],[500,170],[470,230],[470,280]],major:[0,5,11,13],links:[[0,1],[1,2],[2,3],[3,4],[2,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[9,12],[12,13]]},
+    {symbol:'♐',name:'SAGITTARIUS',ko:'사수자리',viewHeight:520,scale:1.2,points:[[135,305],[160,265],[205,225],[290,245],[330,285],[300,340],[250,380],[195,355],[150,330],[285,360],[345,400],[365,250],[390,200],[420,245],[350,135],[300,120],[250,130],[205,105],[390,115],[480,220],[500,145],[520,275],[575,275],[620,220],[500,330],[535,365]],major:[0,2,4,9,10,13,18,20,23],links:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,0],[6,9],[9,10],[3,11],[11,12],[12,13],[13,19],[12,14],[14,15],[15,16],[16,17],[14,18],[19,20],[20,21],[21,22],[22,23],[21,24],[24,25]]},
+    {symbol:'♑',name:'CAPRICORN',ko:'염소자리',viewHeight:360,scale:.9,points:[[155,255],[195,225],[255,250],[350,280],[470,280],[515,235],[560,115],[590,60],[390,180]],major:[0,4,6,7,8],links:[[0,1],[1,8],[8,6],[6,7],[6,5],[5,4],[4,3],[3,2],[2,0]]},
+    {symbol:'♒',name:'AQUARIUS',ko:'물병자리',viewHeight:360,scale:1.2,points:[[240,150],[380,90],[300,210],[200,190],[160,230],[140,270],[210,310],[280,270],[360,260],[430,280],[260,230]],major:[0,3,6],links:[[3,0],[0,1],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[3,10],[10,2]]},
+    {symbol:'♓',name:'PISCES',ko:'물고기자리',viewHeight:520,scale:1.15,points:[[330,95],[365,78],[405,90],[430,130],[390,165],[345,150],[315,125],[375,215],[430,270],[455,330],[520,405],[570,445],[490,445],[405,430],[315,430],[250,470],[185,430]],major:[1,4,7,8,10,11,14,16],links:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,0],[4,7],[7,8],[8,9],[9,10],[10,11],[11,12],[12,13],[13,14],[14,15],[15,16]]}
   ];
+
+  const difficultySettings={
+    easy:{label:'쉬움',en:'EASY',scoreMultiplier:1,signs:['ARIES','CANCER','LIBRA','TAURUS']},
+    normal:{label:'중간',en:'NORMAL',scoreMultiplier:1.25,signs:['LEO','CAPRICORN','AQUARIUS','GEMINI']},
+    hard:{label:'어려움',en:'HARD',scoreMultiplier:1.5,signs:['SCORPIO','VIRGO','PISCES','SAGITTARIUS']}
+  };
+
+  const shapeHints={
+    ARIES:'완만하게 휘어진 짧은 별줄기를 따라가세요.',
+    TAURUS:'긴 줄기 중간에서 아래쪽으로 짧은 가지가 갈라집니다.',
+    GEMINI:'큰 고리에서 오른쪽으로 두 갈래의 별줄기가 뻗습니다.',
+    CANCER:'위에서 내려온 줄기가 중앙에서 오른쪽과 아래로 갈라집니다.',
+    LEO:'왼쪽의 고리와 오른쪽으로 뻗는 짧은 꼬리를 확인하세요.',
+    VIRGO:'중심 별줄기에서 위·오른쪽·아래로 여러 가지가 뻗습니다.',
+    LIBRA:'중앙의 삼각형 양쪽에 짧은 별줄기가 이어집니다.',
+    SCORPIO:'굽은 줄기가 길게 이어지고 끝부분이 두 갈래로 갈라집니다.',
+    SAGITTARIUS:'왼쪽 다각형에서 위·오른쪽·아래로 별줄기가 뻗습니다.',
+    CAPRICORN:'넓은 고리 위쪽으로 뾰족한 가지가 솟아 있습니다.',
+    AQUARIUS:'왼쪽 중심점에서 위쪽과 오른쪽으로 별줄기가 갈라집니다.',
+    PISCES:'위쪽의 작은 고리에서 긴 별줄기가 아래로 휘어집니다.'
+  };
 
   let dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
   let W = 1, H = 1;
@@ -370,6 +478,9 @@ if(document.readyState==="complete"){
   let targets = [];
   let decoys = [];
   let current = 0;
+  let roundOrder = [];
+  let selectedDifficulty = 'easy';
+  const lastFirst = {easy:-1,normal:-1,hard:-1};
   let round = 1;
   let score = 0;
   let combo = 0;
@@ -379,9 +490,10 @@ if(document.readyState==="complete"){
   let lives = MAX_LIVES;
   let mistakes = 0;
   let roundMistakes = 0;
-  let roundTimeLimit = 10.8;
+  let roundTimeLimit = 13;
   let timeLeft = roundTimeLimit;
   let mode = 'idle';
+  let visibleHint = '';
   let previewUntil = 0;
   let lastTime = performance.now();
   let collected = new Set();
@@ -389,8 +501,27 @@ if(document.readyState==="complete"){
   let pulses = [];
   let mirageLines = [];
   let raf = 0;
+  let roundAdvanceTimer = 0;
 
   const rand=(a,b)=>a+Math.random()*(b-a);
+  const shuffle=arr=>{
+    const copy=[...arr];
+    for(let i=copy.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [copy[i],copy[j]]=[copy[j],copy[i]];
+    }
+    return copy;
+  };
+  const makeRoundOrder=difficulty=>{
+    const settings=difficultySettings[difficulty];
+    const next=shuffle(settings.signs.map(name=>zodiac.findIndex(z=>z.name===name)));
+    if(next.length>1&&next[0]===lastFirst[difficulty]){
+      const swapIndex=1+Math.floor(Math.random()*(next.length-1));
+      [next[0],next[swapIndex]]=[next[swapIndex],next[0]];
+    }
+    lastFirst[difficulty]=next[0];
+    return next;
+  };
 
   function resize(){
     const r = wrap.getBoundingClientRect();
@@ -424,16 +555,21 @@ if(document.readyState==="complete"){
 
   function buildCollection(){
     collection.innerHTML='';
-    zodiac.forEach((z,i)=>{
+    const settings=difficultySettings[selectedDifficulty];
+    const levelSigns=settings.signs.map(name=>zodiac.findIndex(z=>z.name===name));
+    levelSigns.forEach(i=>{
+      const z=zodiac[i];
       const el=document.createElement('div');
       el.className='mini-star'+(collected.has(i)?' done':'');
-      el.textContent=z.symbol;
+      el.textContent=z.ko.replace('자리','');
       collection.appendChild(el);
     });
+    collectionLabel.textContent=settings.label+' · 4 CONSTELLATIONS';
   }
 
   function hud(){
-    roundText.textContent=String(round).padStart(2,'0');
+    const settings=difficultySettings[selectedDifficulty];
+    roundText.textContent=String(round).padStart(2,'0')+' / 04';
     scoreText.textContent=String(score).padStart(4,'0');
     comboText.textContent='×'+combo;
     timeText.textContent=Math.max(0,timeLeft).toFixed(1);
@@ -442,10 +578,10 @@ if(document.readyState==="complete"){
     timeBar.style.width=(timeRatio*100)+'%';
     timeBar.classList.toggle('urgent',timeRatio<.36);
     const z=zodiac[current];
-    symbolText.textContent=z.symbol;
+    symbolText.textContent=z.ko;
     nameText.textContent=z.name;
-    koText.textContent=z.ko;
-    levelText.textContent='STAR LEVEL '+String(round).padStart(2,'0');
+    koText.textContent=visibleHint;
+    levelText.textContent=settings.label+' · ROUND '+round+' / 4';
     progressText.textContent=nextIndex+' / '+targets.length;
     progressBar.style.width=(targets.length?nextIndex/targets.length*100:0)+'%';
     buildCollection();
@@ -453,23 +589,31 @@ if(document.readyState==="complete"){
 
   function buildRound(startPreview=true){
     const z=zodiac[current];
+    const previousHits=new Set(targets.filter(t=>t.hit).map(t=>t.idx));
     const marginX=Math.max(48,Math.min(70,W*.08));
     const marginY=Math.max(52,Math.min(76,H*.1));
     const usableW=Math.max(220,W-marginX*2);
     const usableH=Math.max(220,H-marginY*2);
-    const mapped=z.points.map(p=>({x:marginX+p[0]*usableW,y:marginY+p[1]*usableH}));
-    const xs=mapped.map(p=>p.x),ys=mapped.map(p=>p.y);
-    const mapCenterX=(Math.min(...xs)+Math.max(...xs))/2;
-    const mapCenterY=(Math.min(...ys)+Math.max(...ys))/2;
-    const offsetX=W*.5-mapCenterX;
-    const offsetY=H*.46-mapCenterY;
-    const wobble=Math.min(8,round*.52);
+    const xs=z.points.map(p=>p[0]),ys=z.points.map(p=>p[1]);
+    const minX=Math.min(...xs),maxX=Math.max(...xs);
+    const minY=Math.min(...ys),maxY=Math.max(...ys);
+    const sourceCx=(minX+maxX)/2;
+    const sourceCy=(minY+maxY)/2;
+    const boundsW=Math.max(1,maxX-minX);
+    const boundsH=Math.max(1,maxY-minY);
+    const referenceScale=Math.min(usableW/680,usableH/(z.viewHeight||360))*(z.scale||1);
+    const fitScale=Math.min(usableW/boundsW,usableH/boundsH);
+    const shapeScale=Math.min(referenceScale,fitScale);
+    const mapped=z.points.map(p=>({
+      x:W*.5+(p[0]-sourceCx)*shapeScale,
+      y:H*.46+(p[1]-sourceCy)*shapeScale
+    }));
     const starRadius=Math.max(5.05,5.95-(round-1)*.075);
     targets=mapped.map((p,i)=>({
-      x:p.x+offsetX+rand(-wobble,wobble),
-      y:p.y+offsetY+rand(-wobble,wobble),
+      x:p.x,
+      y:p.y,
       r:starRadius+rand(-.38,.38),
-      hit:i<nextIndex,
+      hit:previousHits.has(i),
       idx:i,
       tw:rand(.72,1.75),
       phase:rand(0,Math.PI*2),
@@ -478,21 +622,53 @@ if(document.readyState==="complete"){
       sprite:Math.random()<.5?'four':'five'
     }));
     decoys=[];
-    const count=Math.min(36,10+Math.floor(round*2));
+    const makeDecoy=(x,y)=>({
+      x,y,
+      r:starRadius+rand(-.38,.38),tw:rand(.72,1.75),phase:rand(0,Math.PI*2),
+      alpha:rand(.76,.91),glow:rand(8,12),sprite:Math.random()<.5?'four':'five',
+      vx:rand(-26,26)*(round>=4?1:0),vy:rand(-18,18)*(round>=4?1:0)
+    });
+    const canPlace=(p,targetGap=32,decoyGap=21)=>{
+      const clearOfTargets=targets.every(t=>Math.hypot(t.x-p.x,t.y-p.y)>targetGap);
+      const clearOfDecoys=decoys.every(d=>Math.hypot(d.x-p.x,d.y-p.y)>decoyGap);
+      return clearOfTargets&&clearOfDecoys;
+    };
+
+    const nearbyCount=Math.min(5,Math.max(2,Math.round(targets.length*.28)));
+    const targetOrder=targets.map((_,i)=>i).sort(()=>Math.random()-.5);
+    let nearbyTries=0;
+    while(decoys.length<nearbyCount&&nearbyTries<500){
+      const t=targets[targetOrder[nearbyTries%targetOrder.length]];
+      nearbyTries++;
+      const angle=rand(0,Math.PI*2);
+      const distance=rand(58,88);
+      const x=t.x+Math.cos(angle)*distance;
+      const y=t.y+Math.sin(angle)*distance;
+      if(x<32||x>W-32||y<42||y>H-68) continue;
+      const p=makeDecoy(x,y);
+      if(canPlace(p,46,30)) decoys.push(p);
+    }
+
+    const distributedCount=Math.min(20,6+Math.floor(round*1.15));
+    const zoneCols=3,zoneRows=3;
+    const zones=[];
+    for(let row=0;row<zoneRows;row++){
+      for(let col=0;col<zoneCols;col++) zones.push({row,col});
+    }
+    zones.sort(()=>Math.random()-.5);
+    const zoneW=(W-64)/zoneCols;
+    const zoneH=(H-110)/zoneRows;
     let tries=0;
-    while(decoys.length<count&&tries<1000){
+    while(decoys.length<nearbyCount+distributedCount&&tries<1600){
+      const zone=zones[tries%zones.length];
       tries++;
-      const nearCenter=Math.random()<.62;
-      const p={
-        x:nearCenter?rand(Math.max(32,W*.16),Math.min(W-32,W*.84)):rand(32,W-32),
-        y:nearCenter?rand(Math.max(42,H*.13),Math.min(H-68,H*.74)):rand(42,H-68),
-        r:starRadius+rand(-.38,.38),tw:rand(.72,1.75),phase:rand(0,Math.PI*2),
-        alpha:rand(.76,.91),glow:rand(8,12),sprite:Math.random()<.5?'four':'five',
-        vx:rand(-26,26)*(round>=4?1:0),vy:rand(-18,18)*(round>=4?1:0)
-      };
-      const clearOfTargets=targets.every(t=>Math.hypot(t.x-p.x,t.y-p.y)>Math.max(25,30-round*.25));
-      const clearOfDecoys=decoys.every(d=>Math.hypot(d.x-p.x,d.y-p.y)>20);
-      if(clearOfTargets&&clearOfDecoys) decoys.push(p);
+      const left=32+zone.col*zoneW;
+      const top=42+zone.row*zoneH;
+      const p=makeDecoy(
+        rand(left+10,Math.min(W-32,left+zoneW-10)),
+        rand(top+10,Math.min(H-68,top+zoneH-10))
+      );
+      if(canPlace(p,42,27)) decoys.push(p);
     }
     mirageLines=[];
     const mirageCount=Math.min(4,1+Math.floor(round/3));
@@ -504,20 +680,30 @@ if(document.readyState==="complete"){
     if(startPreview){
       nextIndex=0;
       roundMistakes=0;
+      visibleHint='';
       targets.forEach(t=>t.hit=false);
       mode='preview';
       const previewMs=Math.max(650,1850-(round-1)*110);
       previewUntil=performance.now()+previewMs;
-      roundTimeLimit=Math.max(5.7,10.8-(round-1)*.46);
+      const complexityBonus=Math.max(0,targets.length-8)*.32;
+      roundTimeLimit=Math.max(10.5,13-(round-1)*.2)+complexityBonus;
       timeLeft=roundTimeLimit;
-      statusText.textContent='별자리의 선과 시작점을 기억하세요 · '+Math.ceil(previewMs/1000)+'초';
+      statusText.textContent='별자리의 선을 기억하세요 · '+Math.ceil(previewMs/1000)+'초';
     }
     hud();
   }
 
-  function startGame(){
+  function startGame(difficulty=selectedDifficulty){
     if(!starSpritesReady) return;
-    round=1;score=0;combo=0;bestCombo=0;nextIndex=0;current=0;collected.clear();
+    if(!difficultySettings[difficulty]) return;
+    clearTimeout(roundAdvanceTimer);
+    roundAdvanceTimer=0;
+    stopSounds();
+    unlockSounds();
+    startMusic();
+    selectedDifficulty=difficulty;
+    roundOrder=makeRoundOrder(selectedDifficulty);
+    round=1;score=0;combo=0;bestCombo=0;nextIndex=0;current=roundOrder[0];collected.clear();
     lives=MAX_LIVES;mistakes=0;roundMistakes=0;pulses=[];mirageLines=[];
     overlay.classList.add('hidden');
     buildRound(true);
@@ -528,60 +714,97 @@ if(document.readyState==="complete"){
     if(mode!=='play') return;
     score=Math.max(0,score-100);
     combo=0;
-    mode='preview';
-    previewUntil=performance.now()+820;
-    statusText.textContent='힌트 사용 · 점수 -100';
+    visibleHint=shapeHints[zodiac[current].name];
+    mode='hint';
+    previewUntil=performance.now()+1000;
+    statusText.textContent='힌트 사용 · 정답선 1초 · 점수 -100';
     hud();
   }
 
   function getRank(clearAll){
     if(!clearAll) return 'D';
     if(mistakes===0) return 'S';
-    if(mistakes<=3) return 'A';
-    if(mistakes<=7) return 'B';
+    if(mistakes===1) return 'A';
+    if(mistakes===2) return 'B';
     return 'C';
   }
 
+  function showDifficultySelect(){
+    clearTimeout(roundAdvanceTimer);
+    roundAdvanceTimer=0;
+    stopSounds();
+    mode='idle';
+    const disabled=starSpritesReady?'':' disabled';
+    const status=starSpritesReady?'원하는 난이도를 선택하세요.':(starSpritesFailed?'PNG 파일을 확인해주세요.':'별 이미지 로딩중…');
+    modal.innerHTML=`
+      <div class="modal-symbol">✦</div>
+      <h2>별자리 난이도 선택</h2>
+      <p>
+        선택한 난이도에 맞는 실제 별자리 <b>4문제</b>가 무작위 순서로 나옵니다.<br>
+        별자리의 복잡도에 따라 세 단계로 나뉩니다.
+      </p>
+      <div class="difficulty-grid">
+        <button type="button" class="difficulty-btn easy" data-difficulty="easy"${disabled}><strong>쉬움</strong><span>양 · 게 · 천칭 · 황소</span></button>
+        <button type="button" class="difficulty-btn normal" data-difficulty="normal"${disabled}><strong>중간</strong><span>사자 · 염소 · 물병 · 쌍둥이</span></button>
+        <button type="button" class="difficulty-btn hard" data-difficulty="hard"${disabled}><strong>어려움</strong><span>전갈 · 처녀 · 물고기 · 사수</span></button>
+      </div>
+      <div class="difficulty-status">${status}</div>
+      <a class="modal-back" href="./The_star_I_am_games.html">← 게임 목록으로 돌아가기</a>`;
+    modal.querySelectorAll('.difficulty-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>startGame(btn.dataset.difficulty));
+    });
+    overlay.classList.remove('hidden');
+  }
+
   function endGame(clearAll=false,reason=''){
+    clearTimeout(roundAdvanceTimer);
+    roundAdvanceTimer=0;
     mode='over';
+    const settings=difficultySettings[selectedDifficulty];
     const rank=getRank(clearAll);
-    const resultText=clearAll?'12개의 별자리를 모두 복원했습니다.':(reason||'별빛이 사라졌습니다.');
-    const modal=overlay.querySelector('.modal');
+    const resultText=clearAll?settings.label+' 난이도의 별자리 4개를 모두 복원했습니다.':(reason||'별빛이 사라졌습니다.');
     modal.innerHTML=`
       <div class="modal-symbol">${clearAll?'✦':'☾'}</div>
-      <h2>${clearAll?'ZODIAC COMPLETE':'STAR MAP LOST'}</h2>
-      <p>${resultText}<br><br>FINAL SCORE <b>${String(score).padStart(4,'0')}</b><br>BEST COMBO <b>×${bestCombo}</b><br>RANK <b>${rank}</b></p>
-      <button type="button" class="primary" id="againBtn">한 판 더</button>`;
+      <h2>${clearAll?settings.en+' COMPLETE':'STAR MAP LOST'}</h2>
+      <p>${resultText}<br><br>LEVEL <b>${settings.label}</b><br>FINAL SCORE <b>${String(score).padStart(4,'0')}</b><br>BEST COMBO <b>×${bestCombo}</b><br>RANK <b>${rank}</b></p>
+      <div class="modal-actions"><button type="button" id="levelBtn">난이도 선택</button><button type="button" class="primary" id="againBtn">같은 난이도 다시</button></div>
+      <a class="modal-back" href="./The_star_I_am_games.html">← 게임 목록으로 돌아가기</a>`;
     overlay.classList.remove('hidden');
-    modal.querySelector('#againBtn').addEventListener('click',startGame);
+    modal.querySelector('#levelBtn').addEventListener('click',showDifficultySelect);
+    modal.querySelector('#againBtn').addEventListener('click',()=>startGame(selectedDifficulty));
   }
 
   function clearRound(){
     mode='clear';
+    playSound('pass');
     collected.add(current);
-    score += Math.round(timeLeft*42) + 300;
+    const scoreMultiplier=difficultySettings[selectedDifficulty].scoreMultiplier;
+    score += Math.round((Math.round(timeLeft*42) + 300)*scoreMultiplier);
     combo += roundMistakes===0?3:1;
-    if(roundMistakes===0) score += 200 + round*12;
+    if(roundMistakes===0) score += Math.round((200 + round*12)*scoreMultiplier);
     bestCombo=Math.max(bestCombo,combo);
     hud();
     statusText.textContent=roundMistakes===0?'PERFECT CONSTELLATION ✦':'CONSTELLATION COMPLETE ✦';
     flash.className='flash good';
     void flash.offsetWidth;
-    setTimeout(()=>{
-      if(collected.size>=12){endGame(true);return;}
-      current=(current+1)%zodiac.length;
+    clearTimeout(roundAdvanceTimer);
+    roundAdvanceTimer=setTimeout(()=>{
+      roundAdvanceTimer=0;
+      if(collected.size>=roundOrder.length){endGame(true);return;}
       round++;
+      current=roundOrder[round-1];
       buildRound(true);
     },760);
   }
 
   function wrong(type='decoy'){
+    playSound('fail');
     combo=0;
     mistakes++;roundMistakes++;lives=Math.max(0,lives-1);
-    const penalty=type==='decoy'?1.45:type==='repeat'?1.1:1;
+    const penalty=type==='decoy'?1.45:1;
     timeLeft=Math.max(0,timeLeft-penalty);
     score=Math.max(0,score-45);
-    statusText.textContent=type==='decoy'?'가짜 별! · LIFE -1 · TIME -1.45':type==='repeat'?'이미 누른 별! · LIFE -1':'순서가 달라요! · LIFE -1';
+    statusText.textContent=type==='decoy'?'가짜 별! · LIFE -1 · TIME -1.45':'아직 이어지지 않은 별이에요! · LIFE -1';
     flash.className='flash bad';
     void flash.offsetWidth;
     hud();
@@ -600,18 +823,24 @@ if(document.readyState==="complete"){
     if(!nearest||dist>hitRadius)return;
 
     if('idx' in nearest){
-      if(nearest.idx===nextIndex){
+      const z=zodiac[current];
+      const connected=nextIndex>0&&z.links.some(([a,b])=>(a===nearest.idx&&targets[b]?.hit)||(b===nearest.idx&&targets[a]?.hit));
+      if(!nearest.hit&&(nextIndex===0||connected)){
+        const createsConnection=nextIndex>0;
         nearest.hit=true;
+        playSound('click');
+        if(createsConnection)playSound('connect');
         pulses.push({x:nearest.x,y:nearest.y,t:0,good:true});
         nextIndex++;
         combo++;
         bestCombo=Math.max(bestCombo,combo);
-        score += 82 + Math.min(combo,12)*21 + Math.round(timeLeft*2);
+        score += Math.round((82 + Math.min(combo,12)*21 + Math.round(timeLeft*2))*difficultySettings[selectedDifficulty].scoreMultiplier);
         statusText.textContent=nextIndex===targets.length?'별자리 완성!':'GOOD ✦ '+nextIndex+' / '+targets.length;
         hud();
         if(nextIndex===targets.length) clearRound();
-      }else if(nearest.idx<nextIndex){
-        wrong('repeat');
+      }else if(nearest.hit){
+        playSound('click');
+        statusText.textContent='이미 연결한 별이에요 · 감점 없음';
       }else wrong('order');
     }else{
       pulses.push({x:nearest.x,y:nearest.y,t:0,good:false});
@@ -687,35 +916,34 @@ if(document.readyState==="complete"){
     }
     ctx.restore();
 
-    if(mode==='preview'){
-      ctx.save();
-      ctx.lineWidth=1;
-      ctx.strokeStyle='rgba(141,125,195,.18)';
-      ctx.setLineDash([4,7]);
-      mirageLines.forEach(([a,b])=>{
-        ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
-      });
-      ctx.restore();
+    if(mode==='preview'||mode==='hint'){
+      const isHint=mode==='hint';
+      if(!isHint){
+        ctx.save();
+        ctx.lineWidth=1;
+        ctx.strokeStyle='rgba(141,125,195,.18)';
+        ctx.setLineDash([4,7]);
+        mirageLines.forEach(([a,b])=>{
+          ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+        });
+        ctx.restore();
+      }
 
       ctx.save();
-      ctx.lineWidth=1.5;
-      ctx.strokeStyle='rgba(223,232,255,.86)';
-      ctx.shadowBlur=11;
-      ctx.shadowColor='rgba(144,181,255,.65)';
+      ctx.lineWidth=isHint?1:1.5;
+      ctx.strokeStyle=isHint?'rgba(223,232,255,.28)':'rgba(223,232,255,.86)';
+      ctx.shadowBlur=isHint?4:11;
+      ctx.shadowColor=isHint?'rgba(144,181,255,.22)':'rgba(144,181,255,.65)';
       ctx.beginPath();
-      targets.forEach((t,i)=>{if(i===0)ctx.moveTo(t.x,t.y);else ctx.lineTo(t.x,t.y);});
+      zodiac[current].links.forEach(([a,b])=>{
+        const p1=targets[a],p2=targets[b];
+        if(!p1||!p2)return;
+        ctx.moveTo(p1.x,p1.y);
+        ctx.lineTo(p2.x,p2.y);
+      });
       ctx.stroke();
       ctx.restore();
 
-      const start=targets[0];
-      if(start){
-        ctx.save();
-        ctx.setLineDash([]);
-        ctx.strokeStyle='rgba(229,237,255,.62)';
-        ctx.lineWidth=1;
-        ctx.strokeRect(Math.round(start.x-8)+.5,Math.round(start.y-8)+.5,16,16);
-        ctx.restore();
-      }
     } else if(mode==='play'||mode==='clear'){
       if(nextIndex>1){
         ctx.save();
@@ -724,10 +952,12 @@ if(document.readyState==="complete"){
         ctx.shadowBlur=10;
         ctx.shadowColor='rgba(151,183,255,.75)';
         ctx.beginPath();
-        for(let i=0;i<nextIndex;i++){
-          const t=targets[i];
-          if(i===0)ctx.moveTo(t.x,t.y); else ctx.lineTo(t.x,t.y);
-        }
+        zodiac[current].links.forEach(([a,b])=>{
+          const p1=targets[a],p2=targets[b];
+          if(!p1?.hit||!p2?.hit)return;
+          ctx.moveTo(p1.x,p1.y);
+          ctx.lineTo(p2.x,p2.y);
+        });
         ctx.stroke();
         ctx.restore();
       }
@@ -788,14 +1018,16 @@ if(document.readyState==="complete"){
     const dt=Math.min(.05,(now-lastTime)/1000);
     lastTime=now;
     moveDecoys(dt);
-    if(mode==='preview'&&now>=previewUntil){
+    if((mode==='preview'||mode==='hint')&&now>=previewUntil){
+      const hintEnded=mode==='hint';
       mode='play';
-      statusText.textContent='START ✦ 움직이는 가짜 별을 피해 순서대로 눌러주세요.';
+      statusText.textContent=hintEnded?'HINT ✦ 연결된 별을 이어주세요.':'START ✦ 움직이는 가짜 별을 피해 연결된 별을 눌러주세요.';
     }else if(mode==='play'){
       timeLeft-=dt;
       if(timeLeft<=0){
         timeLeft=0;
         hud();
+        playSound('fail');
         endGame(false,'시간 안에 별자리를 완성하지 못했습니다.');
       } else if(Math.floor(timeLeft*10)%2===0){
         hud();
@@ -813,11 +1045,19 @@ if(document.readyState==="complete"){
   canvas.addEventListener('pointerleave',()=>{pointer={x:-100,y:-100};});
   canvas.addEventListener('pointerdown',e=>{const p=pointerPos(e);hitTest(p.x,p.y);});
 
-  startBtn.addEventListener('click',startGame);
-  restartBtn.addEventListener('click',startGame);
+  restartBtn.addEventListener('click',()=>startGame(selectedDifficulty));
+  difficultyBtn.addEventListener('click',showDifficultySelect);
   previewBtn.addEventListener('click',previewAgain);
+  musicToggle.addEventListener('click',()=>{
+    musicEnabled=!musicEnabled;
+    if(musicEnabled)startMusic();
+    else bgm.pause();
+    updateMusicToggle();
+  });
   window.addEventListener('resize',resize,{passive:true});
 
+  updateMusicToggle();
+  showDifficultySelect();
   buildCollection();
   hud();
   resize();
