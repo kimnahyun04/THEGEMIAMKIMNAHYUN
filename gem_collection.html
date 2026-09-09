@@ -325,7 +325,7 @@
         animation-delay: var(--delay);
       }
 
-      /* ── 외곽 컬러 헤일로 (호흡하는 빛) ────────────── */
+      
       .birthstone::before {
         content: "";
         position: absolute;
@@ -344,7 +344,7 @@
         animation: gemHalo 5s ease-in-out infinite;
       }
 
-      /* ── 회전하는 프리즘 림 ──────────────────────── */
+      
       .birthstone::after {
         content: "";
         position: absolute;
@@ -407,7 +407,7 @@
         z-index: 10;
       }
 
-      /* ── 보석 본체 (3D 컬러 코어) ──────────────────── */
+      
       .stone-core {
         position: relative;
         width: 100%;
@@ -415,28 +415,28 @@
         border-radius: 50%;
 
         background-image:
-          /* 보조 글린트 (오른쪽 아래 작은 점광) */
+          
           radial-gradient(
             circle at 78% 78%,
             rgba(255, 255, 255, 0.55) 0%,
             rgba(255, 255, 255, 0.15) 8%,
             transparent 18%
           ),
-          /* 1. 상단 림 라이트 (얇은 백색 헤일로) */
+          
             radial-gradient(
               ellipse 80% 20% at 50% 8%,
               rgba(255, 255, 255, 0.7) 0%,
               rgba(255, 255, 255, 0.18) 35%,
               transparent 65%
             ),
-          /* 2. 메인 광택 (왼쪽 위 큰 빛) */
+          
             radial-gradient(
               ellipse 50% 38% at 32% 28%,
               rgba(255, 255, 255, 0.85) 0%,
               rgba(255, 255, 255, 0.35) 20%,
               transparent 55%
             ),
-          /* 3. 컬러 코어 — 입체 그라디언트 */
+          
             radial-gradient(
               circle at 45% 65%,
               var(--stone-light) 0%,
@@ -447,28 +447,28 @@
         box-shadow:
           0 0 18px color-mix(in srgb, var(--stone) 35%, transparent),
           0 0 38px color-mix(in srgb, var(--stone) 18%, transparent),
-          /* 외곽 컬러 글로우 (멀리) */ 0 0 36px
+           0 0 36px
             color-mix(in srgb, var(--stone) 50%, transparent),
           0 0 14px color-mix(in srgb, var(--stone) 70%, transparent),
-          /* 그림자 (떠있는 느낌) */ 0 10px 26px rgba(0, 0, 0, 0.45),
-          /* 상단 글래스 빛 */ inset 0 6px 14px rgba(255, 255, 255, 0.6),
-          /* 하단 subsurface scattering (보석 내부에서 빛 새어나옴) */ inset
+           0 10px 26px rgba(0, 0, 0, 0.45),
+           inset 0 6px 14px rgba(255, 255, 255, 0.6),
+           inset
             0 -8px 18px color-mix(in srgb, var(--stone) 85%, transparent),
-          /* 인너 림 (얇은 백색 테두리) */ inset 0 0 0 1.5px
+           inset 0 0 0 1.5px
             rgba(255, 255, 255, 0.4),
-          /* 깊이감 */ inset 0 0 28px
+           inset 0 0 28px
             color-mix(in srgb, var(--stone) 30%, transparent);
 
         transition:
           box-shadow 0.5s ease,
           border-color 0.5s ease;
 
-        /* 미세하게 회전하는 광택 효과를 위한 base */
+        
         overflow: hidden;
         filter: blur(1.5px);
       }
 
-      /* ── 메인 하이라이트 (큰 부드러운 광채) ─────────── */
+      
       .stone-core::before {
         content: "";
         position: absolute;
@@ -503,7 +503,7 @@
         }
       }
 
-      /* ── 핀포인트 스파클 (자연스럽게 번지는 점광) ───── */
+      
       .stone-core::after {
         content: "";
         position: absolute;
@@ -539,7 +539,7 @@
         }
       }
 
-      /* ── 호버 — 모든 빛이 강해짐 ───────────────────── */
+      
       .birthstone:hover .stone-core {
         border-color: rgba(255, 255, 255, 0.8);
         box-shadow:
@@ -557,7 +557,7 @@
         inset: -55%;
       }
 
-      /* ── 월 라벨 ─────────────────────────────────── */
+      
       .stone-month {
         position: absolute;
         bottom: -1.8rem;
@@ -1773,7 +1773,7 @@
         }, 4000);
       }
 
-      // 화면에 과도하게 쌓이지 않도록 생성된 별은 4초 뒤 제거합니다.
+      
       setInterval(createSparkle, 80);
       const memoCanvas = document.getElementById("memoCanvas");
       const clearDrawingBtn = document.getElementById("clearDrawingBtn");

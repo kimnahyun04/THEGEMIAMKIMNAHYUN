@@ -45,17 +45,14 @@
         background: #000;
       }
 
-      /* ===== DESKTOP / LAPTOP FULL-RANGE RATIO LOCK =====
-         1920px / 브라우저 100%를 기준으로 rem 계열 UI를 viewport와 함께
-         양방향 비례 보정합니다.
-         브라우저 확대/축소 및 노트북 화면에서도 데스크탑 구도를 최대한 그대로 유지합니다. */
+      
       @media (any-hover: hover) and (any-pointer: fine) {
         html {
           font-size: 0.833333vw;
         }
       }
 
-      /* ===== TOP NAV ===== */
+      
       .top-nav {
         position: absolute;
         top: 3%;
@@ -189,7 +186,7 @@
         transform: translateX(3px);
       }
 
-      /* ===== MODE TOGGLE ===== */
+      
       .mode-toggle {
         position: absolute;
         top: 3%;
@@ -230,7 +227,7 @@
         background: rgba(255, 240, 205, 0.96);
       }
 
-      /* ===== MUSIC ===== */
+      
       .music-btn {
         position: absolute;
         bottom: 6%;
@@ -331,7 +328,7 @@
         visibility: visible;
         transform: translateY(0);
       }
-      /* ===== TRANSITION OVERLAY ===== */
+      
       .transition-overlay {
         position: fixed;
         inset: 0;
@@ -346,7 +343,7 @@
         opacity: 1;
       }
 
-      /* Constellation detail modal */
+      
       .constellation-detail-modal {
         position: absolute;
         inset: 0;
@@ -482,9 +479,7 @@
         border-radius: 999px;
       }
 
-      /* ================================================================
-       SPLIT SCREEN
-       ================================================================ */
+      
       .split-overlay {
         position: absolute;
         inset: 0;
@@ -500,7 +495,7 @@
         pointer-events: auto;
       }
 
-      /* ─── LEFT HALF ─── */
+      
       .left-half {
         position: relative;
         width: 50%;
@@ -739,7 +734,7 @@
         }
       }
 
-      /* Divider */
+      
       .split-divider {
         position: absolute;
         left: 50%;
@@ -757,7 +752,7 @@
         pointer-events: none;
       }
 
-      /* ─── RIGHT HALF ─── */
+      
       .right-half {
         position: relative;
         width: 50%;
@@ -861,7 +856,7 @@
         white-space: nowrap;
       }
 
-      /* ===== DESC CARDS OVERLAY ===== */
+      
       .desc-cards-overlay {
         position: absolute;
         inset: 0;
@@ -1157,7 +1152,7 @@
         }
       }
 
-      /* ===== PAGE ENTER FADE IN ===== */
+      
       @keyframes pageFadeIn {
         from {
           opacity: 0;
@@ -1179,7 +1174,7 @@
   <body>
     <div class="viewport">
       <div class="game-container">
-        <!-- TOP NAV -->
+        
         <div class="top-nav" id="topNav">
           <button
             type="button"
@@ -1196,11 +1191,11 @@
             </div>
           </div>
         </div>
-        <!-- MODE TOGGLE -->
+        
         <div class="mode-toggle active" id="modeToggle">
           <div class="toggle-knob"></div>
         </div>
-        <!-- SPLIT SCREEN OVERLAY -->
+        
         <div class="split-overlay show">
           <div class="left-half" id="leftHalf">
             <div class="left-accent-line"></div>
@@ -1258,7 +1253,7 @@
             </div>
           </div>
         </div>
-        <!-- CONSTELLATION DETAIL MODAL -->
+        
         <div class="constellation-detail-modal" id="constellationDetailModal">
           <div
             class="constellation-detail-backdrop"
@@ -1289,7 +1284,7 @@
             </div>
           </div>
         </div>
-        <!-- DESC CARDS OVERLAY -->
+        
         <div class="desc-cards-overlay" id="descCardsOverlay">
           <div class="desc-backdrop" id="descBackdrop"></div>
           <div class="desc-cards-wrapper">
@@ -1352,7 +1347,7 @@
             </div>
           </div>
         </div>
-        <!-- MUSIC -->
+        
         <div class="music-btn" id="musicBtn">
           <div class="music-credit" aria-live="polite">
             <span class="music-credit-title">Space</span>
@@ -1367,7 +1362,7 @@
       </div>
     </div>
     <script>
-      // ===== CLICK SOUND =====
+
       const clickSound = new Audio("ting2.mp3");
       clickSound.preload = "auto";
 
