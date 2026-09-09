@@ -1029,12 +1029,7 @@
             <div class="card-area">
               <div class="card-float" id="cardFloat">
                 <article class="fortune-card" id="fortuneCard">
-                  <!--
-                    탄생석 카드 이미지를 이 HTML과 같은 폴더에 넣어주세요.
-                    파일명: 탄생석타로카드.jpg
-                    모든 월에 같은 카드 이미지가 표시되고,
-                    탄생석 이름과 운세 문구만 월별로 달라집니다.
-                  -->
+                  
                   <img class="card-image" id="cardImage" alt="" />
                 </article>
               </div>
@@ -1528,7 +1523,6 @@
       cardImage.removeAttribute("src");
     });
 
-    // 첫 클릭에서 카드가 늦게 뜨지 않도록 이미지를 미리 불러둡니다.
     (function preloadCardImage() {
       const preloader = new Image();
       preloader.src = CARD_IMAGE_FILE;
@@ -1623,7 +1617,6 @@
       try {
         await resizeAnimation.finished;
       } catch (_) {
-        // 크기 전환이 중단되어도 최종 화면은 정상적으로 유지합니다.
       }
 
       resizeAnimation.cancel();
