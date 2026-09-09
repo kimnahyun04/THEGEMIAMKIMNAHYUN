@@ -11,7 +11,7 @@
     <title>Peridot · 페리도트</title>
 
     <style>
-      /* ===== RESET ===== */
+      
 
       *,
       *::before,
@@ -49,17 +49,17 @@
         background: #000;
       }
 
-      /* ===== DESKTOP / LAPTOP FULL-RANGE RATIO LOCK =====
-         1920px / 브라우저 100%를 기준으로 rem 계열 UI를 viewport와 함께
-         양방향 비례 보정합니다.
-         브라우저 확대/축소 및 노트북 화면에서도 데스크탑 구도를 최대한 그대로 유지합니다. */
+      
+
+
+
       @media (any-hover: hover) and (any-pointer: fine) {
         html {
           font-size: 0.833333vw;
         }
       }
 
-      /* ===== TOP NAV ===== */
+      
 
       .top-nav {
         position: absolute;
@@ -182,7 +182,7 @@
         text-shadow: 0 0 0.45vw rgba(184, 255, 79, 0.45);
       }
 
-      /* ===== MODE TOGGLE ===== */
+      
 
       .mode-toggle {
         position: absolute;
@@ -215,7 +215,7 @@
         left: 1.84rem;
       }
 
-      /* ===== TRANSITION OVERLAY ===== */
+      
 
       .transition-overlay {
         position: fixed;
@@ -232,7 +232,7 @@
         pointer-events: auto;
       }
 
-      /* ===== CARD DETAIL MODAL ===== */
+      
 
       .card-detail-modal {
         position: absolute;
@@ -370,9 +370,9 @@
         box-shadow: 0 0 8px rgba(157, 255, 58, 0.22);
       }
 
-      /* ================================================================
-       ===== SPLIT SCREEN (main new layout) =====
-       ================================================================ */
+      
+
+
 
       .split-overlay {
         position: absolute;
@@ -389,7 +389,7 @@
         pointer-events: auto;
       }
 
-      /* ─── LEFT HALF ─── */
+      
 
       .left-half {
         position: relative;
@@ -405,7 +405,7 @@
         transition: background 0.4s ease;
       }
 
-      /* ambient glow */
+      
 
       .left-half::before {
         content: "";
@@ -415,7 +415,7 @@
         pointer-events: none;
       }
 
-      /* hover tint */
+      
 
       .left-half::after {
         content: "";
@@ -431,7 +431,7 @@
         opacity: 1;
       }
 
-      /* background image */
+      
 
       .left-bg-img {
         position: absolute;
@@ -444,7 +444,7 @@
         pointer-events: none;
       }
 
-      /* decorative vertical accent line */
+      
 
       .left-accent-line {
         position: absolute;
@@ -455,7 +455,7 @@
         background: linear-gradient( to bottom, transparent, rgba(90, 170, 0, 0.55) 35%, rgba(90, 170, 0, 0.55) 65%, transparent );
       }
 
-      /* top-right label */
+      
 
       .left-corner-label {
         position: absolute;
@@ -620,7 +620,7 @@
         }
       }
 
-      /* ─── DIVIDER ─── */
+      
 
       .split-divider {
         position: absolute;
@@ -633,7 +633,7 @@
         pointer-events: none;
       }
 
-      /* ─── RIGHT HALF ─── */
+      
 
       .right-half {
         position: relative;
@@ -644,7 +644,7 @@
         background: #000;
       }
 
-      /* Preview image — slow Ken Burns zoom from center */
+      
 
       .right-preview-img {
         position: absolute;
@@ -669,7 +669,7 @@
         }
       }
 
-      /* Dark vignette on top of preview image */
+      
 
       .right-preview-vignette {
         position: absolute;
@@ -698,7 +698,7 @@
         pointer-events: none;
       }
 
-      /* center icon (top-center of right half) */
+      
 
       .right-center-hint {
         position: absolute;
@@ -742,7 +742,7 @@
         white-space: nowrap;
       }
 
-      /* ===== DESC CARDS OVERLAY ===== */
+      
 
       .desc-cards-overlay {
         position: absolute;
@@ -778,7 +778,7 @@
         width: min(90vw, 74rem);
       }
 
-      /* wrapper close button */
+      
 
       .desc-close-btn {
         position: absolute;
@@ -802,7 +802,7 @@
         background: rgba(255, 255, 255, 0.12);
       }
 
-      /* header */
+      
 
       .desc-cards-header {
         text-align: center;
@@ -826,7 +826,7 @@
         margin: 0;
       }
 
-      /* grid */
+      
 
       .desc-cards-grid {
         display: grid;
@@ -876,7 +876,7 @@
         box-shadow: 0 14px 48px rgba(0, 0, 0, 0.4), 0 0 24px rgba(125, 255, 0, 0.12);
       }
 
-      /* image section */
+      
 
       .desc-card-img-wrap {
         position: relative;
@@ -898,7 +898,7 @@
         transform: scale(1.04);
       }
 
-      /* gradient at bottom of image */
+      
 
       .desc-card-img-wrap::after {
         content: "";
@@ -907,7 +907,7 @@
         background: linear-gradient( to bottom, transparent 45%, rgba(10, 24, 4, 0.72) 100% );
       }
 
-      /* image top-left badge */
+      
 
       .desc-card-img-badge {
         position: absolute;
@@ -926,7 +926,7 @@
         color: rgba(184, 255, 79, 0.75);
       }
 
-      /* text section */
+      
 
       .desc-card-body {
         padding: 1.3rem 1.5rem 1.5rem;
@@ -1002,7 +1002,7 @@
         width: 2.2rem;
       }
 
-      /* mobile */
+      
 
       @media (max-width: 860px) and (any-hover: none) {
         .left-half {
@@ -1030,7 +1030,7 @@
         }
       }
 
-      /* ===== MENU TAROT MODAL ===== */
+      
 
       .menu-tarot-modal {
         position: absolute;
@@ -1229,7 +1229,7 @@
         letter-spacing: 0.08em;
       }
 
-      /* ===== PAGE ENTER FADE IN ===== */
+      
 
       @keyframes pageFadeIn {
         from {
@@ -1253,7 +1253,7 @@
   <body>
     <div class="viewport">
       <div class="game-container">
-        <!-- ─── TOP NAV ─── -->
+        
         <div class="top-nav" id="topNav">
           <button
             aria-label="메뉴 열기"
@@ -1273,15 +1273,15 @@
             </div>
           </div>
         </div>
-        <!-- ─── MODE TOGGLE ─── -->
+        
         <div class="mode-toggle" id="modeToggle">
           <div class="toggle-knob"></div>
         </div>
-        <!-- ================================================================
-           SPLIT OVERLAY — visible immediately
-           ================================================================ -->
+        
+
+
         <div class="split-overlay show">
-          <!-- LEFT HALF: info panel -->
+          
           <div class="left-half" id="leftHalf">
             <img alt="" class="left-bg-img" src="페리도트2.jpg">
             <div class="left-accent-line"></div>
@@ -1320,9 +1320,9 @@
             </div>
             <div class="left-bottom-hint">TAP TO DISCOVER</div>
           </div>
-          <!-- thin divider -->
+          
           <div class="split-divider"></div>
-          <!-- RIGHT HALF: preview image + transparent over spline -->
+          
           <div class="right-half" id="rightHalf">
             <img
               alt="페리도트 프리뷰"
@@ -1337,9 +1337,9 @@
           </div>
         </div>
       </div>
-      <!-- ================================================================
-           DESC CARDS OVERLAY — appears when left half is clicked
-           ================================================================ -->
+      
+
+
       <div class="desc-cards-overlay" id="descCardsOverlay">
         <div class="desc-backdrop" id="descBackdrop"></div>
         <div class="desc-cards-wrapper">
@@ -1356,7 +1356,7 @@
             <h2 class="desc-cards-title">Discover the Gem</h2>
           </div>
           <div class="desc-cards-grid">
-            <!-- Card 1 : Artwork Note -->
+            
             <div class="desc-card" id="descCard1">
               <div class="desc-card-img-wrap">
                 <div class="desc-card-img-badge">ARTWORK</div>
@@ -1381,7 +1381,7 @@
                 </div>
               </div>
             </div>
-            <!-- Card 2 : Birthstone Meaning -->
+            
             <div class="desc-card" id="descCard2">
               <div class="desc-card-img-wrap">
                 <div class="desc-card-img-badge">MEANING</div>
@@ -1407,7 +1407,7 @@
           </div>
         </div>
       </div>
-      <!-- ─── MENU TAROT MODAL ─── -->
+      
       <div class="menu-tarot-modal" id="menuTarotModal">
         <div class="menu-tarot-backdrop" id="menuTarotBackdrop"></div>
         <div class="menu-tarot-panel">
@@ -1438,7 +1438,7 @@
           <div class="menu-tarot-result" id="menuTarotResult"></div>
         </div>
       </div>
-      <!-- ─── CARD DETAIL MODAL (same as original) ─── -->
+      
       <div class="card-detail-modal" id="cardDetailModal">
         <div class="card-detail-backdrop" id="cardDetailBackdrop"></div>
         <div class="card-detail-panel">
@@ -1453,11 +1453,11 @@
           <div class="card-detail-body" id="cardDetailBody"></div>
         </div>
       </div>
-      <!-- ─── TRANSITION OVERLAY ─── -->
+      
       <div class="transition-overlay" id="transitionOverlay"></div>
     </div>
     <script>
-      // ── CLICK SOUND ──
+      
       const clickSound = new Audio("ting.mp3");
       clickSound.preload = "auto";
 
@@ -1480,7 +1480,7 @@
         true,
       );
 
-      // ── DOM refs ──
+      
       const toggle = document.getElementById("modeToggle");
       const overlay = document.getElementById("transitionOverlay");
       const cardDetailModal = document.getElementById("cardDetailModal");
@@ -1490,7 +1490,7 @@
       const topNav = document.getElementById("topNav");
       const menuToggleBtn = document.getElementById("menuToggleBtn");
 
-      // ── Split Screen refs ──
+      
       const leftHalf = document.getElementById("leftHalf");
       const rightHalf = document.getElementById("rightHalf");
       const descCardsOverlay = document.getElementById("descCardsOverlay");
@@ -1504,7 +1504,7 @@
       const menuTarotCards = document.getElementById("menuTarotCards");
       const menuTarotResult = document.getElementById("menuTarotResult");
 
-      // ── Peridot tarot messages ──
+      
       const tarotMessages = [
         {
           title: "8월의 라임빛",
@@ -1536,9 +1536,9 @@
         },
       ];
 
-      // ================================================================
-      // SPLIT SCREEN INTERACTIONS
-      // ================================================================
+      
+      
+      
       function openDescCards() {
         descCardsOverlay.classList.add("show");
       }
@@ -1587,36 +1587,36 @@
         setTimeout(() => menuTarotResult.classList.add("show"), 220);
       });
 
-      // Left half click
+      
       leftHalf.addEventListener("click", (e) => {
         e.stopPropagation();
         openDescCards();
       });
 
-      // Right half click → open separated Spline page
+      
       rightHalf.addEventListener("click", (e) => {
         e.stopPropagation();
         transitionTo("Peridot_spline_view.html", 800);
       });
-      // Desc cards backdrop
+      
       descBackdrop.addEventListener("click", closeDescCards);
       descCloseBtn.addEventListener("click", closeDescCards);
 
-      // Desc card 1 click → open artwork note detail
+      
       descCard1.addEventListener("click", (e) => {
         e.stopPropagation();
         openCardDetail("left");
       });
 
-      // Desc card 2 click → open birthstone meaning detail
+      
       descCard2.addEventListener("click", (e) => {
         e.stopPropagation();
         openCardDetail("right");
       });
 
-      // ================================================================
-      // CARD DETAIL (identical content to original)
-      // ================================================================
+      
+      
+      
       function openCardDetail(type) {
         if (type === "left") {
           cardDetailBody.innerHTML = `
@@ -1697,7 +1697,7 @@
 
       cardDetailClose.addEventListener("click", closeCardDetail);
       cardDetailBackdrop.addEventListener("click", closeCardDetail);
-      // ESC key
+      
       window.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
           closeCardDetail();
@@ -1706,9 +1706,9 @@
         }
       });
 
-      // ================================================================
-      // NAV / MODE TOGGLE
-      // ================================================================
+      
+      
+      
 
       menuToggleBtn.addEventListener("click", (e) => {
         e.stopPropagation();

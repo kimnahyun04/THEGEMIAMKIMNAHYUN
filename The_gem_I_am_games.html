@@ -21,6 +21,8 @@
     body{
       color:var(--ink);
       font-family:Inter,Pretendard,"Noto Sans KR",system-ui,sans-serif;
+      opacity:0;
+      animation:pageEnter .72s cubic-bezier(.22,1,.36,1) forwards;
       background:
         radial-gradient(circle at 7% 9%,rgba(255,190,216,.68),transparent 25%),
         radial-gradient(circle at 91% 7%,rgba(195,205,255,.66),transparent 28%),
@@ -61,6 +63,7 @@
     }
 
     @keyframes drift{to{transform:translateY(70px)}}
+    @keyframes pageEnter{to{opacity:1}}
 
     a{color:inherit;text-decoration:none}
     button{font:inherit}

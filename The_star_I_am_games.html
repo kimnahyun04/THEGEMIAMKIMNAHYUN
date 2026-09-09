@@ -23,6 +23,8 @@
     body{
       color:var(--ink);
       font-family:Inter,Pretendard,"Noto Sans KR",system-ui,sans-serif;
+      opacity:0;
+      animation:pageEnter .72s cubic-bezier(.22,1,.36,1) forwards;
       background:
         radial-gradient(circle at 12% 10%,rgba(102,123,210,.30),transparent 24%),
         radial-gradient(circle at 88% 10%,rgba(95,143,255,.22),transparent 28%),
@@ -95,6 +97,7 @@
     }
 
     @keyframes drift{to{transform:translateY(70px)}}
+    @keyframes pageEnter{to{opacity:1}}
 
     a{color:inherit;text-decoration:none}
     button{font:inherit}
@@ -189,10 +192,11 @@
 
     .game-grid{
       display:grid;
-      grid-template-columns:minmax(0,420px);
+      grid-template-columns:repeat(2,minmax(0,1fr));
       justify-content:center;
       gap:clamp(10px,1.45vw,18px);
       width:100%;
+      max-width:860px;
       margin:0 auto;
     }
 
@@ -238,6 +242,13 @@
     }
 
     .game-card:hover::before{transform:scale(1.35)}
+
+    .scan{
+      --accent:#d4c4ff;
+      --accent-soft:#493f8a;
+      --visual-a:#171642;
+      --visual-b:#33295f;
+    }
 
     .card-head{
       display:flex;
@@ -376,7 +387,7 @@
 
     @media(max-width:980px){
       .intro{padding-top:clamp(42px,7vh,72px)}
-      .game-grid{max-width:420px}
+      .game-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:720px}
       .game-card{min-height:350px}
       .card-body h2{font-size:28px}
     }
@@ -420,14 +431,14 @@
       <h1 id="page-title">Choose your <em>game</em></h1>
       <p class="intro-copy">
         밤하늘의 별을 기억하고, 직접 이어보는 시간.<br>
-        지금은 하나의 게임만 담았지만, <b>별자리 세계</b>를 시작하기엔 충분해요.
+        두 가지 게임 중 하나를 골라 <b>별자리 세계</b>를 탐험해보세요.
       </p>
     </section>
 
     <section class="game-grid" aria-label="별자리 게임">
       <a class="game-card constellation" href="zodiac_game_connecting.html" aria-label="CONSTELLATION CONNECT 게임 시작">
         <div class="card-head">
-          <span class="card-number">01 / 01</span>
+          <span class="card-number">01 / 02</span>
           <span class="card-tag">MEMORY · TRACE</span>
         </div>
         <div class="visual" aria-hidden="true">
@@ -440,9 +451,25 @@
         </div>
         <div class="card-foot"><span class="play-label">PLAY GAME</span><span class="play-arrow">↗</span></div>
       </a>
+
+      <a class="game-card scan" href="zodiac_game_star_scan.html" aria-label="CONSTELLATION SCAN 게임 시작">
+        <div class="card-head">
+          <span class="card-number">02 / 02</span>
+          <span class="card-tag">SEARCH · IDENTIFY</span>
+        </div>
+        <div class="visual" aria-hidden="true">
+          <img class="star-png" src="zodiac_pixel_star_5point.png" alt="">
+        </div>
+        <div class="card-body">
+          <h2>CONSTELLATION <em>SCAN</em></h2>
+          <p class="korean-title">별자리 스캔 게임</p>
+          <p class="card-desc">스캐너를 움직여 숨어 있는 별의 배치를 관측하고, 어떤 별자리인지 맞혀보세요.</p>
+        </div>
+        <div class="card-foot"><span class="play-label">PLAY GAME</span><span class="play-arrow">↗</span></div>
+      </a>
     </section>
 
-    <p class="page-note">별자리 게임은 현재 하나의 화면으로 구성되어 있습니다 · 조용히 반짝이는 밤하늘로 들어가보세요</p>
+    <p class="page-note">별자리를 기억해 이어보거나, 스캐너로 찾아 이름을 맞혀보세요</p>
   </main>
 
   <script>
