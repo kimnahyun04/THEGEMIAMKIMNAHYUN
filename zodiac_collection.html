@@ -1473,7 +1473,7 @@
 
 
     <div class="spline-bg">
-      <spline-viewer url="https://prod.spline.design/5XqO1sl5Y8-ASumb/scene.splinecode"></spline-viewer>
+      <spline-viewer id="zodiacSplineViewer" loading="eager" url="https://prod.spline.design/5XqO1sl5Y8-ASumb/scene.splinecode"></spline-viewer>
     </div>
 
     <div class="bg-overlay"></div>
@@ -1594,20 +1594,37 @@
     <script>
 
       const zodiacLoadingOverlay = document.getElementById("zodiacLoadingOverlay");
+      const zodiacSplineViewer = document.getElementById("zodiacSplineViewer");
+      let zodiacLoadingFailsafe;
 
-      window.addEventListener("load", () => {
-        setTimeout(() => {
-          zodiacLoadingOverlay.classList.add("hide");
+      function hideZodiacLoading() {
+        if (!zodiacLoadingOverlay || zodiacLoadingOverlay.dataset.closing) return;
+        zodiacLoadingOverlay.dataset.closing = "true";
+        clearTimeout(zodiacLoadingFailsafe);
 
-          zodiacLoadingOverlay.addEventListener(
-            "transitionend",
-            () => {
-              zodiacLoadingOverlay.remove();
-            },
-            { once: true },
-          );
-        }, 3200);
-      });
+        let removalTimer;
+        const removeOverlay = () => {
+          clearTimeout(removalTimer);
+          if (zodiacLoadingOverlay.isConnected) zodiacLoadingOverlay.remove();
+        };
+
+        zodiacLoadingOverlay.addEventListener("transitionend", removeOverlay, { once: true });
+        zodiacLoadingOverlay.classList.add("hide");
+        removalTimer = setTimeout(removeOverlay, 1400);
+      }
+
+      function revealAfterSplinePaint() {
+        requestAnimationFrame(() => requestAnimationFrame(hideZodiacLoading));
+      }
+
+      if (zodiacSplineViewer) {
+        zodiacSplineViewer.addEventListener("load-complete", revealAfterSplinePaint, { once: true });
+      } else {
+        revealAfterSplinePaint();
+      }
+
+      // 네트워크나 WebGL 문제로 Spline이 실패해도 페이지가 영원히 가려지지 않게 한다.
+      zodiacLoadingFailsafe = setTimeout(hideZodiacLoading, 15000);
 
       let zodiacSoundUnlocked = false;
 

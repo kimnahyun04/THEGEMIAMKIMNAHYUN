@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Noto+Sans+KR:wght@400;500;600;700;800;900&amp;display=swap">
 <title>GEM RUSH — BIRTHSTONE GAME</title>
 <style>
 :root{
@@ -20,7 +23,7 @@
 html,body{margin:0;width:100%;height:100%;overflow:hidden}
 body{
   color:var(--text);
-  font-family:Inter,Pretendard,"Noto Sans KR",system-ui,sans-serif;
+  font-family:Inter,"Noto Sans KR",system-ui,sans-serif;
   background:
     radial-gradient(circle at 14% 17%,rgba(255,187,211,.56),transparent 28%),
     radial-gradient(circle at 85% 12%,rgba(202,197,255,.55),transparent 30%),
@@ -137,7 +140,7 @@ button{font:inherit}
 .screen{display:none;position:absolute;inset:0}
 .screen.on{display:flex}
 
-/* intro */
+
 #intro,#characterSelect{overflow:auto;align-items:center;justify-content:center;padding:26px}
 .introbox{width:min(940px,100%);text-align:center}
 .characterbox{width:min(900px,100%);text-align:center}
@@ -200,7 +203,7 @@ button{font:inherit}
 .primary:disabled{opacity:.3;cursor:not-allowed;transform:none}
 .secondary{padding:12px 19px;color:#674d5c;background:rgba(255,255,255,.64);border:1px solid var(--line)}
 
-/* game */
+
 #game{flex-direction:column}
 .gameline{
   padding:10px 14px;display:flex;align-items:center;gap:12px;
@@ -253,7 +256,7 @@ button{font:inherit}
   position:absolute;top:-90px;border:0;background:transparent;padding:5px;pointer-events:none;
   animation:drop linear forwards;filter:drop-shadow(0 9px 14px rgba(0,0,0,.22))
 }
-@keyframes drop{to{transform:translateY(calc(100vh + 150px)) rotate(30deg)}}
+@keyframes drop{to{transform:translateY(calc(var(--game-viewport-height,100vh) + 150px)) rotate(30deg)}}
 .item.gem{padding:0}
 .gemImage{
   display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;
@@ -298,7 +301,7 @@ button{font:inherit}
 .shake{animation:shake .22s linear}
 @keyframes shake{25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
 
-/* result */
+
 #result{align-items:center;justify-content:center;padding:26px;overflow:auto}
 .resultbox{
   width:min(700px,100%);text-align:center;border:1px solid rgba(255,255,255,.92);
@@ -325,7 +328,7 @@ button{font:inherit}
 .rstat b{display:block;color:#5c4251;font-size:20px;margin-top:3px}
 .actions{display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
 
-@media(max-width:760px){
+@media(max-width:760px) and (any-hover:none){
   .wrap{padding:0}
   .panel{width:100%;height:100dvh;min-height:0;border-radius:0;border:0}
   .topbar{padding:10px 11px;min-height:62px}
@@ -350,7 +353,7 @@ button{font:inherit}
 }
 
 
-/* UNIFIED GAME NAVIGATION */
+
 .top,.topbar{position:relative}
 .navControl{
   flex:none;min-width:88px;padding:9px 13px;border:1px solid rgba(151,111,134,.17);
@@ -363,16 +366,22 @@ button{font:inherit}
 .navControl:active{transform:translateY(0)}
 .navControl:focus-visible{outline:2px solid rgba(193,111,152,.42);outline-offset:2px}
 .legacyBack{display:none}
-@media(max-width:860px){
+@media(max-width:860px) and (any-hover:none){
   .navControl{min-width:70px;padding:7px 9px;font-size:8px}
 }
-@media(max-width:430px){
+@media(max-width:430px) and (any-hover:none){
   .top,.topbar{gap:4px}
   .navControl{min-width:58px;padding:7px 6px;font-size:7px;letter-spacing:0}
   .brand small,.logo small{display:none}
   .brand h1,.logo h1{font-size:14px}
   .stats,.meta{gap:2px}
   .stat,.badge{min-width:43px;padding:5px 3px}
+}
+.game-stage,.game-scale{display:contents}
+@media (any-hover:hover) and (any-pointer:fine){
+  .game-stage{display:block;width:var(--game-stage-width,1180px);height:var(--game-stage-height,780px)}
+  .game-scale{--game-viewport-height:900px;display:block;width:1180px;height:780px;transform:scale(var(--game-scale,1));transform-origin:top left}
+  .panel{width:1180px;height:780px;min-height:0}
 }
 </style>
 </head>
@@ -384,6 +393,8 @@ button{font:inherit}
   </div>
 </div>
 <div class="wrap">
+  <div class="game-stage">
+    <div class="game-scale">
   <div class="panel" id="panel">
     <div class="topbar">
     <button class="navControl" id="navControl" type="button" aria-label="메인메뉴로 이동">메인메뉴</button>
@@ -486,9 +497,37 @@ button{font:inherit}
       </section>
     </div>
   </div>
+    </div>
+  </div>
 </div>
 
 <script>
+const desktopLayout=window.matchMedia("(any-hover: hover) and (any-pointer: fine)");
+const getViewportSize=()=>{
+  const viewport=window.visualViewport;
+  return{
+    width:viewport?.width||window.innerWidth,
+    height:viewport?.height||window.innerHeight
+  };
+};
+const updateGameScale=()=>{
+  const rootStyle=document.documentElement.style;
+  if(!desktopLayout.matches){
+    rootStyle.removeProperty("--game-scale");
+    rootStyle.removeProperty("--game-stage-width");
+    rootStyle.removeProperty("--game-stage-height");
+    return;
+  }
+  const viewport=getViewportSize();
+  const scale=Math.max(.1,Math.min(viewport.width/1920,viewport.height/900));
+  rootStyle.setProperty("--game-scale",scale.toFixed(6));
+  rootStyle.setProperty("--game-stage-width",`${1180*scale}px`);
+  rootStyle.setProperty("--game-stage-height",`${780*scale}px`);
+};
+updateGameScale();
+window.addEventListener("resize",updateGameScale,{passive:true});
+window.visualViewport?.addEventListener("resize",updateGameScale,{passive:true});
+desktopLayout.addEventListener?.("change",updateGameScale);
 const gems=[
  {m:1,n:"Garnet",kr:"가넷",c:"#ad2439",s:"#ef7f90",img:"01_garnet.png"},
  {m:2,n:"Amethyst",kr:"자수정",c:"#8a60c6",s:"#d4a4ee",img:"02_amethyst.png"},
@@ -797,7 +836,8 @@ function movePlayer(e){
   if(e.cancelable)e.preventDefault();
   const ar=arena.getBoundingClientRect();
   const half=player.offsetWidth/2;
-  const x=Math.max(half,Math.min(ar.width-half,e.clientX-ar.left));
+  const localX=(e.clientX-ar.left)*(arena.clientWidth/ar.width);
+  const x=Math.max(half,Math.min(arena.clientWidth-half,localX));
   player.style.left=x+"px";
 }
 arena.addEventListener("pointermove",movePlayer);

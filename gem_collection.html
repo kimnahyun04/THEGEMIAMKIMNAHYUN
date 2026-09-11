@@ -1279,7 +1279,9 @@
       <div class="game-container">
         <div class="spline-stage">
           <spline-viewer
+            id="gemSplineViewer"
             class="bg-spline"
+            loading="eager"
             url="https://prod.spline.design/7sH3tDXR6qJwBlX7/scene.splinecode"
           >
           </spline-viewer>
@@ -1545,6 +1547,7 @@
       const memoInput = document.getElementById("memoInput");
       const stickyWall = document.getElementById("stickyWall");
       const loadingOverlay = document.getElementById("loadingOverlay");
+      const gemSplineViewer = document.getElementById("gemSplineViewer");
       const sparkleLayer = document.querySelector(".sparkle-layer");
       let activeStone = stones[0];
       let memos = loadMemos();
@@ -1744,19 +1747,36 @@
         if (e.key === "Escape") closePanel();
       });
 
-      window.addEventListener("load", () => {
-        setTimeout(() => {
-          loadingOverlay.classList.add("hide");
+      let loadingFailsafe;
 
-          loadingOverlay.addEventListener(
-            "transitionend",
-            () => {
-              loadingOverlay.remove();
-            },
-            { once: true },
-          );
-        }, 3200);
-      });
+      function dismissLoading() {
+        if (!loadingOverlay || loadingOverlay.dataset.done) return;
+        loadingOverlay.dataset.done = "1";
+        clearTimeout(loadingFailsafe);
+
+        let removalTimer;
+        const removeOverlay = () => {
+          clearTimeout(removalTimer);
+          if (loadingOverlay.isConnected) loadingOverlay.remove();
+        };
+
+        loadingOverlay.addEventListener("transitionend", removeOverlay, { once: true });
+        loadingOverlay.classList.add("hide");
+        removalTimer = setTimeout(removeOverlay, 1400);
+      }
+
+      function revealAfterSplinePaint() {
+        requestAnimationFrame(() => requestAnimationFrame(dismissLoading));
+      }
+
+      if (gemSplineViewer) {
+        gemSplineViewer.addEventListener("load-complete", revealAfterSplinePaint, { once: true });
+      } else {
+        revealAfterSplinePaint();
+      }
+
+      loadingFailsafe = setTimeout(dismissLoading, 15000);
+
       function createSparkle() {
         const s = document.createElement("div");
         s.className = "sparkle";

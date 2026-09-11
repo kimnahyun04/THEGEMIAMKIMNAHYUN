@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&amp;family=Jost:wght@300;400;600&amp;display=swap" rel="stylesheet">
   <link rel="preload" href="Diamond_star_image.jpg" as="image" fetchpriority="high">
   <title>Diamond Star · Spline View</title>
   <style>
@@ -201,6 +201,15 @@
 
     .space-loading-text span:nth-child(4) {
       animation-delay: 5.4s;
+    }
+
+    .space-loading-status {
+      margin-top: 0.58rem;
+      font-family: 'Jost', sans-serif;
+      font-size: clamp(0.56rem, 0.68vw, 0.66rem);
+      font-weight: 300;
+      letter-spacing: 0.08em;
+      color: rgba(226, 214, 255, 0.64);
     }
 
     @keyframes spaceSentence {
@@ -1211,13 +1220,14 @@
 <span class="orbit-core"></span>
 </div>
 <div class="space-loading-copy">
-<div class="space-loading-kicker">ENTERING ORBIT</div>
+<div class="space-loading-kicker">LEGEND OF THE FIRST STAR</div>
 <div class="space-loading-text">
-<span>새로운 도전을 시작하는 것이 두려우신가요?</span>
-<span>모든 시작에는 용기가 필요합니다</span>
-<span>당신은 지금 무엇에 도전하고 있나요?</span>
-<span>로딩이 조금 걸리는 것 같습니다...</span>
+<span>태초의 별에서 가장 맑은 빛이 떨어졌습니다</span>
+<span>그 빛은 다이아몬드가 되어 양자리로 향했고</span>
+<span>새로운 길을 여는 용기를 선물받았습니다</span>
+<span>이제 다이아몬드의 첫 별빛이 깨어납니다</span>
 </div>
+<div class="space-loading-status">아무 문제 없어요 · 별빛을 잘 불러오고 있습니다</div>
 </div>
 </div>
 <div class="guide-text star-ui" id="guideText">
@@ -1273,7 +1283,9 @@
 
     const SPLINE_MODULE = "https://unpkg.com/@splinetool/viewer@1.12.98/build/spline-viewer.js";
     const SCENE_URL = "https://prod.spline.design/nRM1JeikhEAAY4XY/scene.splinecode";
-    const MIN_LOADING_TIME = 3400;
+    const MIN_LOADING_TIME = 2000;
+    const CANVAS_STABILIZE_TIME = 300;
+    const loadingStartedAt = performance.now();
     const splineHost = document.getElementById("splineHost");
     const posterImage = document.getElementById("posterImage");
     const loadingOverlay = document.getElementById("loadingOverlay");
@@ -1327,6 +1339,11 @@
     const revealScene = () => {
       if (sceneRevealed || !splineViewer) return;
       sceneRevealed = true;
+      posterImage.addEventListener(
+        "transitionend",
+        () => posterImage.remove(),
+        { once: true },
+      );
       splineViewer.classList.add("show");
       posterImage.classList.add("hide");
       loadingOverlay.classList.add("hide");
@@ -1339,8 +1356,9 @@
     };
     const waitForFirstCanvas = (viewer) => {
       let finished = false;
+      let sceneLoaded = false;
       let canvasTimer;
-      let safetyTimer;
+      let revealTimer;
       const canvasReady = () => {
         const canvas = viewer.shadowRoot?.querySelector("canvas");
         if (!canvas) return false;
@@ -1352,22 +1370,35 @@
         if (finished) return;
         finished = true;
         clearInterval(canvasTimer);
-        clearTimeout(safetyTimer);
+        clearTimeout(revealTimer);
         requestAnimationFrame(() => requestAnimationFrame(revealScene));
+      };
+      const scheduleFinish = (extraDelay = 0) => {
+        if (finished) return;
+        clearInterval(canvasTimer);
+        const elapsedTime = performance.now() - loadingStartedAt;
+        const remainingTime = Math.max(0, MIN_LOADING_TIME - elapsedTime);
+        clearTimeout(revealTimer);
+        revealTimer = setTimeout(finish, Math.max(remainingTime, extraDelay));
+      };
+      const checkCanvas = () => {
+        if (finished || !canvasReady()) return;
+        if (sceneLoaded) {
+          scheduleFinish();
+          return;
+        }
+        if (!revealTimer) scheduleFinish(CANVAS_STABILIZE_TIME);
       };
       viewer.addEventListener(
         "load",
         () => {
-          if (canvasReady()) finish();
+          sceneLoaded = true;
+          checkCanvas();
         },
         { once: true },
       );
-      canvasTimer = setInterval(() => {
-        if (canvasReady()) finish();
-      }, 70);
-      safetyTimer = setTimeout(() => {
-        if (canvasReady()) finish();
-      }, 12000);
+      canvasTimer = setInterval(checkCanvas, 70);
+      checkCanvas();
     };
     const mountScene = async () => {
       if (sceneMounted) return;
@@ -1379,8 +1410,6 @@
         viewer.setAttribute("loading", "eager");
         viewer.setAttribute("hint", "");
         viewer.setAttribute("url", SCENE_URL);
-        viewer.style.pointerEvents = "auto";
-        viewer.style.touchAction = "none";
         splineHost.appendChild(viewer);
         splineViewer = viewer;
         waitForFirstCanvas(viewer);
@@ -1388,13 +1417,7 @@
         console.error(error);
       }
     };
-    window.addEventListener(
-      "load",
-      () => {
-        setTimeout(mountScene, MIN_LOADING_TIME);
-      },
-      { once: true },
-    );
+    mountScene();
     magnifierStartBtn.addEventListener("click", () => {
       playStarClickSound();
       isMagnifierOn = true;

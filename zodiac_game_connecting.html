@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Noto+Sans+KR:wght@400;500;600;700;800;900&amp;display=swap" />
 <title>CONSTELLATION RESTORE</title>
 <link rel="preload" href="zodiac_pixel_star_4point.png" as="image" type="image/png" />
 <link rel="preload" href="zodiac_pixel_star_5point.png" as="image" type="image/png" />
@@ -21,8 +24,9 @@
     --good:#b9ffea;
   }
   *{box-sizing:border-box}
-  html,body{margin:0;min-height:100%;background:#03050d;color:var(--white);font-family:Inter,Pretendard,"Noto Sans KR",system-ui,sans-serif}
+  html,body{margin:0;min-height:100%;background:#03050d;color:var(--white);font-family:Inter,"Noto Sans KR",system-ui,sans-serif}
   body{min-height:100vh;display:grid;place-items:center;padding:18px;overflow-x:hidden}
+  .game-stage,.game-scale{display:contents}
 
   .game-shell{
     width:min(1120px,100%);height:min(780px,calc(100vh - 36px));min-height:590px;
@@ -59,7 +63,9 @@
   .side{min-height:0;overflow:auto;border-left:1px solid rgba(255,255,255,.1);padding:18px;display:flex;flex-direction:column;gap:12px;background:linear-gradient(180deg,rgba(15,19,40,.84),rgba(8,11,24,.92))}
   .panel{padding:15px;border:1px solid rgba(255,255,255,.1);border-radius:16px;background:rgba(255,255,255,.025)}
   .panel-label{margin-bottom:9px;font-size:9px;letter-spacing:.15em;color:#7f89a8}
-  .zodiac-symbol{margin:3px 0 8px;text-align:center;color:var(--white);font:54px/1 Georgia,serif;text-shadow:0 0 24px rgba(178,197,255,.28)}
+  .zodiac-symbol{margin:3px 0 8px;text-align:center;color:var(--white);font:54px/1 Georgia,serif;white-space:nowrap;word-break:keep-all;text-shadow:0 0 24px rgba(178,197,255,.28)}
+  .zodiac-symbol.medium-name{font-size:44px}
+  .zodiac-symbol.long-name{font-size:36px}
   .zodiac-name{margin-bottom:4px;text-align:center;font:500 16px/1.2 Georgia,serif;letter-spacing:.12em}
   .zodiac-ko{text-align:center;font-size:11px;color:#8d97b7}
   .level-tag{margin:11px auto 0;width:max-content;max-width:100%;padding:5px 8px;border:1px solid rgba(180,197,255,.27);border-radius:99px;background:rgba(146,181,255,.08);color:#c6d0ff;font-size:8px;letter-spacing:.04em}
@@ -106,8 +112,6 @@
   .musicToggle:hover{transform:translateY(-1px);background:rgba(255,255,255,.1)}
   .musicToggle.off{opacity:.58}
 
-
-  /* PAGE LOADING — CONSTELLATION THEME */
   .spline-loading{
     position:fixed;
     inset:0;
@@ -174,6 +178,13 @@
       transform .65s cubic-bezier(.22,1,.36,1);
   }
 
+  @media (any-hover:hover) and (any-pointer:fine){
+    body{width:100vw;height:100vh;min-height:0;padding:0;overflow:hidden}
+    .game-stage{display:block;width:var(--game-stage-width,1120px);height:var(--game-stage-height,780px)}
+    .game-scale{display:block;width:1120px;height:780px;transform:scale(var(--game-scale,1));transform-origin:top left}
+    .game-shell{width:1120px;height:780px;min-height:0}
+  }
+
   @media(prefers-reduced-motion:reduce){
     .spline-loading-line::after{animation:none;left:29%}
     body.is-ready .game-shell{transition:none}
@@ -185,19 +196,19 @@
   @keyframes goodflash{0%{opacity:0}35%{opacity:1}100%{opacity:0}}
   @keyframes badflash{0%{opacity:0}35%{opacity:1}100%{opacity:0}}
 
-  @media(max-width:920px){
+  @media(max-width:920px) and (any-hover:none){
     .topbar{align-items:flex-start}.hud{gap:5px}.hud-box{min-width:66px;padding:7px}.hud-box strong{font-size:13px}
   }
-  @media(max-width:820px){
+  @media(max-width:820px) and (any-hover:none){
     body{display:block;padding:0;background:#040611}.game-shell{width:100%;height:auto;min-height:100vh;border-radius:0;border-left:0;border-right:0}
     .topbar{padding:12px 14px}.brand p{display:none}.brand h1{font-size:18px}.brand-mark{width:34px;height:34px;font-size:17px}
     .game-area{grid-template-columns:1fr;min-height:0}.space-wrap{height:62vh;min-height:430px}
     .side{border-left:0;border-top:1px solid rgba(255,255,255,.1);display:grid;grid-template-columns:1fr 1fr;padding:12px}
-    .panel{padding:12px}.zodiac-symbol{font-size:22px}.zodiac-name{font-size:11px}.rule{font-size:10px}.button-row{grid-column:1/-1;margin-top:0}
+    .panel{padding:12px}.zodiac-symbol,.zodiac-symbol.medium-name,.zodiac-symbol.long-name{font-size:22px}.zodiac-name{font-size:11px}.rule{font-size:10px}.button-row{grid-column:1/-1;margin-top:0}
     .mini-grid{grid-template-columns:repeat(4,1fr)}
     .musicBar{padding:7px 10px}.musicCredit{font-size:8px}
   }
-  @media(max-width:520px){
+  @media(max-width:520px) and (any-hover:none){
     .topbar{flex-direction:column}.hud{width:100%;justify-content:stretch}.hud-box{flex:1;min-width:0}
     .side{grid-template-columns:1fr}.mini-grid{grid-template-columns:repeat(4,1fr)}.space-wrap{height:58vh;min-height:390px}
     .status-pill{font-size:9px;bottom:12px}.time-meter{bottom:52px}.corner-label{font-size:8px;left:12px;top:12px}.modal{padding:25px 19px 22px}.modal h2{font-size:16px}.modal p{font-size:10px}
@@ -213,6 +224,8 @@
     <div class="spline-loading-line" aria-hidden="true"></div>
   </div>
 </div>
+<div class="game-stage">
+<div class="game-scale">
 <div class="game-shell" id="gameShell">
   <header class="topbar">
     <div class="brand">
@@ -292,8 +305,37 @@
     <div class="modal" id="gameModal"></div>
   </div>
 </div>
+</div>
+</div>
 
 <script>
+
+const desktopLayout=window.matchMedia("(any-hover: hover) and (any-pointer: fine)");
+const getViewportSize=()=>{
+  const viewport=window.visualViewport;
+  return {
+    width:viewport?.width||window.innerWidth,
+    height:viewport?.height||window.innerHeight
+  };
+};
+const updateGameScale=()=>{
+  const rootStyle=document.documentElement.style;
+  if(!desktopLayout.matches){
+    rootStyle.removeProperty("--game-scale");
+    rootStyle.removeProperty("--game-stage-width");
+    rootStyle.removeProperty("--game-stage-height");
+    return;
+  }
+  const viewport=getViewportSize();
+  const scale=Math.max(.1,Math.min(viewport.width/1920,viewport.height/900));
+  rootStyle.setProperty("--game-scale",scale.toFixed(6));
+  rootStyle.setProperty("--game-stage-width",`${1120*scale}px`);
+  rootStyle.setProperty("--game-stage-height",`${780*scale}px`);
+};
+updateGameScale();
+window.addEventListener("resize",updateGameScale,{passive:true});
+window.visualViewport?.addEventListener("resize",updateGameScale,{passive:true});
+desktopLayout.addEventListener?.("change",updateGameScale);
 
 const splineLoading=document.getElementById("splineLoading");
 const splineLoadingStartedAt=performance.now();
@@ -524,9 +566,9 @@ if(document.readyState==="complete"){
   };
 
   function resize(){
-    const r = wrap.getBoundingClientRect();
-    W = Math.max(320, r.width);
-    H = Math.max(320, r.height);
+    dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    W = Math.max(320, wrap.clientWidth);
+    H = Math.max(320, wrap.clientHeight);
     canvas.width = Math.round(W*dpr);
     canvas.height = Math.round(H*dpr);
     canvas.style.width = W+'px';
@@ -578,6 +620,8 @@ if(document.readyState==="complete"){
     timeBar.style.width=(timeRatio*100)+'%';
     timeBar.classList.toggle('urgent',timeRatio<.36);
     const z=zodiac[current];
+    symbolText.classList.toggle('medium-name',z.ko.length===4);
+    symbolText.classList.toggle('long-name',z.ko.length>=5);
     symbolText.textContent=z.ko;
     nameText.textContent=z.name;
     koText.textContent=visibleHint;

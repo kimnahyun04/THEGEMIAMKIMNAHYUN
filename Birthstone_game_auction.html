@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Noto+Sans+KR:wght@400;500;600;700;800;900&amp;display=swap">
 <title>GEM AUCTION — Birthstone Appraisal Game</title>
 <style>
 :root{
@@ -13,7 +16,7 @@
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;background:#080a10;color:var(--text)}
 body{
-  font-family:Inter,Pretendard,"Noto Sans KR",system-ui,sans-serif;
+  font-family:Inter,"Noto Sans KR",system-ui,sans-serif;
   background:
     radial-gradient(circle at 15% 15%,rgba(118,81,172,.16),transparent 28%),
     radial-gradient(circle at 83% 12%,rgba(69,110,158,.12),transparent 25%),
@@ -42,7 +45,7 @@ button{font:inherit}
 .stat b{display:block;color:white;font-size:15px;margin-top:2px}
 .view{display:none}.view.on{display:block;flex:1}
 
-/* START */
+
 #start,#difficulty{padding:42px 18px 34px;text-align:center}
 .eyebrow{font-size:9px;letter-spacing:.27em;color:var(--muted);margin-bottom:11px}
 .hero{margin:0 auto;max-width:880px;font:400 clamp(46px,8vw,88px)/.92 Georgia,serif;letter-spacing:-.04em}
@@ -172,14 +175,14 @@ button{font:inherit}
   background:rgba(255,255,255,.04);color:white;font-size:9px;font-weight:800;cursor:pointer
 }
 
-@media(max-width:860px){
+@media(max-width:860px) and (any-hover:none){
   .modeGrid{grid-template-columns:1fr}
   .guessLayout{grid-template-columns:1fr}
   .guessSide{order:2}
   .guessClues{grid-template-columns:repeat(2,1fr)}
 }
 
-/* GAME */
+
 #game{padding:15px}
 .layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:12px}
 .main,.side{
@@ -337,7 +340,7 @@ button{font:inherit}
   border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05)
 }
 
-/* SIDE */
+
 .side h3{margin:0 0 10px;font:500 18px Georgia,serif}
 .wallet{
   padding:12px;border:1px solid rgba(255,255,255,.09);border-radius:14px;background:rgba(0,0,0,.12);margin-bottom:10px
@@ -363,7 +366,7 @@ button{font:inherit}
   font-size:9px;line-height:1.65;color:var(--muted)
 }
 
-/* RESULT */
+
 #result{padding:42px 18px;text-align:center}
 .resultCard{
   max-width:680px;margin:0 auto;padding:26px;border:1px solid rgba(255,255,255,.1);
@@ -404,7 +407,7 @@ button{font:inherit}
 }
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
-@media(max-width:860px){
+@media(max-width:860px) and (any-hover:none){
   .app{width:100%;margin:0;min-height:100vh;border-radius:0;border-left:0;border-right:0}
   .top{padding:10px}.brand small{font-size:7px}.brand h1{font-size:18px}
   .stat{min-width:58px;padding:6px;font-size:7px}.stat b{font-size:13px}
@@ -414,14 +417,14 @@ button{font:inherit}
   .musicBar{padding:7px 10px}
   .musicCredit{font-size:8px}
 }
-@media(max-width:430px){
+@media(max-width:430px) and (any-hover:none){
   .stats{gap:4px}.stat{min-width:50px}
   .tools{grid-template-columns:1fr}
   .resultStats{grid-template-columns:repeat(2,1fr)}
   .musicToggle{min-width:84px;padding:7px 9px}
 }
 
-/* LIGHT MOOD — GEM RUSH와 같은 파스텔 글라스 테마 */
+
 :root{
   --bg:#fff8f6;--panel:rgba(255,255,255,.68);--line:rgba(139,101,122,.17);
   --text:#4f3d49;--muted:rgba(79,61,73,.67);--accent:#c96f9b;
@@ -520,13 +523,13 @@ img.guessGem:before{content:none}
 .tradeOutcome.even{color:#826d45;border-color:rgba(173,124,54,.28);background:rgba(255,248,224,.84)}
 @keyframes outcomeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 
-@media(max-width:860px){
+@media(max-width:860px) and (any-hover:none){
   body{display:block;padding:0}
   .app{width:100%;margin:0;min-height:100vh;border-radius:0;border-left:0;border-right:0;background:linear-gradient(145deg,rgba(255,255,255,.86),rgba(255,249,250,.72))}
 }
 
 
-/* UNIFIED GAME NAVIGATION */
+
 .top,.topbar{position:relative}
 .navControl{
   flex:none;min-width:88px;padding:9px 13px;border:1px solid rgba(151,111,134,.17);
@@ -539,10 +542,10 @@ img.guessGem:before{content:none}
 .navControl:active{transform:translateY(0)}
 .navControl:focus-visible{outline:2px solid rgba(193,111,152,.42);outline-offset:2px}
 .legacyBack{display:none}
-@media(max-width:860px){
+@media(max-width:860px) and (any-hover:none){
   .navControl{min-width:70px;padding:7px 9px;font-size:8px}
 }
-@media(max-width:430px){
+@media(max-width:430px) and (any-hover:none){
   .top,.topbar{gap:4px}
   .navControl{min-width:58px;padding:7px 6px;font-size:7px;letter-spacing:0}
   .brand small,.logo small{display:none}
@@ -550,9 +553,17 @@ img.guessGem:before{content:none}
   .stats,.meta{gap:2px}
   .stat,.badge{min-width:43px;padding:5px 3px}
 }
+.game-stage,.game-scale{display:contents}
+@media (any-hover:hover) and (any-pointer:fine){
+  .game-stage{display:block;width:var(--game-stage-width,1180px);height:var(--game-stage-height,780px)}
+  .game-scale{display:block;width:1180px;height:780px;transform:scale(var(--game-scale,1));transform-origin:top left}
+  .app{width:1180px;height:780px;min-height:0;margin:0}
+}
 </style>
 </head>
 <body>
+<div class="game-stage">
+<div class="game-scale">
 <div class="app">
 <header class="top">
     <button class="navControl" id="navControl" type="button" aria-label="메인메뉴로 이동">메인메뉴</button>
@@ -775,10 +786,38 @@ img.guessGem:before{content:none}
   <button class="musicToggle" id="musicToggle" type="button" aria-pressed="true" aria-label="배경음악 끄기">♪ MUSIC ON</button>
 </div>
 </div>
+</div>
+</div>
 
 <div class="toast" id="toast"></div>
 
 <script>
+const desktopLayout=window.matchMedia("(any-hover: hover) and (any-pointer: fine)");
+const getViewportSize=()=>{
+  const viewport=window.visualViewport;
+  return{
+    width:viewport?.width||window.innerWidth,
+    height:viewport?.height||window.innerHeight
+  };
+};
+const updateGameScale=()=>{
+  const rootStyle=document.documentElement.style;
+  if(!desktopLayout.matches){
+    rootStyle.removeProperty("--game-scale");
+    rootStyle.removeProperty("--game-stage-width");
+    rootStyle.removeProperty("--game-stage-height");
+    return;
+  }
+  const viewport=getViewportSize();
+  const scale=Math.max(.1,Math.min(viewport.width/1920,viewport.height/900));
+  rootStyle.setProperty("--game-scale",scale.toFixed(6));
+  rootStyle.setProperty("--game-stage-width",`${1180*scale}px`);
+  rootStyle.setProperty("--game-stage-height",`${780*scale}px`);
+};
+updateGameScale();
+window.addEventListener("resize",updateGameScale,{passive:true});
+window.visualViewport?.addEventListener("resize",updateGameScale,{passive:true});
+desktopLayout.addEventListener?.("change",updateGameScale);
 const gems=[
  {n:"Garnet",kr:"가넷",c:"#a92339",s:"#ef7f90"},
  {n:"Amethyst",kr:"자수정",c:"#8d63c8",s:"#d4a4ee"},
@@ -1013,9 +1052,9 @@ function makeLots(){
 
     const marketSwing=.90+Math.random()*.20;
     const resaleValue=Math.round(trueValue*marketSwing*.95);
-    // ‘지금!’은 실제 매각가보다 낮은 가격에서 등장해 성공 시 이득이 나도록 한다.
+    
     const rivalTriggerPrice=Math.round(resaleValue*(.84+Math.random()*.10));
-    // 약 35%는 초반 높은 가격 구간, 나머지는 중·후반에 신호가 등장한다.
+    
     const earlySignal=Math.random()<.35;
     const startMultiplier=earlySignal?1.05+Math.random()*.12:1.20+Math.random()*.45;
     const floorMultiplier=earlySignal?.45+Math.random()*.15:.45+Math.random()*.33;
@@ -1317,7 +1356,7 @@ function buy(){
   const l=lots[index];
   cash-=currentPrice;
 
-  // 실제 매각가는 검사 전에는 알 수 없고, 시장 변동 + 수수료까지 반영됨.
+  
   const resale=l.resaleValue;
   cash+=resale;
 
