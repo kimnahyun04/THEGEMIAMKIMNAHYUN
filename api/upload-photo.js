@@ -68,6 +68,15 @@ export default async function handler(request, response) {
     return;
   }
 
+  const storeId = process.env.GEM_BLOB_STORE_ID;
+
+  if (!storeId) {
+    sendJson(response, 500, {
+      error: '보석 전용 저장소(GEM_BLOB_STORE_ID)를 프로젝트에 연결해 주세요.'
+    });
+    return;
+  }
+
   const contentType = String(request.headers['content-type'] || '').split(';')[0];
   const contentLength = Number(request.headers['content-length'] || 0);
 
@@ -97,6 +106,7 @@ export default async function handler(request, response) {
     const pathname = `gem-photos/${Date.now()}-${crypto.randomUUID()}.jpg`;
     const blob = await put(pathname, image, {
       access: 'public',
+      storeId,
       addRandomSuffix: true,
       contentType: 'image/jpeg',
       cacheControlMaxAge: 3600
