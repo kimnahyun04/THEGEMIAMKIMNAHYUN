@@ -40,10 +40,10 @@
       overflow-x: hidden;
       overflow-y: auto;
       background:
-        radial-gradient(90% 70% at 50% 28%, rgba(176, 213, 242, .22) 0%, rgba(80, 140, 205, .16) 34%, rgba(80, 140, 205, 0) 70%),
-        radial-gradient(82% 68% at 12% 10%, rgba(32, 91, 170, .55) 0%, rgba(32, 91, 170, 0) 64%),
-        radial-gradient(76% 72% at 88% 88%, rgba(18, 54, 110, .5) 0%, rgba(18, 54, 110, 0) 68%),
-        linear-gradient(145deg, #01040b 0%, #07152d 28%, #12345a 52%, #071a36 76%, #01030a 100%);
+        radial-gradient(90% 70% at 50% 22%, rgba(50, 75, 138, .18) 0%, transparent 66%),
+        radial-gradient(72% 64% at 10% 12%, rgba(20, 42, 95, .34) 0%, transparent 70%),
+        radial-gradient(75% 65% at 90% 86%, rgba(16, 35, 83, .27) 0%, transparent 70%),
+        linear-gradient(155deg, #030714 0%, #08142e 32%, #12234a 54%, #08142e 76%, #020611 100%);
       background-attachment: fixed;
     }
 
@@ -175,7 +175,7 @@
     }
 
     .card {
-  background: rgba(208, 255, 233, 0.274);
+  background: linear-gradient(155deg, rgba(120, 148, 210, .31), rgba(66, 97, 175, .26) 48%, rgba(23, 45, 108, .23));
 
   backdrop-filter: blur(50px) saturate(160%);
   -webkit-backdrop-filter: blur(22px) saturate(160%);
@@ -394,6 +394,17 @@
       display: flex;
       gap: 6px;
       flex-wrap: wrap;
+    }
+
+    .bdr-row {
+      gap: 3px;
+      flex-wrap: nowrap;
+    }
+
+    .bdr-row .bdr-btn {
+      padding-inline: 6px;
+      font-size: 9px;
+      white-space: nowrap;
     }
 
     .bdr-btn,
@@ -801,9 +812,15 @@
 
     .stk-cats {
       display: flex;
-      gap: 5px;
-      flex-wrap: wrap;
+      gap: 3px;
+      flex-wrap: nowrap;
       margin-bottom: 8px;
+    }
+
+    .stk-cats .stk-cat {
+      padding-inline: 3px;
+      font-size: 9px;
+      white-space: nowrap;
     }
 
     .stk-grid {
@@ -1197,6 +1214,85 @@
       text-align: center;
     }
 
+    @media (min-width: 1600px) {
+      :root {
+        --frame-w: max(460px, min(24vw, 46vh));
+        --panel-w: max(295px, 14vw);
+      }
+
+      .main-row {
+        width: min(100%, max(1480px, 80vw));
+      }
+
+      .card {
+        padding: max(16px, .55vw);
+      }
+
+      .ct, .nav-c {
+        font-size: max(10px, .42vw);
+      }
+
+      .sll, .fgl, .shot-info, .cam-status, .foot-info {
+        font-size: max(9px, .4vw);
+      }
+
+      .bdr-btn, .mini-btn, .tbtn, .stk-cat, .cam-btn, .stk-sz-btn {
+        font-size: max(10px, .42vw);
+      }
+
+      .bdr-row .bdr-btn, .stk-cats .stk-cat {
+        font-size: max(9px, .42vw);
+      }
+
+      .hex-in, .fi, .label-input {
+        font-size: max(11.5px, .44vw);
+      }
+
+      .dtool {
+        min-width: max(40px, 1.6vw);
+        height: max(40px, 1.6vw);
+        font-size: max(11px, .44vw);
+      }
+
+      #cWheel {
+        width: max(152px, 6vw);
+        height: max(152px, 6vw);
+      }
+
+      .frame-tile {
+        font-size: max(18px, .7vw);
+      }
+
+      .stk-btn {
+        font-size: max(28px, 1vw);
+      }
+
+      .mo-nm, .zodiac-name {
+        font-size: max(7.5px, .38vw);
+      }
+
+      .mo-mo, .zodiac-en {
+        font-size: max(7px, .32vw);
+      }
+
+      .mo-dot, .zodiac-dot {
+        width: max(13px, .5vw);
+        height: max(13px, .5vw);
+      }
+
+      .strip-label {
+        font-size: max(15px, .55vw);
+      }
+
+      .logo {
+        font-size: max(24px, .9vw);
+      }
+
+      .app .home-btn {
+        font-size: max(11px, .45vw);
+      }
+    }
+
     @media (max-width: 1180px) {
       .main-row {
         grid-template-columns: minmax(230px, 1fr) minmax(310px, 1.3fr);
@@ -1384,7 +1480,7 @@
         </section>
 
         <section class="card">
-          <div class="ct">🌌 별빛 프레임 12종</div>
+          <div class="ct">별빛 프레임 12종</div>
           <div class="frame-grid" id="frameGrid"></div>
           <div class="reset-row" style="margin-top:10px">
             <button class="mini-btn" onclick="selectFramePattern(-1)">기본 프레임</button>
@@ -1997,7 +2093,7 @@
 
     function buildBdrBtns() {
       const el = document.getElementById('bdrRow');
-      const names = ['없음', '얇', '보통', '두꺼움', '왕두꺼움'];
+      const names = ['없음', '얇음', '보통', '두꺼움', '왕두꺼움'];
 
       names.forEach((lb, i) => {
         const d = document.createElement('div');

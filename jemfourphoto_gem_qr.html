@@ -400,6 +400,17 @@
       flex-wrap: wrap;
     }
 
+    .bdr-row {
+      gap: 3px;
+      flex-wrap: nowrap;
+    }
+
+    .bdr-row .bdr-btn {
+      padding-inline: 6px;
+      font-size: 9px;
+      white-space: nowrap;
+    }
+
     .bdr-btn,
     .mini-btn,
     .tbtn,
@@ -805,9 +816,15 @@
 
     .stk-cats {
       display: flex;
-      gap: 5px;
-      flex-wrap: wrap;
+      gap: 3px;
+      flex-wrap: nowrap;
       margin-bottom: 8px;
+    }
+
+    .stk-cats .stk-cat {
+      padding-inline: 3px;
+      font-size: 9px;
+      white-space: nowrap;
     }
 
     .stk-grid {
@@ -1199,6 +1216,85 @@
       text-align: center;
     }
 
+    @media (min-width: 1600px) {
+      :root {
+        --frame-w: max(460px, min(24vw, 46vh));
+        --panel-w: max(295px, 14vw);
+      }
+
+      .main-row {
+        width: min(100%, max(1480px, 80vw));
+      }
+
+      .card {
+        padding: max(16px, .55vw);
+      }
+
+      .ct, .nav-c {
+        font-size: max(10px, .42vw);
+      }
+
+      .sll, .fgl, .shot-info, .cam-status, .foot-info {
+        font-size: max(9px, .4vw);
+      }
+
+      .bdr-btn, .mini-btn, .tbtn, .stk-cat, .cam-btn, .stk-sz-btn {
+        font-size: max(10px, .42vw);
+      }
+
+      .bdr-row .bdr-btn, .stk-cats .stk-cat {
+        font-size: max(9px, .42vw);
+      }
+
+      .hex-in, .fi, .label-input {
+        font-size: max(11.5px, .44vw);
+      }
+
+      .dtool {
+        min-width: max(40px, 1.6vw);
+        height: max(40px, 1.6vw);
+        font-size: max(11px, .44vw);
+      }
+
+      #cWheel {
+        width: max(152px, 6vw);
+        height: max(152px, 6vw);
+      }
+
+      .frame-tile {
+        font-size: max(18px, .7vw);
+      }
+
+      .stk-btn {
+        font-size: max(28px, 1vw);
+      }
+
+      .mo-nm, .zodiac-name {
+        font-size: max(7.5px, .38vw);
+      }
+
+      .mo-mo, .zodiac-en {
+        font-size: max(7px, .32vw);
+      }
+
+      .mo-dot, .zodiac-dot {
+        width: max(13px, .5vw);
+        height: max(13px, .5vw);
+      }
+
+      .strip-label {
+        font-size: max(15px, .55vw);
+      }
+
+      .logo {
+        font-size: max(24px, .9vw);
+      }
+
+      .app .home-btn {
+        font-size: max(11px, .45vw);
+      }
+    }
+
     @media (max-width: 1180px) {
       .main-row {
         grid-template-columns: minmax(230px, 1fr) minmax(310px, 1.3fr);
@@ -1389,7 +1485,7 @@
         </section>
 
         <section class="card">
-          <div class="ct">🖼 보석 프레임 12종</div>
+          <div class="ct">보석 프레임 12종</div>
           <div class="frame-grid" id="frameGrid"></div>
           <div class="reset-row" style="margin-top:10px">
             <button class="mini-btn" onclick="selectFramePattern(-1)">기본 프레임</button>
