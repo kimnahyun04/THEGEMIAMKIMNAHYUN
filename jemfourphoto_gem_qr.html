@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>반응형 2컷 포토 스튜디오</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     * {
@@ -17,11 +17,8 @@
       --td: #3D2A4E;
       --tm: #7A6A8A;
       --tr: #B0A0C0;
-      --glass: rgba(255, 255, 255, .62);
-      --line: rgba(255, 255, 255, .82);
       --pink: #ff7eb3;
       --violet: #a87fe8;
-      --radius: clamp(14px, 1.1vw, 20px);
       --frame-w: clamp(280px, 38vw, 460px);
       --panel-w: clamp(230px, 18vw, 295px);
     }
@@ -388,10 +385,6 @@
       font-size: 9px;
     }
 
-    .hidden-file {
-      display: none;
-    }
-
     .bdr-row,
     .draw-tools,
     .reset-row {
@@ -486,7 +479,8 @@
     }
 
     .pen-size-row,
-    .stk-sz-row {
+    .stk-sz-row,
+    .stk-rotate-row {
       display: flex;
       flex-direction: column;
       gap: 5px;
@@ -528,6 +522,22 @@
       margin: 0 auto 3px;
       border-radius: 50%;
       background: var(--pink);
+    }
+
+    .stk-rotate-btns {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+    }
+
+    .stk-rotate-btn {
+      width: 100%;
+      padding: 6px 4px;
+    }
+
+    .stk-rotate-btn:disabled {
+      cursor: not-allowed;
+      opacity: .42;
     }
 
     .strip-outer {
@@ -1269,15 +1279,15 @@
         font-size: max(28px, 1vw);
       }
 
-      .mo-nm, .zodiac-name {
+      .mo-nm {
         font-size: max(7.5px, .38vw);
       }
 
-      .mo-mo, .zodiac-en {
+      .mo-mo {
         font-size: max(7px, .32vw);
       }
 
-      .mo-dot, .zodiac-dot {
+      .mo-dot {
         width: max(13px, .5vw);
         height: max(13px, .5vw);
       }
@@ -1597,12 +1607,20 @@
             <div class="sll"><span>크기</span></div>
             <div class="stk-sz-btns" id="stkSzBtns"></div>
           </div>
+          <div class="stk-rotate-row">
+            <div class="sll"><span>선택 스티커 회전</span><span id="stkRotOut">선택 없음</span></div>
+            <div class="stk-rotate-btns">
+              <button class="mini-btn stk-rotate-btn" type="button" data-stk-rotate onclick="rotateSelectedSticker(-15)" aria-label="스티커를 왼쪽으로 15도 회전" disabled>↶ 15°</button>
+              <button class="mini-btn stk-rotate-btn" type="button" data-stk-rotate onclick="resetSelectedStickerRotation()" aria-label="스티커 회전 초기화" disabled>0°</button>
+              <button class="mini-btn stk-rotate-btn" type="button" data-stk-rotate onclick="rotateSelectedSticker(15)" aria-label="스티커를 오른쪽으로 15도 회전" disabled>15° ↷</button>
+            </div>
+          </div>
           <div class="reset-row">
             <button class="mini-btn danger" onclick="clearFrameStk()">이 컷 스티커 삭제</button>
             <button class="mini-btn danger" onclick="clearAllStk()">전체 스티커 삭제</button>
           </div>
           <div style="font-size:8.5px;color:var(--tr);text-align:center;line-height:1.6;margin-top:8px">
-            스티커 선택 후 사진 위 클릭<br />드래그 이동 · 더블클릭 삭제
+            스티커 선택 후 사진 위 클릭<br />클릭·드래그 선택 · 회전 버튼 · 더블클릭 삭제
           </div>
         </section>
 
@@ -1644,7 +1662,7 @@
     </div>
 
     <footer>
-      <span class="foot-info" id="footInfo">저장하면 컴퓨터에 JPG로 내려받지 않고, 사이트 안 기록에만 남아요.</span>
+      <span class="foot-info">저장하면 컴퓨터에 JPG로 내려받지 않고, 사이트 안 기록에만 남아요.</span>
     </footer>
   </div>
 
@@ -1655,21 +1673,19 @@
     const CH = 460;
     const FRAME_PHOTO_TOP = 120;
     const FRAME_PHOTO_BOTTOM = 72;
-    const FRAME_COUNT = 12;
-
     const MG = [
-      { mo: '1월', n: '가넷', c: '#9B2335', h: 352, s: 70, l: 36 },
-      { mo: '2월', n: '자수정', c: '#9B59B6', h: 278, s: 50, l: 45 },
-      { mo: '3월', n: '아쿠아마린', c: '#5DADE2', h: 204, s: 58, l: 56 },
-      { mo: '4월', n: '다이아몬드', c: '#AED6F1', h: 204, s: 62, l: 80 },
-      { mo: '5월', n: '에메랄드', c: '#27AE60', h: 145, s: 55, l: 42 },
-      { mo: '6월', n: '진주', c: '#F0E6D3', h: 35, s: 45, l: 85 },
-      { mo: '7월', n: '루비', c: '#C0392B', h: 5, s: 72, l: 46 },
-      { mo: '8월', n: '페리도트', c: '#82C341', h: 85, s: 52, l: 50 },
-      { mo: '9월', n: '사파이어', c: '#2E86C1', h: 210, s: 62, l: 46 },
-      { mo: '10월', n: '오팔', c: '#A9CCE3', h: 205, s: 44, l: 78 },
-      { mo: '11월', n: '토파즈', c: '#F39C12', h: 38, s: 88, l: 52 },
-      { mo: '12월', n: '탄자나이트', c: '#5B2C6F', h: 278, s: 45, l: 30 }
+      { mo: '1월', n: '가넷', c: '#9B2335' },
+      { mo: '2월', n: '자수정', c: '#9B59B6' },
+      { mo: '3월', n: '아쿠아마린', c: '#5DADE2' },
+      { mo: '4월', n: '다이아몬드', c: '#AED6F1' },
+      { mo: '5월', n: '에메랄드', c: '#27AE60' },
+      { mo: '6월', n: '진주', c: '#F0E6D3' },
+      { mo: '7월', n: '루비', c: '#C0392B' },
+      { mo: '8월', n: '페리도트', c: '#82C341' },
+      { mo: '9월', n: '사파이어', c: '#2E86C1' },
+      { mo: '10월', n: '오팔', c: '#A9CCE3' },
+      { mo: '11월', n: '토파즈', c: '#F39C12' },
+      { mo: '12월', n: '터키석', c: '#5B2C6F' }
     ];
 
     const STICKERS = [
@@ -1697,6 +1713,8 @@
     let stkEmoji = '💎';
     let stkSz = 58;
     let stkCatIdx = 0;
+    let selectedStkF = -1;
+    let selectedStkI = -1;
 
     const EMOJI_FONT = '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", sans-serif';
 
@@ -2102,7 +2120,7 @@
 
     function buildBdrBtns() {
       const el = document.getElementById('bdrRow');
-      const names = ['없음', '얇', '보통', '두꺼움', '왕두꺼움'];
+      const names = ['없음', '얇음', '보통', '두꺼움', '왕두꺼움'];
 
       names.forEach((lb, i) => {
         const d = document.createElement('div');
@@ -2252,6 +2270,7 @@
     function clearCurrentFrame() {
       clearDraw();
       stickers[activeF] = [];
+      if (selectedStkF === activeF) clearStickerSelection();
       redrawStk(activeF);
     }
 
@@ -2562,6 +2581,7 @@
           document.querySelectorAll('.stk-btn').forEach(b => b.classList.remove('active'));
           d.classList.add('active');
           stkEmoji = em;
+          clearStickerSelection();
           setTool('sticker');
         };
 
@@ -2569,13 +2589,62 @@
       });
     }
 
+    function getSelectedSticker() {
+      if (selectedStkF < 0 || selectedStkI < 0) return null;
+      return stickers[selectedStkF]?.[selectedStkI] || null;
+    }
+
+    function updateStickerRotationControls() {
+      const sticker = getSelectedSticker();
+      const angle = sticker
+        ? Math.round((((sticker.rot || 0) + 180) % 360 + 360) % 360 - 180)
+        : null;
+
+      document.getElementById('stkRotOut').textContent = sticker ? `${angle}°` : '선택 없음';
+      document.querySelectorAll('[data-stk-rotate]').forEach(button => {
+        button.disabled = !sticker;
+      });
+    }
+
+    function selectSticker(fi, index) {
+      selectedStkF = fi;
+      selectedStkI = index;
+      updateStickerRotationControls();
+    }
+
+    function clearStickerSelection() {
+      selectedStkF = -1;
+      selectedStkI = -1;
+      updateStickerRotationControls();
+    }
+
+    function rotateSelectedSticker(delta) {
+      const sticker = getSelectedSticker();
+      if (!sticker) return;
+
+      sticker.rot = ((sticker.rot || 0) + delta) % 360;
+      redrawStk(selectedStkF);
+      updateStickerRotationControls();
+    }
+
+    function resetSelectedStickerRotation() {
+      const sticker = getSelectedSticker();
+      if (!sticker) return;
+
+      sticker.rot = 0;
+      redrawStk(selectedStkF);
+      updateStickerRotationControls();
+    }
+
     function clearFrameStk() {
       stickers[activeF] = [];
+      if (selectedStkF === activeF) clearStickerSelection();
       redrawStk(activeF);
     }
 
     function clearAllStk() {
       stickers = Array.from({ length: N }, () => []);
+      clearStickerSelection();
 
       for (let i = 0; i < N; i++) {
         redrawStk(i);
@@ -2640,12 +2709,14 @@
         dragI = idx;
         dragOX = mx - stickers[fi][idx].x;
         dragOY = my - stickers[fi][idx].y;
+        selectSticker(fi, idx);
       } else {
-        stickers[fi].push({ e: stkEmoji, x: mx, y: my, sz: stkSz });
+        stickers[fi].push({ e: stkEmoji, x: mx, y: my, sz: stkSz, rot: 0 });
         dragF = fi;
         dragI = stickers[fi].length - 1;
         dragOX = 0;
         dragOY = 0;
+        selectSticker(fi, dragI);
         redrawStk(fi);
       }
     }
@@ -2667,6 +2738,7 @@
 
       if (idx >= 0) {
         stickers[fi].splice(idx, 1);
+        clearStickerSelection();
         redrawStk(fi);
       }
     }
@@ -2678,14 +2750,19 @@
       ctx.clearRect(0, 0, CW, CH);
 
       stickers[fi].forEach(s => {
+        ctx.save();
+        ctx.translate(s.x, s.y);
+        ctx.rotate((s.rot || 0) * Math.PI / 180);
         ctx.font = `${s.sz}px ${EMOJI_FONT}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(s.e, s.x, s.y);
+        ctx.fillText(s.e, 0, 0);
+        ctx.restore();
       });
     }
 
     function selectFrame(i) {
+      if (activeF !== i && selectedStkF !== i) clearStickerSelection();
       activeF = i;
 
       for (let j = 0; j < N; j++) {

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JEM PHOTO · Zodiac Night Studio</title>
   <meta name="theme-color" content="#07152d" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     * {
@@ -18,11 +18,7 @@
       --td: #3D2A4E;
       --tm: #7A6A8A;
       --tr: #B0A0C0;
-      --glass: rgba(255, 255, 255, .62);
-      --line: rgba(255, 255, 255, .82);
       --pink: #ff7eb3;
-      --violet: #a87fe8;
-      --radius: clamp(14px, 1.1vw, 20px);
       --frame-w: clamp(280px, 38vw, 460px);
       --panel-w: clamp(230px, 18vw, 295px);
     }
@@ -40,11 +36,12 @@
       overflow-x: hidden;
       overflow-y: auto;
       background:
-        radial-gradient(90% 70% at 50% 22%, rgba(50, 75, 138, .18) 0%, transparent 66%),
-        radial-gradient(72% 64% at 10% 12%, rgba(20, 42, 95, .34) 0%, transparent 70%),
-        radial-gradient(75% 65% at 90% 86%, rgba(16, 35, 83, .27) 0%, transparent 70%),
-        linear-gradient(155deg, #030714 0%, #08142e 32%, #12234a 54%, #08142e 76%, #020611 100%);
+        radial-gradient(ellipse 92% 72% at 12% 5%, rgba(34, 88, 174, .42) 0%, rgba(20, 53, 112, .18) 38%, transparent 70%),
+        radial-gradient(ellipse 80% 68% at 88% 22%, rgba(73, 69, 164, .31) 0%, rgba(40, 46, 112, .14) 42%, transparent 72%),
+        radial-gradient(ellipse 88% 70% at 48% 82%, rgba(13, 80, 151, .32) 0%, rgba(8, 45, 101, .13) 44%, transparent 74%),
+        linear-gradient(145deg, #01040c 0%, #041027 23%, #0b2450 46%, #091938 67%, #030918 84%, #01030a 100%);
       background-attachment: fixed;
+      background-size: cover;
     }
 
     .blobs {
@@ -55,11 +52,146 @@
       overflow: hidden;
     }
 
+    .blobs::before,
+    .blobs::after {
+      content: '';
+      position: absolute;
+      pointer-events: none;
+    }
+
+    /* 프레임의 별빛과 자연스럽게 이어지는 작은 밤하늘 입자 */
+    .blobs::before {
+      inset: 0;
+      z-index: 2;
+      opacity: .72;
+      background:
+        radial-gradient(circle at 3% 8%, rgba(255,255,255,.74) 0 .7px, transparent 1.5px),
+        radial-gradient(circle at 7% 76%, rgba(164,198,255,.64) 0 .8px, transparent 1.6px),
+        radial-gradient(circle at 10% 31%, rgba(255,255,255,.92) 0 1px, rgba(161,197,255,.22) 1.5px, transparent 2.8px),
+        radial-gradient(circle at 14% 58%, rgba(221,226,255,.58) 0 .65px, transparent 1.4px),
+        radial-gradient(circle at 18% 14%, rgba(175,205,255,.68) 0 .8px, transparent 1.7px),
+        radial-gradient(circle at 21% 89%, rgba(255,255,255,.55) 0 .6px, transparent 1.35px),
+        radial-gradient(circle at 26% 41%, rgba(255,255,255,.78) 0 .75px, transparent 1.55px),
+        radial-gradient(circle at 30% 69%, rgba(153,191,255,.58) 0 .65px, transparent 1.45px),
+        radial-gradient(circle at 35% 23%, rgba(255,255,255,.98) 0 1.1px, rgba(170,205,255,.24) 1.7px, transparent 3px),
+        radial-gradient(circle at 39% 95%, rgba(210,219,255,.62) 0 .7px, transparent 1.55px),
+        radial-gradient(circle at 43% 52%, rgba(255,255,255,.66) 0 .65px, transparent 1.45px),
+        radial-gradient(circle at 47% 7%, rgba(155,193,255,.7) 0 .8px, transparent 1.7px),
+        radial-gradient(circle at 51% 82%, rgba(255,255,255,.82) 0 .75px, transparent 1.6px),
+        radial-gradient(circle at 55% 35%, rgba(224,226,255,.54) 0 .6px, transparent 1.35px),
+        radial-gradient(circle at 59% 61%, rgba(255,255,255,.94) 0 1px, rgba(147,188,255,.2) 1.6px, transparent 2.9px),
+        radial-gradient(circle at 63% 17%, rgba(165,196,255,.6) 0 .7px, transparent 1.5px),
+        radial-gradient(circle at 67% 91%, rgba(255,255,255,.72) 0 .7px, transparent 1.45px),
+        radial-gradient(circle at 71% 46%, rgba(218,223,255,.62) 0 .65px, transparent 1.4px),
+        radial-gradient(circle at 75% 5%, rgba(255,255,255,.58) 0 .6px, transparent 1.35px),
+        radial-gradient(circle at 79% 73%, rgba(157,193,255,.7) 0 .85px, transparent 1.7px),
+        radial-gradient(circle at 83% 27%, rgba(255,255,255,.96) 0 1.1px, rgba(176,205,255,.24) 1.7px, transparent 3.1px),
+        radial-gradient(circle at 87% 86%, rgba(219,222,255,.56) 0 .65px, transparent 1.4px),
+        radial-gradient(circle at 91% 54%, rgba(255,255,255,.76) 0 .75px, transparent 1.5px),
+        radial-gradient(circle at 95% 16%, rgba(150,188,255,.62) 0 .7px, transparent 1.55px),
+        radial-gradient(circle at 98% 66%, rgba(255,255,255,.56) 0 .6px, transparent 1.35px),
+        radial-gradient(circle at 16% 47%, rgba(255,255,255,.48) 0 .55px, transparent 1.25px),
+        radial-gradient(circle at 54% 57%, rgba(172,199,255,.5) 0 .6px, transparent 1.3px),
+        radial-gradient(circle at 72% 12%, rgba(255,255,255,.5) 0 .55px, transparent 1.25px),
+        radial-gradient(circle at 93% 7%, rgba(217,220,255,.52) 0 .6px, transparent 1.3px),
+        radial-gradient(circle at 5% 44%, rgba(184,207,255,.52) 0 .55px, transparent 1.25px),
+        radial-gradient(circle at 12% 92%, rgba(255,255,255,.6) 0 .65px, transparent 1.35px),
+        radial-gradient(circle at 20% 35%, rgba(217,225,255,.48) 0 .5px, transparent 1.2px),
+        radial-gradient(circle at 24% 65%, rgba(158,192,255,.56) 0 .6px, transparent 1.3px),
+        radial-gradient(circle at 29% 6%, rgba(255,255,255,.66) 0 .65px, transparent 1.4px),
+        radial-gradient(circle at 33% 84%, rgba(204,216,255,.5) 0 .55px, transparent 1.25px),
+        radial-gradient(circle at 41% 15%, rgba(168,199,255,.58) 0 .6px, transparent 1.35px),
+        radial-gradient(circle at 46% 72%, rgba(255,255,255,.54) 0 .55px, transparent 1.25px),
+        radial-gradient(circle at 58% 8%, rgba(214,222,255,.48) 0 .5px, transparent 1.2px),
+        radial-gradient(circle at 62% 78%, rgba(159,192,255,.58) 0 .6px, transparent 1.3px),
+        radial-gradient(circle at 77% 57%, rgba(255,255,255,.62) 0 .65px, transparent 1.35px),
+        radial-gradient(circle at 96% 39%, rgba(190,209,255,.5) 0 .55px, transparent 1.25px);
+    }
+
+    /* 불규칙한 잔별을 한 겹 더 쌓아 밤하늘의 밀도감을 보강 */
+    .star-field {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    .star-field::before,
+    .star-field::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-radius: 50%;
+      background: transparent;
+    }
+
+    .star-field::before {
+      width: 1px;
+      height: 1px;
+      opacity: .78;
+      box-shadow:
+        2vw 19vh 0 rgba(255,255,255,.52), 5vw 67vh 0 rgba(161,194,255,.45),
+        8vw 39vh 0 rgba(235,240,255,.48), 11vw 83vh 0 rgba(255,255,255,.4),
+        15vw 25vh 0 rgba(150,187,255,.5), 17vw 73vh 0 rgba(225,231,255,.44),
+        19vw 5vh 0 rgba(255,255,255,.56), 23vw 52vh 0 rgba(168,199,255,.42),
+        25vw 96vh 0 rgba(255,255,255,.46), 28vw 29vh 0 rgba(216,226,255,.5),
+        32vw 62vh 0 rgba(151,187,255,.46), 34vw 11vh 0 rgba(255,255,255,.42),
+        37vw 78vh 0 rgba(230,235,255,.5), 40vw 36vh 0 rgba(164,195,255,.44),
+        42vw 91vh 0 rgba(255,255,255,.52), 45vw 21vh 0 rgba(221,230,255,.4),
+        49vw 64vh 0 rgba(151,188,255,.5), 52vw 14vh 0 rgba(255,255,255,.46),
+        54vw 88vh 0 rgba(217,225,255,.44), 57vw 43vh 0 rgba(164,197,255,.52),
+        60vw 73vh 0 rgba(255,255,255,.4), 64vw 4vh 0 rgba(229,235,255,.48),
+        66vw 57vh 0 rgba(151,187,255,.46), 69vw 25vh 0 rgba(255,255,255,.54),
+        72vw 84vh 0 rgba(218,226,255,.42), 74vw 33vh 0 rgba(159,192,255,.5),
+        78vw 95vh 0 rgba(255,255,255,.44), 80vw 18vh 0 rgba(229,234,255,.48),
+        84vw 62vh 0 rgba(151,188,255,.52), 86vw 40vh 0 rgba(255,255,255,.42),
+        89vw 77vh 0 rgba(217,226,255,.48), 92vw 24vh 0 rgba(161,194,255,.44),
+        94vw 95vh 0 rgba(255,255,255,.5), 97vw 49vh 0 rgba(223,230,255,.42),
+        6vw 6vh 0 rgba(153,188,255,.46), 13vw 54vh 0 rgba(255,255,255,.48),
+        30vw 87vh 0 rgba(218,227,255,.44), 47vw 47vh 0 rgba(157,191,255,.5),
+        56vw 3vh 0 rgba(255,255,255,.42), 82vw 9vh 0 rgba(224,231,255,.5),
+        4vw 88vh 0 rgba(171,201,255,.44), 36vw 55vh 0 rgba(255,255,255,.46),
+        53vw 96vh 0 rgba(156,190,255,.48), 73vw 69vh 0 rgba(224,231,255,.42),
+        88vw 51vh 0 rgba(255,255,255,.48), 98vw 91vh 0 rgba(164,196,255,.44);
+    }
+
+    .star-field::after {
+      width: 1.5px;
+      height: 1.5px;
+      opacity: .76;
+      filter: drop-shadow(0 0 2px rgba(133, 177, 255, .42));
+      box-shadow:
+        4vw 55vh 0 rgba(255,255,255,.68), 9vw 12vh 0 rgba(169,202,255,.66),
+        15vw 90vh 0 rgba(241,244,255,.62), 22vw 17vh 0 rgba(255,255,255,.72),
+        27vw 75vh 0 rgba(153,190,255,.64), 33vw 46vh 0 rgba(230,236,255,.68),
+        38vw 4vh 0 rgba(255,255,255,.62), 44vw 68vh 0 rgba(164,198,255,.7),
+        50vw 27vh 0 rgba(242,245,255,.64), 58vw 92vh 0 rgba(255,255,255,.68),
+        63vw 39vh 0 rgba(152,190,255,.66), 68vw 9vh 0 rgba(227,234,255,.62),
+        70vw 67vh 0 rgba(255,255,255,.72), 76vw 22vh 0 rgba(168,200,255,.66),
+        81vw 79vh 0 rgba(239,243,255,.64), 88vw 14vh 0 rgba(255,255,255,.7),
+        93vw 59vh 0 rgba(153,190,255,.64), 97vw 34vh 0 rgba(232,237,255,.68);
+    }
+
+    /* 화면을 가로지르는 은은한 푸른 은하수 그라디언트 */
+    .blobs::after {
+      inset: -28%;
+      z-index: 0;
+      opacity: .88;
+      background:
+        radial-gradient(ellipse 44% 30% at 38% 44%, rgba(79, 127, 218, .18) 0%, transparent 72%),
+        linear-gradient(132deg, transparent 31%, rgba(43, 86, 174, .04) 40%, rgba(102, 140, 222, .15) 49%, rgba(35, 72, 151, .05) 59%, transparent 68%);
+      filter: blur(38px);
+      transform: rotate(-3deg);
+    }
+
     .blob {
       position: absolute;
+      z-index: 1;
       border-radius: 50%;
       filter: blur(clamp(44px, 5vw, 78px));
-      opacity: .28;
+      opacity: .32;
       animation: drift 11s ease-in-out infinite;
     }
 
@@ -70,7 +202,7 @@
       min-height: 260px;
       top: -12vh;
       left: -8vw;
-      background: #174a82;
+      background: #165dad;
     }
 
     .b2 {
@@ -80,7 +212,7 @@
       min-height: 230px;
       top: 22%;
       right: -8vw;
-      background: #376d9f;
+      background: #4a56ad;
       animation-delay: 2s;
     }
 
@@ -91,7 +223,7 @@
       min-height: 210px;
       bottom: -10vh;
       left: 18%;
-      background: #1a4f89;
+      background: #126a9f;
       animation-delay: 5s;
     }
 
@@ -102,7 +234,7 @@
       min-height: 200px;
       bottom: 12%;
       right: 12%;
-      background: #01040b;
+      background: #25265f;
       animation-delay: 1.5s;
     }
 
@@ -146,21 +278,23 @@
       font-family: 'Playfair Display', serif;
       font-size: clamp(17px, 1.6vw, 24px);
       font-weight: 600;
-      color: var(--td);
+      color: rgba(250, 252, 255, .98);
       white-space: nowrap;
+      text-shadow: 0 1px 10px rgba(72, 118, 205, .42);
     }
 
     .logo i {
      font-style: italic;
-     color: var(--violet);
+     color: #d9cbff;
      }
 
     .nav-c {
       font-size: clamp(8px, .7vw, 10px);
       letter-spacing: .15em;
       text-transform: uppercase;
-      color: var(--tm);
+      color: rgba(241, 245, 255, .88);
       text-align: center;
+      text-shadow: 0 1px 8px rgba(43, 78, 153, .38);
     }
 
     .main-row {
@@ -192,9 +326,10 @@
       font-size: clamp(8px, .7vw, 10px);
       letter-spacing: .15em;
       text-transform: uppercase;
-      color: var(--tm);
+      color: rgba(250, 252, 255, .96);
       margin-bottom: 10px;
       font-weight: 600;
+      text-shadow: 0 1px 8px rgba(36, 70, 142, .48);
     }
 
     .col-l,
@@ -265,7 +400,7 @@
       display: flex;
       justify-content: space-between;
       font-size: 9px;
-      color: var(--tm);
+      color: rgba(239, 244, 255, .88);
       letter-spacing: .05em;
       text-transform: uppercase;
     }
@@ -482,7 +617,8 @@
     }
 
     .pen-size-row,
-    .stk-sz-row {
+    .stk-sz-row,
+    .stk-rotate-row {
       display: flex;
       flex-direction: column;
       gap: 5px;
@@ -524,6 +660,22 @@
       margin: 0 auto 3px;
       border-radius: 50%;
       background: var(--pink);
+    }
+
+    .stk-rotate-btns {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+    }
+
+    .stk-rotate-btn {
+      width: 100%;
+      padding: 6px 4px;
+    }
+
+    .stk-rotate-btn:disabled {
+      cursor: not-allowed;
+      opacity: .42;
     }
 
     .strip-outer {
@@ -726,9 +878,10 @@
     .shot-info,
     .cam-status {
       font-size: 10px;
-      color: var(--tm);
+      color: rgba(243, 247, 255, .92);
       text-align: center;
       line-height: 1.5;
+      text-shadow: 0 1px 7px rgba(0, 0, 0, .42);
     }
 
     .save-main {
@@ -863,7 +1016,7 @@
       font-size: 9px;
       letter-spacing: .1em;
       text-transform: uppercase;
-      color: var(--tm);
+      color: rgba(239, 244, 255, .9);
       margin-bottom: 3px;
     }
 
@@ -957,7 +1110,7 @@
 
     .rec-cnt {
       font-size: 9.5px;
-      color: var(--tr);
+      color: rgba(232, 239, 255, .78);
     }
 
     .rec-list {
@@ -1042,7 +1195,7 @@
 
     .rec-empty {
       font-size: 11px;
-      color: var(--tr);
+      color: rgba(232, 239, 255, .78);
       text-align: center;
       padding: 18px 8px;
       font-style: italic;
@@ -1267,15 +1420,15 @@
         font-size: max(28px, 1vw);
       }
 
-      .mo-nm, .zodiac-name {
+      .zodiac-name {
         font-size: max(7.5px, .38vw);
       }
 
-      .mo-mo, .zodiac-en {
+      .zodiac-en {
         font-size: max(7px, .32vw);
       }
 
-      .mo-dot, .zodiac-dot {
+      .zodiac-dot {
         width: max(13px, .5vw);
         height: max(13px, .5vw);
       }
@@ -1398,6 +1551,7 @@
 
 <body>
   <div class="blobs">
+    <div class="star-field" aria-hidden="true"></div>
     <div class="blob b1"></div>
     <div class="blob b2"></div>
     <div class="blob b3"></div>
@@ -1485,7 +1639,7 @@
           <div class="reset-row" style="margin-top:10px">
             <button class="mini-btn" onclick="selectFramePattern(-1)">기본 프레임</button>
           </div>
-          <div style="font-size:8.5px;color:var(--tr);line-height:1.6;margin-top:8px;text-align:center;">
+          <div style="font-size:8.5px;color:rgba(232,239,255,.76);line-height:1.6;margin-top:8px;text-align:center;">
             프레임 이미지는 바로 선택해서 적용돼요.<br>
             사진이 들어가는 두 컷 부분은 자동으로 비워지고, 바깥 프레임에만 이미지가 씌워져요.
           </div>
@@ -1574,7 +1728,7 @@
 
         <div class="label-wrap" style="display:flex;gap:8px;align-items:center;width:min(460px,94vw);">
           <input class="label-input" type="text" id="labelInput" value="✦ My Zodiac Night ✦" oninput="document.getElementById('stripLabel').textContent=this.value" />
-          <span style="font-size:9px;color:var(--tm);white-space:nowrap;">라벨</span>
+          <span style="font-size:9px;color:rgba(243,247,255,.9);white-space:nowrap;text-shadow:0 1px 7px rgba(0,0,0,.38);">라벨</span>
         </div>
 
         <div class="save-actions">
@@ -1592,12 +1746,20 @@
             <div class="sll"><span>크기</span></div>
             <div class="stk-sz-btns" id="stkSzBtns"></div>
           </div>
+          <div class="stk-rotate-row">
+            <div class="sll"><span>선택 스티커 회전</span><span id="stkRotOut">선택 없음</span></div>
+            <div class="stk-rotate-btns">
+              <button class="mini-btn stk-rotate-btn" type="button" data-stk-rotate onclick="rotateSelectedSticker(-15)" aria-label="스티커를 왼쪽으로 15도 회전" disabled>↶ 15°</button>
+              <button class="mini-btn stk-rotate-btn" type="button" data-stk-rotate onclick="resetSelectedStickerRotation()" aria-label="스티커 회전 초기화" disabled>0°</button>
+              <button class="mini-btn stk-rotate-btn" type="button" data-stk-rotate onclick="rotateSelectedSticker(15)" aria-label="스티커를 오른쪽으로 15도 회전" disabled>15° ↷</button>
+            </div>
+          </div>
           <div class="reset-row">
             <button class="mini-btn danger" onclick="clearFrameStk()">이 컷 스티커 삭제</button>
             <button class="mini-btn danger" onclick="clearAllStk()">전체 스티커 삭제</button>
           </div>
-          <div style="font-size:8.5px;color:var(--tr);text-align:center;line-height:1.6;margin-top:8px">
-            스티커 선택 후 사진 위 클릭<br />드래그 이동 · 더블클릭 삭제
+          <div style="font-size:8.5px;color:rgba(232,239,255,.76);text-align:center;line-height:1.6;margin-top:8px">
+            스티커 선택 후 사진 위 클릭<br />클릭·드래그 선택 · 회전 버튼 · 더블클릭 삭제
           </div>
         </section>
 
@@ -1639,7 +1801,7 @@
     </div>
 
     <footer>
-      <span class="foot-info" id="footInfo">저장하면 컴퓨터에 JPG로 내려받지 않고, 사이트 안 기록에만 남아요.</span>
+      <span class="foot-info">저장하면 컴퓨터에 JPG로 내려받지 않고, 사이트 안 기록에만 남아요.</span>
     </footer>
   </div>
 
@@ -1691,6 +1853,8 @@
     let stkEmoji = '🌙';
     let stkSz = 58;
     let stkCatIdx = 0;
+    let selectedStkF = -1;
+    let selectedStkI = -1;
 
     const EMOJI_FONT = '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", sans-serif';
 
@@ -2243,6 +2407,7 @@
     function clearCurrentFrame() {
       clearDraw();
       stickers[activeF] = [];
+      if (selectedStkF === activeF) clearStickerSelection();
       redrawStk(activeF);
     }
 
@@ -2553,6 +2718,7 @@
           document.querySelectorAll('.stk-btn').forEach(b => b.classList.remove('active'));
           d.classList.add('active');
           stkEmoji = em;
+          clearStickerSelection();
           setTool('sticker');
         };
 
@@ -2560,13 +2726,62 @@
       });
     }
 
+    function getSelectedSticker() {
+      if (selectedStkF < 0 || selectedStkI < 0) return null;
+      return stickers[selectedStkF]?.[selectedStkI] || null;
+    }
+
+    function updateStickerRotationControls() {
+      const sticker = getSelectedSticker();
+      const angle = sticker
+        ? Math.round((((sticker.rot || 0) + 180) % 360 + 360) % 360 - 180)
+        : null;
+
+      document.getElementById('stkRotOut').textContent = sticker ? `${angle}°` : '선택 없음';
+      document.querySelectorAll('[data-stk-rotate]').forEach(button => {
+        button.disabled = !sticker;
+      });
+    }
+
+    function selectSticker(fi, index) {
+      selectedStkF = fi;
+      selectedStkI = index;
+      updateStickerRotationControls();
+    }
+
+    function clearStickerSelection() {
+      selectedStkF = -1;
+      selectedStkI = -1;
+      updateStickerRotationControls();
+    }
+
+    function rotateSelectedSticker(delta) {
+      const sticker = getSelectedSticker();
+      if (!sticker) return;
+
+      sticker.rot = ((sticker.rot || 0) + delta) % 360;
+      redrawStk(selectedStkF);
+      updateStickerRotationControls();
+    }
+
+    function resetSelectedStickerRotation() {
+      const sticker = getSelectedSticker();
+      if (!sticker) return;
+
+      sticker.rot = 0;
+      redrawStk(selectedStkF);
+      updateStickerRotationControls();
+    }
+
     function clearFrameStk() {
       stickers[activeF] = [];
+      if (selectedStkF === activeF) clearStickerSelection();
       redrawStk(activeF);
     }
 
     function clearAllStk() {
       stickers = Array.from({ length: N }, () => []);
+      clearStickerSelection();
 
       for (let i = 0; i < N; i++) {
         redrawStk(i);
@@ -2631,12 +2846,14 @@
         dragI = idx;
         dragOX = mx - stickers[fi][idx].x;
         dragOY = my - stickers[fi][idx].y;
+        selectSticker(fi, idx);
       } else {
-        stickers[fi].push({ e: stkEmoji, x: mx, y: my, sz: stkSz });
+        stickers[fi].push({ e: stkEmoji, x: mx, y: my, sz: stkSz, rot: 0 });
         dragF = fi;
         dragI = stickers[fi].length - 1;
         dragOX = 0;
         dragOY = 0;
+        selectSticker(fi, dragI);
         redrawStk(fi);
       }
     }
@@ -2658,6 +2875,7 @@
 
       if (idx >= 0) {
         stickers[fi].splice(idx, 1);
+        clearStickerSelection();
         redrawStk(fi);
       }
     }
@@ -2669,14 +2887,19 @@
       ctx.clearRect(0, 0, CW, CH);
 
       stickers[fi].forEach(s => {
+        ctx.save();
+        ctx.translate(s.x, s.y);
+        ctx.rotate((s.rot || 0) * Math.PI / 180);
         ctx.font = `${s.sz}px ${EMOJI_FONT}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(s.e, s.x, s.y);
+        ctx.fillText(s.e, 0, 0);
+        ctx.restore();
       });
     }
 
     function selectFrame(i) {
+      if (activeF !== i && selectedStkF !== i) clearStickerSelection();
       activeF = i;
 
       for (let j = 0; j < N; j++) {
