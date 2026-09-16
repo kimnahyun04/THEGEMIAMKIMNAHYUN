@@ -159,10 +159,11 @@ button{font:inherit}
 .guessMain.finished>.guessClues,
 .guessMain.finished>.guessControlBox{display:none}
 .guessMain.finished>.guessResultCard{display:grid}
-.guessResultInner{width:min(620px,100%)}
+.guessResultInner{
+  width:min(620px,100%);margin:0 auto;display:flex;flex-direction:column;align-items:center
+}
 .guessResultInner h2{margin:10px 0 8px;font:500 clamp(28px,5vw,44px)/1 Georgia,serif;color:#513c49}
 .guessResultInner p{margin:0 auto 18px;max-width:550px;color:var(--muted);font-size:12px;line-height:1.7}
-.guessResultStats{grid-template-columns:repeat(2,minmax(0,1fr))}
 .guessSide h3{margin:0 0 10px;font:500 18px Georgia,serif}
 .scoreBox{
   padding:12px;border:1px solid rgba(255,255,255,.09);border-radius:14px;background:rgba(0,0,0,.12);margin-bottom:10px
@@ -175,11 +176,6 @@ button{font:inherit}
   font-size:9px;color:var(--muted);line-height:1.5
 }
 .hist.good{color:var(--good)}.hist.mid{color:var(--warn)}.hist.bad{color:var(--bad)}
-.backMode{
-  margin-top:12px;width:100%;padding:10px;border-radius:999px;border:1px solid rgba(255,255,255,.14);
-  background:rgba(255,255,255,.04);color:white;font-size:9px;font-weight:800;cursor:pointer
-}
-
 @media(max-width:860px) and (any-hover:none){
   .modeGrid{grid-template-columns:1fr}
   .guessLayout{grid-template-columns:1fr}
@@ -212,25 +208,6 @@ button{font:inherit}
   background-size:34px 34px
 }
 .gemWrap{position:relative;width:180px;height:180px;filter:drop-shadow(0 20px 24px rgba(0,0,0,.28))}
-.gem{
-  position:absolute;inset:0;
-  clip-path:polygon(50% 2%,72% 14%,91% 40%,82% 76%,50% 98%,18% 76%,9% 40%,28% 14%);
-  background:
-    linear-gradient(135deg,rgba(255,255,255,.76),transparent 25%),
-    linear-gradient(315deg,rgba(0,0,0,.2),transparent 45%),
-    linear-gradient(180deg,color-mix(in srgb,var(--soft) 35%,white),var(--gem) 38%,color-mix(in srgb,var(--gem) 80%,black));
-  box-shadow:0 0 42px color-mix(in srgb,var(--gem) 36%,transparent)
-}
-.gem:before{
-  content:"";position:absolute;inset:12%;
-  clip-path:polygon(50% 0,68% 11%,82% 35%,74% 68%,50% 86%,26% 68%,18% 35%,32% 11%);
-  border:1px solid rgba(255,255,255,.28);opacity:.42
-}
-.gem:after{
-  content:"";position:absolute;inset:0;
-  background:
-    linear-gradient(115deg,rgba(255,255,255,.18) 12%,transparent 16% 39%,rgba(255,255,255,.08) 41% 43%,transparent 46%);
-}
 .conditionBadge{
   position:absolute;left:14px;top:14px;
   padding:7px 10px;border-radius:999px;
@@ -266,10 +243,6 @@ button{font:inherit}
   100%{opacity:1;transform:scale(1) translateY(0)}
 }
 
-.uvHalo{
-  position:absolute;inset:-14%;border-radius:50%;
-  box-shadow:0 0 55px color-mix(in srgb,var(--soft) 65%,transparent);opacity:0;transition:.2s
-}
 .infoStrip{
   display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px
 }
@@ -337,15 +310,25 @@ button{font:inherit}
 }
 
 
-#result{padding:42px 18px;text-align:center}
+#result{padding:18px;text-align:center}
+#result.view.on{display:grid;place-items:center}
 .resultCard{
-  max-width:680px;margin:0 auto;padding:26px;border:1px solid rgba(255,255,255,.1);
-  border-radius:22px;background:rgba(255,255,255,.035)
+  width:min(680px,100%);min-height:382px;margin:0 auto;padding:34px 26px;border:1px solid rgba(255,255,255,.1);
+  border-radius:22px;background:rgba(255,255,255,.035);display:flex;flex-direction:column;justify-content:center;align-items:center
 }
 .rank{font:italic 500 clamp(54px,9vw,92px)/.82 Georgia,serif;color:#e4d5ff}
 .resultCard h2{margin:10px 0 8px;font:500 clamp(28px,5vw,44px)/1 Georgia,serif}
 .resultCard p{margin:0 auto 18px;max-width:550px;color:var(--muted);font-size:12px;line-height:1.7}
-.resultStats{max-width:540px;margin:0 auto 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.resultStats{width:min(540px,100%);margin:0 auto 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.guessResultInner .guessResultStats{
+  width:min(280px,100%);
+  margin:0 auto 20px;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  justify-content:center;
+}
+.guessResultInner .guessResultStats .rs{text-align:center}
 .rs{
   padding:10px;border:1px solid rgba(255,255,255,.09);border-radius:12px;
   background:rgba(0,0,0,.12);color:var(--muted);font-size:9px
@@ -439,8 +422,8 @@ body:before{
 .modeCard .modeNo,.modeCard em,.modeCard p{color:var(--muted)}
 .primary,.lockGuessBtn,.buy{color:#fff;background:linear-gradient(100deg,#cb759f,#9b88c4);box-shadow:0 11px 24px rgba(171,104,151,.22)}
 .primary:hover,.lockGuessBtn:hover,.buy:hover{transform:translateY(-2px);filter:brightness(1.03)}
-.ghost,.nextGuessBtn,.backMode,.pass{color:#674d5c;border-color:var(--line);background:rgba(255,255,255,.68)}
-.ghost:hover,.nextGuessBtn:hover,.backMode:hover,.pass:hover{background:rgba(255,255,255,.94);transform:translateY(-1px)}
+.ghost,.nextGuessBtn,.pass{color:#674d5c;border-color:var(--line);background:rgba(255,255,255,.68)}
+.ghost:hover,.nextGuessBtn:hover,.pass:hover{background:rgba(255,255,255,.94);transform:translateY(-1px)}
 .roundPill,.lotNo,.conditionBadge{color:var(--muted);border-color:var(--line);background:rgba(255,255,255,.72)}
 .guessShowcase,.showcase{
   border-color:rgba(139,101,122,.14);
@@ -506,7 +489,6 @@ img.guessGem:before{content:none}
 .navControl:hover{transform:translateY(-1px);background:rgba(255,255,255,.97);box-shadow:inset 0 1px 0 #fff,0 10px 22px rgba(115,76,98,.11)}
 .navControl:active{transform:translateY(0)}
 .navControl:focus-visible{outline:2px solid rgba(193,111,152,.42);outline-offset:2px}
-.legacyBack{display:none}
 @media(max-width:860px) and (any-hover:none){
   .navControl{min-width:70px;padding:7px 9px;font-size:8px}
 }
@@ -588,7 +570,6 @@ img.guessGem:before{content:none}
       <strong>어려움 시작 →</strong>
     </button>
   </div>
-  <button class="backMode legacyBack" id="backFromDifficulty" style="width:auto;padding-inline:22px">← 게임 선택</button>
 </section>
 
 
@@ -604,8 +585,7 @@ img.guessGem:before{content:none}
         <div class="reactionModeBadge" id="reactionModeBadge">쉬움</div>
         <div class="reactionPrompt" id="reactionPrompt"><div><strong>지금!</strong><span>여기를 바로 누르세요</span></div></div>
         <div class="gemWrap">
-          <div class="uvHalo" id="uvHalo"></div>
-          <img class="gemImage" id="gemImage" alt="경매 보석" draggable="false">
+<img class="gemImage" id="gemImage" alt="경매 보석" draggable="false">
         </div>
       </div>
 
@@ -734,9 +714,7 @@ img.guessGem:before{content:none}
         총 5문제이며 문제당 최고 100점입니다. 실제 낙찰가에 가까울수록 점수가 높아집니다.
         표시 가격은 보석 종류별 원화 시세를 바탕으로 게임용으로 조정했습니다.
       </div>
-
-      <button class="backMode legacyBack" id="backFromGuess">← 게임 선택</button>
-    </aside>
+</aside>
   </div>
 </section>
 
@@ -843,7 +821,6 @@ Object.values(gemAssets).forEach(assetSet=>Object.values(assetSet).forEach(src=>
 const koLabels={
   clarity:{FLAWLESS:"완전 무결", "VERY GOOD":"매우 좋음", GOOD:"좋음", INCLUDED:"내포물 있음", "HEAVY INCLUSIONS":"내포물 많음"},
   condition:{PRISTINE:"최상급", "EXCELLENT POLISH":"뛰어난 연마", "LIGHT SCRATCH":"미세한 흠집", "SMALL CHIP":"작은 이 빠짐", CLOUDY:"탁함", "INTERNAL FRACTURE":"내부 균열", "SYNTHETIC SUSPECTED":"합성 의심"},
-  uv:{CLEAN:"깨끗함", SOFT:"약한 반응", NORMAL:"보통 반응", STRONG:"강한 반응", IRREGULAR:"불규칙 반응", UNUSUAL:"특이 반응"}
 };
 const gemKorean=Object.fromEntries(gems.map(g=>[g.n,g.kr]));
 const labelKo=(group,value)=>koLabels[group]?.[value]||value;
@@ -975,6 +952,8 @@ function updateNavigation(id){
 function show(id){
   $$(".view").forEach(v=>v.classList.remove("on"));
   $("#"+id).classList.add("on");
+  const headerStats=$(".stats");
+  if(headerStats)headerStats.hidden=(id==="guessGame");
   updateNavigation(id);
 }
 function handleNavigation(){
@@ -1007,11 +986,11 @@ function makeLots(){
 
   return pool.map(g=>{
     const clarityOptions=[
-      {name:"FLAWLESS",mult:1.28,uv:"CLEAN"},
-      {name:"VERY GOOD",mult:1.12,uv:"SOFT"},
-      {name:"GOOD",mult:1.0,uv:"NORMAL"},
-      {name:"INCLUDED",mult:.76,uv:"STRONG"},
-      {name:"HEAVY INCLUSIONS",mult:.58,uv:"IRREGULAR"}
+      {name:"FLAWLESS",mult:1.28},
+      {name:"VERY GOOD",mult:1.12},
+      {name:"GOOD",mult:1.0},
+      {name:"INCLUDED",mult:.76},
+      {name:"HEAVY INCLUSIONS",mult:.58}
     ];
 
     const q=clarityOptions[Math.floor(Math.random()*clarityOptions.length)];
@@ -1050,8 +1029,7 @@ function makeLots(){
       ...g,
       clarity:q.name,
       clarityMult:q.mult,
-      uv: condition.visible==="synthetic" ? "UNUSUAL" : q.uv,
-      carat,
+carat,
       baseValue,
       trueValue,
       resaleValue,
@@ -1211,15 +1189,16 @@ function nextGuessRound(){
 
 function finishGuessGame(){
   let rank="D",label="초보 감정사";
+  // 총점(500점)을 일반적인 성취도 구간으로 나눔: S 90%+, A 80%+, B 70%+, C 60%+, D 60% 미만
   if(guessScore>=450){rank="S";label="보석 감정의 달인"}
-  else if(guessScore>=375){rank="A";label="예리한 안목"}
-  else if(guessScore>=275){rank="B";label="보석 수집가"}
-  else if(guessScore>=150){rank="C";label="감정사 연습생"}
+  else if(guessScore>=400){rank="A";label="예리한 안목"}
+  else if(guessScore>=350){rank="B";label="보석 수집가"}
+  else if(guessScore>=300){rank="C";label="감정사 연습생"}
 
   $("#guessTitle").textContent=`${rank} · ${label}`;
   $("#guessRoundPill").textContent="완료";
   $("#guessFeedback").className="guessFeedback "+(["S","A"].includes(rank)?"good":["B","C"].includes(rank)?"mid":"bad");
-  $("#guessFeedback").textContent=`5문제 완료 · 총 ${guessScore} / 500점 · 최고 오차 ${guessBest===999?"—":guessBest+"%"}`;
+  $("#guessFeedback").textContent=`5문제 완료 · 총 ${guessScore} / 500점 · 최소 오차 ${guessBest===999?"—":guessBest+"%"}`;
   $("#guessFinalRank").textContent=rank;
   $("#guessFinalTitle").textContent=label;
   $("#guessFinalText").textContent=`5문제를 모두 마쳤습니다. 총 ${guessScore}점으로 ${rank}등급을 획득했어요.`;
@@ -1447,9 +1426,7 @@ function toast(msg){
 $("#auctionModeBtn").addEventListener("click",()=>show("difficulty"));
 $("#easyModeBtn").addEventListener("click",()=>startGame("easy"));
 $("#hardModeBtn").addEventListener("click",()=>startGame("hard"));
-$("#backFromDifficulty").addEventListener("click",()=>show("start"));
 $("#guessModeBtn").addEventListener("click",startGuessGame);
-$("#backFromGuess").addEventListener("click",()=>show("start"));
 $("#retryGuessBtn").addEventListener("click",startGuessGame);
 $("#backFromGuessResult").addEventListener("click",()=>show("start"));
 $("#backFromAuctionResult").addEventListener("click",()=>show("start"));
