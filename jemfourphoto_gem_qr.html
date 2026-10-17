@@ -2813,8 +2813,8 @@
       const W = FW + PAD_X * 2;
       const H = PAD_Y * 2 + FH * N + GAP * (N - 1) + FOOT;
       // Canon SELPHY CP1300 postcard paper: 100 x 148 mm at 300 dpi.
-      // Keep the complete decorated strip inside a 3.5 mm safe area so
-      // borderless-print overscan removes only the outer background.
+      // Preset artwork fills the postcard directly, with no added outer band.
+      // The existing 3.5 mm padding is used only for plain colour frames.
       const PRINT_W = 1181;
       const PRINT_H = 1748;
       const PRINT_SAFE = 42;
@@ -2921,12 +2921,11 @@
       printCtx.fillStyle = printBackgroundColor;
       printCtx.fillRect(0, 0, PRINT_W, PRINT_H);
 
-      const printScale = Math.min(
-        (PRINT_W - PRINT_SAFE * 2) / W,
-        (PRINT_H - PRINT_SAFE * 2) / H
-      );
-      // Use one uniform scale and exact half-differences so both opposing
-      // margins match, without stretching or repeating any background edges.
+      const printScale = frameImg
+        ? Math.max(PRINT_W / W, PRINT_H / H)
+        : Math.min((PRINT_W - PRINT_SAFE * 2) / W, (PRINT_H - PRINT_SAFE * 2) / H);
+      // Centre and uniformly scale the entire artwork. Never extend individual
+      // edge rows or columns, and never add an estimated left/right offset.
       const printStripW = W * printScale;
       const printStripH = H * printScale;
       const printX = (PRINT_W - printStripW) / 2;
