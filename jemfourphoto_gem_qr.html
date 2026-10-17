@@ -785,39 +785,6 @@
       transform: none;
     }
 
-    .print-settings {
-      width: min(460px, 94vw);
-      padding: 10px 12px;
-      border: 1px solid rgba(255, 255, 255, .65);
-      border-radius: 12px;
-      background: rgba(255, 255, 255, .4);
-      color: var(--tm);
-      font-size: 11px;
-    }
-
-    .print-settings summary {
-      cursor: pointer;
-      color: var(--td);
-    }
-
-    .print-settings p {
-      margin: 9px 0;
-      line-height: 1.6;
-    }
-
-    .print-adjust-row {
-      display: grid;
-      grid-template-columns: 38px minmax(0, 1fr) 58px;
-      align-items: center;
-      gap: 9px;
-      margin: 12px 0;
-    }
-
-    .print-adjust-row output {
-      text-align: right;
-      font-variant-numeric: tabular-nums;
-    }
-
     .cd-overlay {
       position: fixed;
       inset: 0;
@@ -1629,23 +1596,6 @@
           <button class="save-main" type="button" onclick="saveStrip()">사이트에 저장하기</button>
           <button class="qr-main" id="qrMainBtn" type="button" onclick="generatePhotoQR()">QR로 휴대폰 전송</button>
         </div>
-
-        <details class="print-settings">
-          <summary>CP1300 인쇄 위치 조정</summary>
-          <p>엽서 100 × 148mm · 테두리 없음 · 1장 인쇄<br>기본값은 정중앙이에요. +는 오른쪽 / 아래로 이동해요.</p>
-          <label class="print-adjust-row">
-            <span>가로</span>
-            <input id="printOffsetX" type="range" min="-3" max="3" step="0.1" value="0" oninput="setPrintAlignment('x', this.value)" />
-            <output id="printOffsetXOut" for="printOffsetX">0.0mm</output>
-          </label>
-          <label class="print-adjust-row">
-            <span>세로</span>
-            <input id="printOffsetY" type="range" min="-3" max="3" step="0.1" value="0" oninput="setPrintAlignment('y', this.value)" />
-            <output id="printOffsetYOut" for="printOffsetY">0.0mm</output>
-          </label>
-          <button class="mini-btn" type="button" onclick="resetPrintAlignment()">정중앙으로 초기화</button>
-          <p>조정 후 QR을 새로 만들어 인쇄해 주세요.</p>
-        </details>
       </main>
 
       <aside class="col-r">
@@ -1809,46 +1759,6 @@
 
     let selectedFramePattern = Number(localStorage.getItem('pic2r_selected_frame') || -1);
     let qrBusy = false;
-    let printAlignment = readPrintAlignment();
-
-    function clampPrintOffset(value) {
-      const number = Number(value);
-      return Number.isFinite(number) ? Math.round(Math.min(3, Math.max(-3, number)) * 10) / 10 : 0;
-    }
-
-    function readPrintAlignment() {
-      try {
-        const saved = JSON.parse(localStorage.getItem('pic2r_cp1300_alignment') || '{}') || {};
-        return { x: clampPrintOffset(saved.x), y: clampPrintOffset(saved.y) };
-      } catch (error) {
-        return { x: 0, y: 0 };
-      }
-    }
-
-    function syncPrintAlignment() {
-      ['x', 'y'].forEach(axis => {
-        const id = axis === 'x' ? 'printOffsetX' : 'printOffsetY';
-        const value = printAlignment[axis];
-        document.getElementById(id).value = value;
-        document.getElementById(id + 'Out').textContent = `${value > 0 ? '+' : ''}${value.toFixed(1)}mm`;
-      });
-    }
-
-    function setPrintAlignment(axis, value) {
-      if (axis !== 'x' && axis !== 'y') return;
-      printAlignment[axis] = clampPrintOffset(value);
-      try {
-        localStorage.setItem('pic2r_cp1300_alignment', JSON.stringify(printAlignment));
-      } catch (error) {
-        // The adjustment still works when browser storage is unavailable.
-      }
-      syncPrintAlignment();
-    }
-
-    function resetPrintAlignment() {
-      printAlignment = { x: 0, y: 0 };
-      setPrintAlignment('x', 0);
-    }
 
     async function startCam() {
       const status = document.getElementById('camStatus');
@@ -2887,51 +2797,6 @@
       });
     }
 
-    function drawPrintWithBleed(ctx, source, x, y, width, height) {
-      const sw = source.width;
-      const sh = source.height;
-      const right = x + width;
-      const bottom = y + height;
-      const pageW = ctx.canvas.width;
-      const pageH = ctx.canvas.height;
-
-      // Extend the actual background edge to the paper edge. A separate solid
-      // colour around the frame creates a visible rectangular seam in print.
-      // The 1px overlap prevents hairlines at fractional calibration positions.
-      ctx.drawImage(source, 0, 0, 1, 1, 0, 0, x + 1, y + 1);
-      ctx.drawImage(source, sw - 1, 0, 1, 1, right - 1, 0, pageW - right + 1, y + 1);
-      ctx.drawImage(source, 0, sh - 1, 1, 1, 0, bottom - 1, x + 1, pageH - bottom + 1);
-      ctx.drawImage(source, sw - 1, sh - 1, 1, 1, right - 1, bottom - 1, pageW - right + 1, pageH - bottom + 1);
-      ctx.drawImage(source, 0, 0, sw, 1, x, 0, width, y + 1);
-      ctx.drawImage(source, 0, sh - 1, sw, 1, x, bottom - 1, width, pageH - bottom + 1);
-      ctx.drawImage(source, 0, 0, 1, sh, 0, y, x + 1, height);
-      ctx.drawImage(source, sw - 1, 0, 1, sh, right - 1, y, pageW - right + 1, height);
-      ctx.drawImage(source, x, y, width, height);
-    }
-
-    function encodePrintJpeg(canvas) {
-      const dataUrl = canvas.toDataURL('image/jpeg', .96);
-      let jpeg = atob(dataUrl.slice(dataUrl.indexOf(',') + 1));
-      const density = String.fromCharCode(1, 1, 44, 1, 44); // inches, 300 x 300 dpi
-
-      for (let offset = 2; offset + 18 <= jpeg.length && jpeg.charCodeAt(offset) === 255;) {
-        const marker = jpeg.charCodeAt(offset + 1);
-        if (marker === 218 || marker === 217) break;
-        const length = jpeg.charCodeAt(offset + 2) * 256 + jpeg.charCodeAt(offset + 3);
-        if (length < 2) break;
-        if (marker === 224 && length >= 16 && jpeg.slice(offset + 4, offset + 9) === 'JFIF\0') {
-          jpeg = jpeg.slice(0, offset + 11) + density + jpeg.slice(offset + 16);
-          return 'data:image/jpeg;base64,' + btoa(jpeg);
-        }
-        offset += length + 2;
-      }
-
-      // Some browsers omit JFIF; add its resolution metadata after JPEG SOI.
-      const jfif = String.fromCharCode(255, 224, 0, 16) + 'JFIF\0' +
-        String.fromCharCode(1, 1) + density + String.fromCharCode(0, 0);
-      return 'data:image/jpeg;base64,' + btoa(jpeg.slice(0, 2) + jfif + jpeg.slice(2));
-    }
-
     async function saveStrip(options = {}) {
       const shouldStore = options.storeRecord !== false;
       const showConfirmation = options.showConfirmation !== false;
@@ -2948,8 +2813,8 @@
       const W = FW + PAD_X * 2;
       const H = PAD_Y * 2 + FH * N + GAP * (N - 1) + FOOT;
       // Canon SELPHY CP1300 postcard paper: 100 x 148 mm at 300 dpi.
-      // Keep the decorated strip inside a 3.5 mm safe area and extend its
-      // background seamlessly to all four paper edges for borderless printing.
+      // Keep the complete decorated strip inside a 3.5 mm safe area so
+      // borderless-print overscan removes only the outer background.
       const PRINT_W = 1181;
       const PRINT_H = 1748;
       const PRINT_SAFE = 42;
@@ -3062,14 +2927,12 @@
       );
       const printStripW = Math.round(W * printScale);
       const printStripH = Math.round(H * printScale);
-      // Keep half-pixel centres exact; optional mm offsets compensate for a
-      // particular printer/feed without changing the canvas or photo ratio.
-      const printX = (PRINT_W - printStripW) / 2 + printAlignment.x * PRINT_W / 100;
-      const printY = (PRINT_H - printStripH) / 2 + printAlignment.y * PRINT_H / 148;
+      const printX = Math.round((PRINT_W - printStripW) / 2);
+      const printY = Math.round((PRINT_H - printStripH) / 2);
 
-      drawPrintWithBleed(printCtx, oc, printX, printY, printStripW, printStripH);
+      printCtx.drawImage(oc, printX, printY, printStripW, printStripH);
 
-      const url = encodePrintJpeg(printCanvas);
+      const url = printCanvas.toDataURL('image/jpeg', .92);
       const recordPreview = shouldStore ? makeRecordPreview(printCanvas) : '';
       const name = document.getElementById('fName').value.trim() || '익명';
       const msg = document.getElementById('fMsg').value.trim();
@@ -3412,7 +3275,6 @@
     renderRecords();
     syncBdrColor();
     applyBorder();
-    syncPrintAlignment();
     selectFrame(0);
     setTool('pen');
     startCam();
