@@ -647,6 +647,30 @@
       transition: opacity .12s;
     }
 
+    .label-input {
+      min-width: 0;
+    }
+
+    .label-color-control {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-shrink: 0;
+      font-size: 10px;
+      white-space: nowrap;
+    }
+
+    .label-color-input {
+      width: 36px;
+      height: 30px;
+      padding: 2px;
+      border: 1px solid rgba(255, 255, 255, .85);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .62);
+      cursor: pointer;
+    }
+
     .strip-label {
       text-align: center;
       padding: 5px 0 2px;
@@ -1589,7 +1613,10 @@
 
         <div class="label-wrap" style="display:flex;gap:8px;align-items:center;width:min(460px,94vw);">
           <input class="label-input" type="text" id="labelInput" value="✦ My Gem Studio ✦" oninput="document.getElementById('stripLabel').textContent=this.value" />
-          <span style="font-size:9px;color:var(--tm);white-space:nowrap;">라벨</span>
+          <label class="label-color-control" for="labelColorInput">
+            글자색
+            <input class="label-color-input" type="color" id="labelColorInput" value="#2A183B" oninput="applyLabelColor()" />
+          </label>
         </div>
 
         <div class="save-actions">
@@ -1921,6 +1948,15 @@
       return selectedFramePattern >= 0 ? PRESET_FRAMES[selectedFramePattern] : null;
     }
 
+    function getLabelColor() {
+      const colour = document.getElementById('labelColorInput').value;
+      return /^#[0-9a-f]{6}$/i.test(colour) ? colour : '#2A183B';
+    }
+
+    function applyLabelColor() {
+      document.getElementById('stripLabel').style.color = getLabelColor();
+    }
+
     function applyBorder() {
       const col = getBorderColor();
       const sw = document.getElementById('stripOuter');
@@ -1940,17 +1976,14 @@
         sw.style.backgroundPosition = 'center';
         sw.style.backgroundRepeat = 'no-repeat';
         sw.style.backgroundColor = 'transparent';
-        document.getElementById('stripLabel').style.color =
-          ['Garnet', 'Amethyst', 'Emerald', 'Sapphire'].includes(selectedImg.name)
-            ? 'rgba(255,255,255,.88)'
-            : '#6F617E';
       } else {
         sw.style.padding = (bPx + 8) + 'px';
         sw.style.gap = Math.max(7, bPx * .6) + 'px';
         sw.style.backgroundImage = 'none';
         sw.style.backgroundColor = bPx > 0 ? col : '#fff';
-        document.getElementById('stripLabel').style.color = '';
       }
+
+      applyLabelColor();
 
       for (let i = 0; i < N; i++) {
         const b = document.getElementById('b' + i);
@@ -2813,8 +2846,8 @@
       const W = FW + PAD_X * 2;
       const H = PAD_Y * 2 + FH * N + GAP * (N - 1) + FOOT;
       // Canon SELPHY CP1300 postcard paper: 100 x 148 mm at 300 dpi.
-      // Preset artwork fills the postcard directly, with no added outer band.
-      // The existing 3.5 mm padding is used only for plain colour frames.
+      // Keep the complete decorated strip inside a 3.5 mm safe area so
+      // borderless-print overscan removes only the outer background.
       const PRINT_W = 1181;
       const PRINT_H = 1748;
       const PRINT_SAFE = 42;
@@ -2826,36 +2859,27 @@
       const ctx = oc.getContext('2d');
       const bdrCol = getBorderColor();
       let printBackgroundColor = bPx > 0 ? bdrCol : '#fff';
-      let frameLabelColor = '#B0A0C0';
+      const frameLabelColor = getLabelColor();
 
       if (frameImg) {
         const frameBackground = await loadImg(frameImg.src);
         const frameTone = getFrameBackgroundColor(frameBackground);
         printBackgroundColor = frameTone.css;
-        frameLabelColor = frameTone.luminance < 145 ? 'rgba(255,255,255,.9)' : '#6F617E';
         ctx.drawImage(frameBackground, 0, 0, W, H);
       } else {
         ctx.fillStyle = bPx > 0 ? bdrCol : '#fff';
         roundRect(ctx, 0, 0, W, H, 34);
         ctx.fill();
-
-        ctx.fillStyle = '#fff';
-        roundRect(
-          ctx,
-          PAD_X - bPx * .35,
-          PAD_Y - bPx * .35,
-          FW + bPx * .7,
-          FH * N + GAP * (N - 1) + bPx * .7,
-          22
-        );
-        ctx.fill();
       }
 
       for (let i = 0; i < N; i++) {
         const fy = PHOTO_TOP + i * (FH + GAP);
+        const photoInset = frameImg ? 0 : bPx;
 
         ctx.save();
-        roundRect(ctx, PAD_X, fy, FW, FH, 18);
+        // The selected background forms the border, without a white backing.
+        roundRect(ctx, PAD_X + photoInset, fy + photoInset,
+          FW - photoInset * 2, FH - photoInset * 2, Math.max(0, 18 - photoInset));
         ctx.clip();
 
         if (shots[i]) {
@@ -2881,15 +2905,6 @@
         });
 
         ctx.restore();
-
-        if (bPx > 0 && !frameImg) {
-          ctx.save();
-          ctx.strokeStyle = bdrCol;
-          ctx.lineWidth = bPx;
-          roundRect(ctx, PAD_X + bPx / 2, fy + bPx / 2, FW - bPx, FH - bPx, 15);
-          ctx.stroke();
-          ctx.restore();
-        }
       }
 
       const label = document.getElementById('labelInput').value;
@@ -2921,15 +2936,14 @@
       printCtx.fillStyle = printBackgroundColor;
       printCtx.fillRect(0, 0, PRINT_W, PRINT_H);
 
-      const printScale = frameImg
-        ? Math.max(PRINT_W / W, PRINT_H / H)
-        : Math.min((PRINT_W - PRINT_SAFE * 2) / W, (PRINT_H - PRINT_SAFE * 2) / H);
-      // Centre and uniformly scale the entire artwork. Never extend individual
-      // edge rows or columns, and never add an estimated left/right offset.
-      const printStripW = W * printScale;
-      const printStripH = H * printScale;
-      const printX = (PRINT_W - printStripW) / 2;
-      const printY = (PRINT_H - printStripH) / 2;
+      const printScale = Math.min(
+        (PRINT_W - PRINT_SAFE * 2) / W,
+        (PRINT_H - PRINT_SAFE * 2) / H
+      );
+      const printStripW = Math.round(W * printScale);
+      const printStripH = Math.round(H * printScale);
+      const printX = Math.round((PRINT_W - printStripW) / 2);
+      const printY = Math.round((PRINT_H - printStripH) / 2);
 
       printCtx.drawImage(oc, printX, printY, printStripW, printStripH);
 
