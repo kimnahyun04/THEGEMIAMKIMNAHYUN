@@ -1837,6 +1837,7 @@
     const N = 2;
     const CW = 680;
     const CH = 460;
+    const PHOTO_CORNER_RADIUS = 18;
     const FRAME_PHOTO_TOP = 120;
     const FRAME_PHOTO_BOTTOM = 72;
 
@@ -2101,9 +2102,10 @@
       const col = getBorderColor();
       const sw = document.getElementById('stripOuter');
       const selectedImg = getSelectedFrame();
+      const frameWidth = document.getElementById('f0').getBoundingClientRect().width || 460;
+      const previewPhotoRadius = PHOTO_CORNER_RADIUS * frameWidth / CW;
 
       if (selectedImg) {
-        const frameWidth = document.getElementById('f0').getBoundingClientRect().width || 460;
         const padX = Math.round(frameWidth * 52 / CW);
         const padTop = Math.round(frameWidth * FRAME_PHOTO_TOP / CW);
         const padBottom = Math.round(frameWidth * FRAME_PHOTO_BOTTOM / CW);
@@ -2127,6 +2129,9 @@
 
       for (let i = 0; i < N; i++) {
         const b = document.getElementById('b' + i);
+        // Keep the visible photo corner equally round at every thickness.
+        document.getElementById('f' + i).style.borderRadius = selectedImg ? '' : `${bPx + previewPhotoRadius}px`;
+        b.style.borderRadius = 'inherit';
         b.style.boxShadow = selectedImg
           ? 'none'
           : (bPx > 0 ? `inset 0 0 0 ${bPx}px ${col}` : 'none');
@@ -3019,7 +3024,7 @@
         ctx.save();
         // The selected background forms the border, without a white backing.
         roundRect(ctx, PAD_X + photoInset, fy + photoInset,
-          FW - photoInset * 2, FH - photoInset * 2, Math.max(0, 18 - photoInset));
+          FW - photoInset * 2, FH - photoInset * 2, PHOTO_CORNER_RADIUS);
         ctx.clip();
 
         if (shots[i]) {
