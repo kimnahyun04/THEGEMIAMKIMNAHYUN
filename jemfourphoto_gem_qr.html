@@ -790,6 +790,23 @@
       width: min(560px, 96vw);
     }
 
+    .save-status {
+      flex-basis: 100%;
+      margin: 0;
+      color: var(--tm);
+      font-size: 11px;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .save-status:empty {
+      display: none;
+    }
+
+    .save-status.error {
+      color: #d84f72;
+    }
+
     .qr-main {
       border: none;
       padding: 12px 34px;
@@ -803,6 +820,7 @@
       box-shadow: 0 6px 22px rgba(127, 112, 220, .44);
     }
 
+    .save-main:disabled,
     .qr-main:disabled {
       cursor: wait;
       opacity: .58;
@@ -1652,8 +1670,9 @@
         </div>
 
         <div class="save-actions">
-          <button class="save-main" type="button" onclick="saveStrip()">사이트에 저장하기</button>
+          <button class="save-main" type="button" onclick="saveToSite()">사이트에 저장하기</button>
           <button class="qr-main" id="qrMainBtn" type="button" onclick="generatePhotoQR()">QR로 휴대폰 전송</button>
+          <p class="save-status" id="saveStatus" role="status" aria-live="polite" aria-atomic="true"></p>
         </div>
       </main>
 
@@ -1800,7 +1819,15 @@
     let textTarget = null;
     let textDraft = null;
 
-    let records = JSON.parse(localStorage.getItem('pic2r') || '[]');
+    function readLocalValue(key, fallback) {
+      try {
+        return localStorage.getItem(key) || fallback;
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    let records = JSON.parse(readLocalValue('pic2r', '[]'));
 
     const PRESET_FRAMES = [
       { name: 'Garnet', src: 'jem_frame_garnet.jpg' },
@@ -1817,7 +1844,8 @@
       { name: 'Turquoise', src: 'jem_frame_turquoise.jpg' }
     ];
 
-    let selectedFramePattern = Number(localStorage.getItem('pic2r_selected_frame') || -1);
+    let selectedFramePattern = Number(readLocalValue('pic2r_selected_frame', -1));
+    let saveBusy = false;
     let qrBusy = false;
     let qrMode = 'view';
     let qrPhotoData = { view: '', print: '' };
@@ -2231,7 +2259,11 @@
 
     function selectFramePattern(index) {
       selectedFramePattern = index;
-      localStorage.setItem('pic2r_selected_frame', String(index));
+      try {
+        localStorage.setItem('pic2r_selected_frame', String(index));
+      } catch (error) {
+        // Frame selection still works when browser storage is unavailable.
+      }
       buildFrameGrid();
       applyBorder();
     }
@@ -2870,6 +2902,35 @@
       });
     }
 
+    async function saveToSite() {
+      if (saveBusy) return;
+
+      const button = document.querySelector('.save-main');
+      const status = document.getElementById('saveStatus');
+      saveBusy = true;
+      button.disabled = true;
+      button.textContent = '저장 중…';
+      status.classList.remove('error');
+      status.textContent = '사진을 사이트 기록에 저장하고 있어요…';
+
+      try {
+        const photo = await saveStrip({ showConfirmation: false });
+        status.textContent = '✓ 사이트 기록에 저장했어요.';
+        return photo;
+      } catch (error) {
+        console.error(error);
+        status.classList.add('error');
+        status.textContent = error.name === 'RecordSaveError'
+          ? error.message
+          : '사진을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.';
+        return null;
+      } finally {
+        saveBusy = false;
+        button.disabled = false;
+        button.textContent = '사이트에 저장하기';
+      }
+    }
+
     async function saveStrip(options = {}) {
       const shouldStore = options.storeRecord !== false;
       const showConfirmation = options.showConfirmation !== false;
@@ -2942,10 +3003,14 @@
         ctx.drawImage(document.getElementById('d' + i), PAD_X, fy, FW, FH);
 
         stickers[i].forEach(s => {
+          ctx.save();
+          ctx.translate(PAD_X + s.x, fy + s.y);
+          ctx.rotate((s.rot || 0) * Math.PI / 180);
           ctx.font = `${s.sz}px ${EMOJI_FONT}`;
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText(s.e, PAD_X + s.x, fy + s.y);
+          ctx.fillText(s.e, 0, 0);
+          ctx.restore();
         });
 
         ctx.restore();
@@ -2999,7 +3064,7 @@
       const gemInfo = selMo >= 0 ? `${MG[selMo].n} (${MG[selMo].mo})` : '';
 
       if (shouldStore) {
-        records.unshift({
+        const nextRecords = [{
           id: Date.now(),
           // Keep only a lightweight preview in localStorage. The QR upload still
           // receives the full 1181 x 1748 print image returned below.
@@ -3013,10 +3078,19 @@
             hour: '2-digit',
             minute: '2-digit'
           })
-        });
+        }, ...records].slice(0, 20);
 
-        records = records.slice(0, 20);
-        localStorage.setItem('pic2r', JSON.stringify(records));
+        try {
+          localStorage.setItem('pic2r', JSON.stringify(nextRecords));
+        } catch (error) {
+          const message = error.name === 'QuotaExceededError' || error.name === 'NS_ERROR_DOM_QUOTA_REACHED'
+            ? '브라우저 저장공간이 부족해요. 저장 기록에서 필요 없는 사진을 지운 뒤 다시 시도해 주세요.'
+            : '브라우저가 사이트 기록 저장을 허용하지 않아요. 사이트 데이터 저장 설정을 확인한 뒤 다시 시도해 주세요.';
+          const failure = new Error(message);
+          failure.name = 'RecordSaveError';
+          throw failure;
+        }
+        records = nextRecords;
         renderRecords();
       }
 
