@@ -2851,14 +2851,14 @@
       const W = FW + PAD_X * 2;
       const H = PAD_Y * 2 + FH * N + GAP * (N - 1) + FOOT;
       // Canon SELPHY CP1300 postcard paper: 100 x 148 mm at 300 dpi.
-      // Keep the complete decorated strip inside a 3.5 mm safe area so
-      // borderless-print overscan removes only the outer background.
+      // Keep the photo layout inside its existing 3.5 mm safe area.
+      // The original JEM frame below can extend into this margin as bleed.
       const PRINT_W = 1181;
       const PRINT_H = 1748;
       const PRINT_SAFE = 42;
-      // Shift only the complete JEM strip left by 1 mm. The solid print
-      // background and plain frames stay fixed; do not enlarge anything.
-      const JEM_PRINT_SHIFT_X_MM = -1;
+      // Cover the measured 1 mm exposed side margin with the original JEM
+      // frame image. Photo size and the composition's centre stay unchanged.
+      const FRAME_SIDE_BLEED_MM = 1;
 
       const oc = document.createElement('canvas');
       oc.width = W;
@@ -2868,12 +2868,12 @@
       const bdrCol = getBorderColor();
       let printBackgroundColor = bPx > 0 ? bdrCol : '#fff';
       const frameLabelColor = getLabelColor();
+      let frameBackground = null;
 
       if (frameImg) {
-        const frameBackground = await loadImg(frameImg.src);
+        frameBackground = await loadImg(frameImg.src);
         const frameTone = getFrameBackgroundColor(frameBackground);
         printBackgroundColor = frameTone.css;
-        ctx.drawImage(frameBackground, 0, 0, W, H);
       } else {
         ctx.fillStyle = bPx > 0 ? bdrCol : '#fff';
         roundRect(ctx, 0, 0, W, H, 34);
@@ -2950,9 +2950,20 @@
       );
       const printStripW = Math.round(W * printScale);
       const printStripH = Math.round(H * printScale);
-      const jemShiftX = frameImg ? Math.round(JEM_PRINT_SHIFT_X_MM * PRINT_W / 100) : 0;
-      const printX = Math.round((PRINT_W - printStripW) / 2) + jemShiftX;
+      const printX = (PRINT_W - printStripW) / 2;
       const printY = Math.round((PRINT_H - printStripH) / 2);
+
+      if (frameBackground) {
+        // Draw the complete original frame once, slightly larger, behind the
+        // transparent photo/label layer. Keep its proportions and midpoint;
+        // never stretch a narrow edge band or duplicate the ornaments.
+        const sideBleedPx = Math.ceil(FRAME_SIDE_BLEED_MM * PRINT_W / 100);
+        const frameScale = (printStripW + sideBleedPx * 2) / printStripW;
+        const frameW = printStripW * frameScale;
+        const frameH = printStripH * frameScale;
+        printCtx.drawImage(frameBackground,
+          (PRINT_W - frameW) / 2, (PRINT_H - frameH) / 2, frameW, frameH);
+      }
 
       printCtx.drawImage(oc, printX, printY, printStripW, printStripH);
 
