@@ -1166,6 +1166,33 @@
       color: #d84f72;
     }
 
+    .qr-purpose {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .qr-purpose button {
+      padding: 10px 6px;
+      border: 1px solid rgba(168, 127, 232, .25);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .7);
+      color: var(--td);
+      font: 600 11px 'Poppins', sans-serif;
+      cursor: pointer;
+    }
+
+    .qr-purpose button[aria-pressed='true'] {
+      background: rgba(168, 127, 232, .2);
+      border-color: var(--pink);
+    }
+
+    .qr-purpose button:disabled {
+      cursor: wait;
+      opacity: .6;
+    }
+
     .qr-result[hidden],
     .qr-retry[hidden] {
       display: none;
@@ -1461,16 +1488,21 @@
     <div class="modal-inner qr-modal-inner">
       <button class="modal-close" type="button" onclick="closeQrModal()" aria-label="QR 창 닫기">×</button>
       <div class="qr-title">휴대폰으로 가져가기</div>
+      <div class="qr-purpose" role="group" aria-label="사진 용도">
+        <button id="qrViewMode" type="button" aria-pressed="true" onclick="generatePhotoQR('view', true)">휴대폰 보관용</button>
+        <button id="qrPrintMode" type="button" aria-pressed="false" onclick="generatePhotoQR('print', true)">CP1300 인쇄용</button>
+      </div>
       <div class="qr-status" id="qrStatus">완성 사진을 준비하고 있어요…</div>
       <div class="qr-result" id="qrResult" hidden>
         <div class="qr-code" id="qrCode" aria-label="완성 사진 QR 코드"></div>
-        <div class="qr-guide">
+        <div class="qr-guide" id="qrGuide">
           휴대폰 카메라로 QR을 스캔하세요.<br>
-          열린 사진을 길게 눌러 저장한 뒤 캐논 앱에서 인쇄하면 돼요.
+          보관용 사진은 좌우가 중앙에 맞춰져 있어요.<br>
+          인쇄하려면 위의 ‘CP1300 인쇄용’을 선택해 주세요.
         </div>
         <a class="qr-photo-link" id="qrPhotoLink" href="#" target="_blank" rel="noopener">사진 직접 열기</a>
       </div>
-      <button class="qr-retry" id="qrRetry" type="button" onclick="generatePhotoQR()" hidden>다시 시도하기</button>
+      <button class="qr-retry" id="qrRetry" type="button" onclick="generatePhotoQR(qrMode, true)" hidden>다시 시도하기</button>
     </div>
   </div>
 
@@ -1787,6 +1819,9 @@
 
     let selectedFramePattern = Number(localStorage.getItem('pic2r_selected_frame') || -1);
     let qrBusy = false;
+    let qrMode = 'view';
+    let qrPhotoData = { view: '', print: '' };
+    let qrPhotoUrls = { view: '', print: '' };
 
     async function startCam() {
       const status = document.getElementById('camStatus');
@@ -2838,6 +2873,7 @@
     async function saveStrip(options = {}) {
       const shouldStore = options.storeRecord !== false;
       const showConfirmation = options.showConfirmation !== false;
+      const forPrint = options.forPrint === true;
       commitTextEditor(true);
 
       const frameImg = getSelectedFrame();
@@ -2851,14 +2887,14 @@
       const W = FW + PAD_X * 2;
       const H = PAD_Y * 2 + FH * N + GAP * (N - 1) + FOOT;
       // Canon SELPHY CP1300 postcard paper: 100 x 148 mm at 300 dpi.
-      // Keep the photo layout inside its existing 3.5 mm safe area.
-      // The original JEM frame below can extend into this margin as bleed.
+      // Keep the complete decorated strip inside a 3.5 mm safe area so
+      // borderless-print overscan removes only the outer background.
       const PRINT_W = 1181;
       const PRINT_H = 1748;
       const PRINT_SAFE = 42;
-      // Cover the measured 1 mm exposed side margin with the original JEM
-      // frame image. Photo size and the composition's centre stay unchanged.
-      const FRAME_SIDE_BLEED_MM = 1;
+      // Only the CP1300 print version compensates left by 1 mm. Phone
+      // keepsakes and site records stay centred, with the same scale.
+      const JEM_PRINT_SHIFT_X_MM = -1;
 
       const oc = document.createElement('canvas');
       oc.width = W;
@@ -2868,12 +2904,12 @@
       const bdrCol = getBorderColor();
       let printBackgroundColor = bPx > 0 ? bdrCol : '#fff';
       const frameLabelColor = getLabelColor();
-      let frameBackground = null;
 
       if (frameImg) {
-        frameBackground = await loadImg(frameImg.src);
+        const frameBackground = await loadImg(frameImg.src);
         const frameTone = getFrameBackgroundColor(frameBackground);
         printBackgroundColor = frameTone.css;
+        ctx.drawImage(frameBackground, 0, 0, W, H);
       } else {
         ctx.fillStyle = bPx > 0 ? bdrCol : '#fff';
         roundRect(ctx, 0, 0, W, H, 34);
@@ -2950,20 +2986,9 @@
       );
       const printStripW = Math.round(W * printScale);
       const printStripH = Math.round(H * printScale);
-      const printX = (PRINT_W - printStripW) / 2;
+      const jemShiftX = frameImg && forPrint ? Math.round(JEM_PRINT_SHIFT_X_MM * PRINT_W / 100) : 0;
+      const printX = Math.round((PRINT_W - printStripW) / 2) + jemShiftX;
       const printY = Math.round((PRINT_H - printStripH) / 2);
-
-      if (frameBackground) {
-        // Draw the complete original frame once, slightly larger, behind the
-        // transparent photo/label layer. Keep its proportions and midpoint;
-        // never stretch a narrow edge band or duplicate the ornaments.
-        const sideBleedPx = Math.ceil(FRAME_SIDE_BLEED_MM * PRINT_W / 100);
-        const frameScale = (printStripW + sideBleedPx * 2) / printStripW;
-        const frameW = printStripW * frameScale;
-        const frameH = printStripH * frameScale;
-        printCtx.drawImage(frameBackground,
-          (PRINT_W - frameW) / 2, (PRINT_H - frameH) / 2, frameW, frameH);
-      }
 
       printCtx.drawImage(oc, printX, printY, printStripW, printStripH);
 
@@ -3052,7 +3077,7 @@
       return photoUrl;
     }
 
-    async function generatePhotoQR() {
+    async function generatePhotoQR(mode = 'view', reuseSnapshot = false) {
       if (qrBusy) return;
 
       if (shotCount < N) {
@@ -3061,6 +3086,11 @@
       }
 
       qrBusy = true;
+      qrMode = mode === 'print' ? 'print' : 'view';
+      if (!reuseSnapshot) {
+        qrPhotoData = { view: '', print: '' };
+        qrPhotoUrls = { view: '', print: '' };
+      }
 
       const modal = document.getElementById('qrModal');
       const status = document.getElementById('qrStatus');
@@ -3068,6 +3098,12 @@
       const retry = document.getElementById('qrRetry');
       const qrBox = document.getElementById('qrCode');
       const mainBtn = document.getElementById('qrMainBtn');
+      const viewBtn = document.getElementById('qrViewMode');
+      const printBtn = document.getElementById('qrPrintMode');
+      const printMode = qrMode === 'print';
+      viewBtn.setAttribute('aria-pressed', String(!printMode));
+      printBtn.setAttribute('aria-pressed', String(printMode));
+      viewBtn.disabled = printBtn.disabled = true;
 
       modal.classList.add('open');
       modal.setAttribute('aria-hidden', 'false');
@@ -3084,10 +3120,19 @@
           throw new Error('QR 전송은 HTML 파일을 직접 열지 말고 VS Code Live Server 또는 GitHub Pages에서 실행해 주세요.');
         }
 
-        const dataUrl = await saveStrip({ storeRecord: false, showConfirmation: false });
-        status.textContent = '휴대폰에서 열 수 있도록 사진을 업로드하고 있어요…';
+        if (!qrPhotoData.view || !qrPhotoData.print) {
+          // Freeze both versions from the same photo session. Switching QR
+          // purpose reuses these images, even if the editor later changes.
+          qrPhotoData.view = await saveStrip({ storeRecord: false, showConfirmation: false });
+          qrPhotoData.print = await saveStrip({ storeRecord: false, showConfirmation: false, forPrint: true });
+        }
+        status.textContent = `${printMode ? '인쇄용' : '보관용'} 사진을 준비하고 있어요…`;
 
-        const photoUrl = await uploadFinalPhoto(dataUrl);
+        let photoUrl = qrPhotoUrls[qrMode];
+        if (!photoUrl) {
+          photoUrl = await uploadFinalPhoto(qrPhotoData[qrMode]);
+          qrPhotoUrls[qrMode] = photoUrl;
+        }
         await ensureQrLibrary();
 
         new QRCode(qrBox, {
@@ -3099,8 +3144,13 @@
           correctLevel: QRCode.CorrectLevel.M
         });
 
-        document.getElementById('qrPhotoLink').href = photoUrl;
-        status.textContent = 'QR 생성 완료!';
+        const photoLink = document.getElementById('qrPhotoLink');
+        photoLink.href = photoUrl;
+        photoLink.textContent = printMode ? '인쇄용 사진 직접 열기' : '보관용 사진 직접 열기';
+        document.getElementById('qrGuide').innerHTML = printMode
+          ? 'QR을 스캔하고 열린 사진을 저장한 뒤 캐논 앱에서 인쇄해 주세요.<br>JEM 프레임은 인쇄 위치를 맞추기 위해 왼쪽 1mm 보정돼 있어요.<br>화면에서 볼 사진은 ‘휴대폰 보관용’을 선택해 주세요.'
+          : 'QR을 스캔하고 열린 사진을 길게 눌러 저장해 주세요.<br>보관용 사진은 좌우가 중앙에 맞춰져 있어요.<br>인쇄하려면 ‘CP1300 인쇄용’을 선택해 주세요.';
+        status.textContent = `${printMode ? '인쇄용' : '보관용'} QR 생성 완료!`;
         result.hidden = false;
       } catch (error) {
         console.error(error);
@@ -3109,6 +3159,7 @@
         retry.hidden = false;
       } finally {
         qrBusy = false;
+        viewBtn.disabled = printBtn.disabled = false;
         mainBtn.disabled = false;
         mainBtn.textContent = 'QR로 휴대폰 전송';
       }
