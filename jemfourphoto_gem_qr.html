@@ -1432,6 +1432,28 @@
   background:rgba(255,255,255,0.95);
   transform:translateY(-2px);
 }
+
+    .print-alignment {
+      width: min(460px, 94vw);
+      padding: 11px 14px;
+      border: 1px solid rgba(255, 255, 255, .85);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .5);
+    }
+
+    .print-alignment input {
+      display: block;
+      margin: 12px 0;
+    }
+
+    .print-alignment-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 9px;
+      color: var(--tm);
+    }
   </style>
 </head>
 
@@ -1619,6 +1641,18 @@
           </label>
         </div>
 
+        <div class="print-alignment">
+          <div class="sll">
+            <label for="printOffsetInput">인쇄 좌우 위치</label>
+            <output id="printOffsetOutput" for="printOffsetInput">왼쪽 0.5 mm</output>
+          </div>
+          <input type="range" id="printOffsetInput" min="-2" max="2" step="0.1" value="-0.5" oninput="setPrintOffset(this.value)" />
+          <div class="print-alignment-actions">
+            <span>오른쪽이 더 잘리면 왼쪽으로 조절해 주세요.</span>
+            <button class="mini-btn" type="button" onclick="setPrintOffset(0)">중앙으로</button>
+          </div>
+        </div>
+
         <div class="save-actions">
           <button class="save-main" type="button" onclick="saveStrip()">사이트에 저장하기</button>
           <button class="qr-main" id="qrMainBtn" type="button" onclick="generatePhotoQR()">QR로 휴대폰 전송</button>
@@ -1787,6 +1821,28 @@
 
     let selectedFramePattern = Number(localStorage.getItem('pic2r_selected_frame') || -1);
     let qrBusy = false;
+    let printOffsetMm = -0.5;
+
+    function setPrintOffset(value) {
+      const parsed = Number(value);
+      printOffsetMm = Number.isFinite(parsed)
+        ? Math.round(Math.max(-2, Math.min(2, parsed)) * 10) / 10
+        : -0.5;
+
+      const description = printOffsetMm === 0
+        ? '중앙 · 보정 없음'
+        : `${printOffsetMm < 0 ? '왼쪽' : '오른쪽'} ${Math.abs(printOffsetMm).toFixed(1)} mm`;
+      const input = document.getElementById('printOffsetInput');
+      input.value = String(printOffsetMm);
+      input.setAttribute('aria-valuetext', description);
+      document.getElementById('printOffsetOutput').textContent = description;
+      localStorage.setItem('pic2r_print_offset_mm', String(printOffsetMm));
+    }
+
+    function restorePrintOffset() {
+      const saved = localStorage.getItem('pic2r_print_offset_mm');
+      setPrintOffset(saved === null ? -0.5 : saved);
+    }
 
     async function startCam() {
       const status = document.getElementById('camStatus');
@@ -1998,26 +2054,32 @@
       }
     }
 
-    function getFrameBackgroundColor(img) {
-      const sample = document.createElement('canvas');
-      sample.width = 1;
-      sample.height = 1;
+    function drawFrameWithExtendedEdges(ctx, strip, x, y, width, height) {
+      // Keep the complete strip at its existing size. Continue only a narrow
+      // band of the frame's own edge texture into the print-safe margins.
+      // The outer 1% (at most 8 source pixels) excludes photos and ornaments.
+      const edgeX = Math.max(1, Math.min(8, Math.floor(strip.width * .01)));
+      const edgeY = Math.max(1, Math.min(8, Math.floor(strip.height * .01)));
+      const columns = [
+        [0, edgeX, 0, x, true],
+        [0, strip.width, x, width, false],
+        [strip.width - edgeX, edgeX, x + width, ctx.canvas.width - x - width, true]
+      ];
+      const rows = [
+        [0, edgeY, 0, y, true],
+        [0, strip.height, y, height, false],
+        [strip.height - edgeY, edgeY, y + height, ctx.canvas.height - y - height, true]
+      ];
 
-      const sampleCtx = sample.getContext('2d');
-      const sx = Math.round(img.width * .42);
-      const sy = Math.round(img.height * .4);
-      const sw = Math.max(1, Math.round(img.width * .16));
-      const sh = Math.max(1, Math.round(img.height * .2));
-      sampleCtx.drawImage(img, sx, sy, sw, sh, 0, 0, 1, 1);
-
-      try {
-        const [r, g, b] = sampleCtx.getImageData(0, 0, 1, 1).data;
-        return {
-          css: `rgb(${r}, ${g}, ${b})`,
-          luminance: r * .299 + g * .587 + b * .114
-        };
-      } catch (error) {
-        return { css: '#ffffff', luminance: 255 };
+      for (const [sx, sw, dx, dw, flipX] of columns) {
+        for (const [sy, sh, dy, dh, flipY] of rows) {
+          if (dw <= 0 || dh <= 0) continue;
+          ctx.save();
+          ctx.translate(dx + (flipX ? dw : 0), dy + (flipY ? dh : 0));
+          ctx.scale(flipX ? -1 : 1, flipY ? -1 : 1);
+          ctx.drawImage(strip, sx, sy, sw, sh, 0, 0, dw, dh);
+          ctx.restore();
+        }
       }
     }
 
@@ -2851,8 +2913,9 @@
       const W = FW + PAD_X * 2;
       const H = PAD_Y * 2 + FH * N + GAP * (N - 1) + FOOT;
       // Canon SELPHY CP1300 postcard paper: 100 x 148 mm at 300 dpi.
-      // Keep the complete decorated strip inside a 3.5 mm safe area so
-      // borderless-print overscan removes only the outer background.
+      // Preserve the existing strip scale inside a 3.5 mm safe area.
+      // JEM frames continue their edge texture to the paper boundary;
+      // neither the photos nor the frame ornaments are enlarged or cropped.
       const PRINT_W = 1181;
       const PRINT_H = 1748;
       const PRINT_SAFE = 42;
@@ -2863,13 +2926,10 @@
 
       const ctx = oc.getContext('2d');
       const bdrCol = getBorderColor();
-      let printBackgroundColor = bPx > 0 ? bdrCol : '#fff';
       const frameLabelColor = getLabelColor();
 
       if (frameImg) {
         const frameBackground = await loadImg(frameImg.src);
-        const frameTone = getFrameBackgroundColor(frameBackground);
-        printBackgroundColor = frameTone.css;
         ctx.drawImage(frameBackground, 0, 0, W, H);
       } else {
         ctx.fillStyle = bPx > 0 ? bdrCol : '#fff';
@@ -2938,8 +2998,6 @@
       const printCtx = printCanvas.getContext('2d');
       printCtx.imageSmoothingEnabled = true;
       printCtx.imageSmoothingQuality = 'high';
-      printCtx.fillStyle = printBackgroundColor;
-      printCtx.fillRect(0, 0, PRINT_W, PRINT_H);
 
       const printScale = Math.min(
         (PRINT_W - PRINT_SAFE * 2) / W,
@@ -2947,10 +3005,19 @@
       );
       const printStripW = Math.round(W * printScale);
       const printStripH = Math.round(H * printScale);
-      const printX = Math.round((PRINT_W - printStripW) / 2);
+      // Move the whole composition together, including ornaments and label.
+      // The correction changes position only, never the print scale.
+      const offsetPx = Math.round(printOffsetMm * PRINT_W / 100);
+      const printX = Math.round((PRINT_W - printStripW) / 2) + offsetPx;
       const printY = Math.round((PRINT_H - printStripH) / 2);
 
-      printCtx.drawImage(oc, printX, printY, printStripW, printStripH);
+      if (frameImg) {
+        drawFrameWithExtendedEdges(printCtx, oc, printX, printY, printStripW, printStripH);
+      } else {
+        printCtx.fillStyle = bPx > 0 ? bdrCol : '#fff';
+        printCtx.fillRect(0, 0, PRINT_W, PRINT_H);
+        printCtx.drawImage(oc, printX, printY, printStripW, printStripH);
+      }
 
       const url = printCanvas.toDataURL('image/jpeg', .92);
       const recordPreview = shouldStore ? makeRecordPreview(printCanvas) : '';
@@ -3293,6 +3360,7 @@
     buildMoGrid();
     buildDrawColors();
     renderRecords();
+    restorePrintOffset();
     syncBdrColor();
     applyBorder();
     selectFrame(0);
