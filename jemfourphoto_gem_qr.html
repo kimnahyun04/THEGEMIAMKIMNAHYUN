@@ -2953,9 +2953,9 @@
       const PRINT_W = 1181;
       const PRINT_H = 1748;
       const PRINT_SAFE = 42;
-      // Only the CP1300 print version compensates left by 0.3 mm. Phone
+      // Only the CP1300 print version compensates left by 0.35 mm. Phone
       // keepsakes and site records stay centred, with the same scale.
-      const JEM_PRINT_SHIFT_X_MM = -0.3;
+      const JEM_PRINT_SHIFT_X_MM = -0.35;
 
       const oc = document.createElement('canvas');
       oc.width = W;
@@ -3222,7 +3222,7 @@
         photoLink.href = photoUrl;
         photoLink.textContent = printMode ? '인쇄용 사진 직접 열기' : '보관용 사진 직접 열기';
         document.getElementById('qrGuide').innerHTML = printMode
-          ? 'QR을 스캔하고 열린 사진을 저장한 뒤 캐논 앱에서 인쇄해 주세요.<br>JEM 프레임은 인쇄 위치를 맞추기 위해 왼쪽 0.3mm 보정돼 있어요.<br>화면에서 볼 사진은 ‘휴대폰 보관용’을 선택해 주세요.'
+          ? 'QR을 스캔하고 열린 사진을 저장한 뒤 캐논 앱에서 인쇄해 주세요.<br>JEM 프레임은 인쇄 위치를 맞추기 위해 왼쪽 0.35mm 보정돼 있어요.<br>화면에서 볼 사진은 ‘휴대폰 보관용’을 선택해 주세요.'
           : 'QR을 스캔하고 열린 사진을 길게 눌러 저장해 주세요.<br>보관용 사진은 좌우가 중앙에 맞춰져 있어요.<br>인쇄하려면 ‘CP1300 인쇄용’을 선택해 주세요.';
         status.textContent = `${printMode ? '인쇄용' : '보관용'} QR 생성 완료!`;
         result.hidden = false;
