@@ -1549,6 +1549,73 @@
     .receive-wifi-steps strong { color: #694285; font-size: 15px; }
     .receive-dialog-close { background: none; border: 0; color: #8b759b; margin-top: 10px; min-height: 38px; cursor: pointer; font: inherit; font-size: 12px; }
 
+    .col-c { --mc-text: #49345e; --mc-muted: #7d688f; --mc-panel: rgba(255,255,255,.72); --mc-line: rgba(255,255,255,.75); }
+    body.zodiac-studio .col-c { --mc-text: #f2f5ff; --mc-muted: #c3d0e8; --mc-panel: rgba(24,46,91,.74); --mc-line: rgba(187,207,249,.28); }
+    .booth-steps { display:flex; width:min(100%,760px); justify-content:center; gap:18px; padding:10px 0; color:var(--mc-muted); font-size:11px; }
+    .booth-steps .current { color:var(--mc-text); font-weight:700; }
+    .capture-panel, .photo-editor { color:var(--mc-text); }
+    .photo-editor { width:min(100%,760px); }
+    .capture-panel { width:min(100%,760px); background:var(--mc-panel); border:1px solid var(--mc-line); border-radius:24px; padding:16px; }
+    .capture-view { position:relative; aspect-ratio:16/9; overflow:hidden; border-radius:15px; background:#14121c; }
+    #boothCamera { display:block; width:100%;height:100%;object-fit:contain;transform:scaleX(-1); }
+    .capture-view .capture-badge { position:absolute;top:12px;left:12px; border-radius:30px; padding:6px 10px; background:rgba(15,19,34,.55);color:#fff;font-size:11px; }
+    .capture-panel .cam-controls { width:100%;margin:18px 0 12px; }
+    .capture-thumbs,.photo-choices { display:grid;grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; }
+    .capture-thumb { aspect-ratio:4/3;background:rgba(132,120,166,.16);border:1px dashed var(--mc-line);border-radius:10px;overflow:hidden;display:grid;place-items:center;font-size:12px;color:var(--mc-muted); }
+    .capture-thumbs .capture-thumb { aspect-ratio:16/9; max-height:90px; }
+    .capture-thumb img { width:100%;height:100%;object-fit:cover; }
+    .booth-primary,.booth-secondary { width:100%;min-height:44px;border:0;border-radius:12px;cursor:pointer;font:600 12px 'Poppins',sans-serif; padding:11px 10px;touch-action:manipulation; }
+    .booth-primary { background:linear-gradient(120deg,#a87fe8,#e88eba);color:#fff;margin-top:14px; }
+    .booth-secondary { background:var(--mc-panel);color:var(--mc-text);border:1px solid var(--mc-line); }
+    .booth-primary:disabled,.booth-secondary:disabled { opacity:.4;cursor:default; }
+    .booth-hint { font-size:11px;line-height:1.8;color:var(--mc-muted);text-align:center;margin:10px 0 0; }
+    .selection-panel { border-radius:20px;padding:16px;background:var(--mc-panel);border:1px solid var(--mc-line);margin-bottom:14px; }
+    .selection-title { display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:600;margin-bottom:12px; }
+    .selection-title span { font-size:11px;font-weight:400;color:var(--mc-muted); }
+    .photo-choice { min-width:0; }
+    .photo-choice-toggle { position:relative;display:block;width:100%;padding:3px;border:2px solid transparent;border-radius:12px;background:rgba(133,116,161,.12);cursor:pointer;color:var(--mc-text);font:inherit; }
+    .photo-choice-toggle[aria-pressed='true'] { border-color:#c79be9;background:rgba(194,154,230,.28); }
+    .photo-choice-toggle img { display:block;aspect-ratio:4/3;width:100%;object-fit:cover;border-radius:7px; }
+    .photo-choice-toggle .choice-order { position:absolute;top:6px;right:6px;min-width:20px;height:20px;border-radius:20px;display:grid;place-items:center;color:#fff;background:#865cb1;font-size:11px; }
+    .photo-choice-label { display:block;font-size:10px;line-height:1.7;padding-top:4px; }
+    .choice-order-buttons { display:flex;gap:3px;margin-top:4px; }
+    .choice-order-buttons button { flex:1;min-width:0;min-height:30px;background:var(--mc-panel);border:1px solid var(--mc-line);border-radius:7px;color:var(--mc-text);cursor:pointer;font-size:14px; }
+    .choice-order-buttons button:disabled { opacity:.25;cursor:default; }
+    .layout-buttons { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:16px; }
+    .layout-button { min-width:0;min-height:66px;padding:8px 2px;border:1px solid var(--mc-line);border-radius:12px;background:var(--mc-panel);color:var(--mc-text);cursor:pointer;font:600 11px 'Poppins',sans-serif; }
+    .layout-button[aria-pressed='true'] { border:2px solid #c79be9;background:rgba(182,141,222,.22); }
+    .layout-button:disabled { opacity:.3;cursor:default; }
+    .layout-icon { width:26px;height:30px;display:grid;gap:2px;margin:0 auto 5px;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(2,1fr); }
+    .layout-icon i { display:block;background:currentColor;opacity:.6;border-radius:2px; }
+    .layout-icon.one i { grid-area:1/1/3/3; }
+    .layout-icon.two i { grid-column:1/3; }
+    .layout-icon.three i:first-child { grid-column:1/3; }
+    #stripOuter { display:block;position:relative;box-sizing:border-box;width:100%;padding:0!important;gap:0!important;max-width:none;overflow:hidden; }
+    #stripOuter .frame-slot { position:absolute;flex:none;min-width:0;min-height:0;aspect-ratio:auto; }
+    #stripOuter .layer-video { display:none!important; }
+    #stripOuter .strip-label { position:absolute;padding:0;margin:0;line-height:1.3;width:100%;left:0;transform:translateY(-50%);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .photo-editor .label-wrap { width:100%!important;margin-top:12px; }
+    .fit-tools { display:flex;gap:7px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:14px;font-size:11px;color:var(--mc-muted); }
+    .fit-tools button { min-height:36px;border:1px solid var(--mc-line);border-radius:20px;padding:7px 12px;color:var(--mc-text);background:var(--mc-panel);cursor:pointer;font:inherit; }
+    .fit-tools button[aria-pressed='true'] { border-color:#b18bd6;background:rgba(182,141,222,.22); }
+    .editor-actions { margin-top:18px;padding:18px;background:var(--mc-panel);border:1px solid var(--mc-line);border-radius:20px; }
+    .editor-actions-title { color:var(--mc-text);font-size:14px;font-weight:600;margin-bottom:14px; }
+    #photoEditor .save-actions { display:grid;grid-template-columns:minmax(0,1fr);width:100%;gap:10px;margin:0; }
+    #photoEditor .save-actions .qr-main,#photoEditor .save-actions .save-main { width:100%;min-width:0;margin:0;border-radius:13px;font-size:14px;line-height:1.4; }
+    #photoEditor .save-actions .qr-main { min-height:54px;padding:15px 16px;font-weight:700; }
+    #photoEditor .save-actions .save-main { min-height:46px;padding:12px 16px;background:var(--mc-panel);color:var(--mc-text);border:1px solid var(--mc-line);box-shadow:none; }
+    #photoEditor .save-status { color:var(--mc-muted); }
+    #photoEditor .save-status.error { color:#d84f72; }
+    .session-actions { display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px;padding-top:16px;border-top:1px solid var(--mc-line); }
+    .capture-summary { font-size:11px;line-height:1.7;color:var(--mc-muted); }
+    .session-action-buttons { display:flex;gap:8px;margin-left:auto; }
+    .session-action-buttons .booth-secondary { width:auto;min-width:126px;padding:10px 14px;font-size:12px; }
+    .session-action-buttons .retake-action { background:transparent;border-color:rgba(184,103,136,.45);color:#986078; }
+    body.zodiac-studio .session-action-buttons .retake-action { color:#f0bdd0;border-color:rgba(240,189,208,.4); }
+    .shoot-btn:disabled { opacity:.35;cursor:default; }
+    @media(min-width:1100px) { .col-l,.col-r { position:sticky;top:80px; } }
+    @media(max-width:480px) { .capture-panel,.selection-panel { padding:12px; }.booth-steps { gap:12px;font-size:10px; }.choice-order-buttons button { min-height:34px; }.editor-actions { padding:14px; }.session-action-buttons { flex:1;justify-content:flex-end; }.session-action-buttons .booth-secondary { min-width:0; } }
+
   </style>
 </head>
 
@@ -1558,9 +1625,9 @@
     <h1>오늘의 순간을 간직해요</h1>
     <p class="receive-intro" id="receiveIntro">사진과 촬영 타임랩스를<br>아래 버튼으로 저장해 주세요.</p>
     <section class="receive-card" id="receivePhotoCard" hidden>
-      <div class="receive-card-head"><h2 id="receivePhotoTitle">나의 두 컷</h2><span class="receive-tag">JPG · 원본</span></div>
+      <div class="receive-card-head"><h2 id="receivePhotoTitle">나의 사진</h2><span class="receive-tag">JPG · 원본</span></div>
       <p class="receive-print-note" id="receivePrintNote" hidden>CP1300 인쇄용 사진이에요. 사진 저장·Wi-Fi 연결 후 사진 앱에서 프린트를 진행해 주세요.</p>
-      <img class="receive-preview receive-photo" id="receivePhoto" alt="완성된 두 컷 사진" referrerpolicy="no-referrer" />
+      <img class="receive-preview receive-photo" id="receivePhoto" alt="완성된 사진" referrerpolicy="no-referrer" />
       <button class="receive-save" id="receivePhotoSave" type="button" disabled>사진 불러오는 중…</button>
       <p class="receive-file-status" id="receivePhotoStatus" role="status" aria-live="polite"></p>
       <a class="receive-original" id="receivePhotoOriginal" target="_blank" rel="noopener noreferrer" hidden>원본 사진 열기</a>
@@ -1603,7 +1670,7 @@
   <div class="modal" id="recModal">
     <div class="modal-inner">
       <button class="modal-close" onclick="closeModal()">×</button>
-      <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--td);">내 2컷 📸</div>
+      <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--td);">내 사진 📸</div>
       <img class="modal-img" id="modalImg" src="" alt="saved photostrip" />
       <div class="modal-info" id="modalInfo"></div>
     </div>
@@ -1685,7 +1752,7 @@
           </div>
           <div style="font-size:8.5px;color:var(--tr);line-height:1.6;margin-top:8px;text-align:center;">
             프레임 이미지는 바로 선택해서 적용돼요.<br>
-            사진이 들어가는 두 컷 부분은 자동으로 비워지고, 바깥 프레임에만 이미지가 씌워져요.
+            선택한 사진이 들어가는 부분은 자동으로 비워지고, 바깥 프레임에만 이미지가 씌워져요.
           </div>
         </section>
 
@@ -1731,47 +1798,58 @@
       </aside>
 
       <main class="col-c">
-        <div class="strip-outer" id="stripOuter">
-          <div class="frame-slot selected" id="f0">
-            <video class="layer layer-video" id="v0" autoplay muted playsinline></video>
-            <img class="layer layer-photo" id="p0" alt="photo 1" />
+        <div class="booth-steps"><span id="stepCapture" class="current">1. 최대 4장 촬영</span><span id="stepSelect">2. 사진 선택 · 배치 · 꾸미기</span></div>
+        <section class="capture-panel" id="capturePanel" aria-label="사진 촬영">
+          <div class="capture-view"><video id="boothCamera" autoplay muted playsinline></video><span class="capture-badge" id="captureBadge">0 / 4</span><div class="flash-fx" id="captureFlash"></div></div>
+          <div class="cam-controls">
+            <div class="timer-row"><div class="tbtn active" data-t="0" onclick="setTimer(this)">바로</div><div class="tbtn" data-t="3" onclick="setTimer(this)">3초</div><div class="tbtn" data-t="5" onclick="setTimer(this)">5초</div></div>
+            <button class="shoot-btn" id="shootBtn" type="button" onclick="shoot()" aria-label="사진 촬영">📷</button>
+            <span class="shot-info" id="shotInfo">0 / 4 촬영</span>
+          </div>
+          <div class="capture-thumbs" id="captureThumbs" aria-label="촬영한 사진"></div>
+          <button class="booth-primary" id="finishCaptureBtn" type="button" onclick="finishCapture()" disabled>촬영 후 사진 고르기</button>
+          <p class="booth-hint">최대 4장까지 찍을 수 있어요. 한 장만 찍고 다음으로 가도 돼요.</p>
+        </section>
+        <section class="photo-editor" id="photoEditor" aria-label="사진 선택과 프레임 꾸미기" hidden>
+          <div class="selection-panel">
+            <div class="selection-title">사용할 사진 고르기 <span id="selectionCount">0장 선택</span></div>
+            <div class="photo-choices" id="photoChoices"></div>
+            <p class="booth-hint" id="selectionHint" role="status" aria-live="polite">선택한 순서대로 배치돼요. 화살표로 순서를 바꿀 수 있어요.</p>
+            <div class="layout-buttons" role="group" aria-label="사진 배치 선택"><button class="layout-button" type="button" data-layout-count="1" onclick="setLayoutCount(1)" aria-pressed="false"><span class="layout-icon one" aria-hidden="true"><i></i></span>한 컷 크게</button><button class="layout-button" type="button" data-layout-count="2" onclick="setLayoutCount(2)" aria-pressed="false"><span class="layout-icon two" aria-hidden="true"><i></i><i></i></span>두 컷</button><button class="layout-button" type="button" data-layout-count="3" onclick="setLayoutCount(3)" aria-pressed="false"><span class="layout-icon three" aria-hidden="true"><i></i><i></i><i></i></span>세 컷</button><button class="layout-button" type="button" data-layout-count="4" onclick="setLayoutCount(4)" aria-pressed="false"><span class="layout-icon four" aria-hidden="true"><i></i><i></i><i></i><i></i></span>네 컷</button></div>
+          </div>
+          <div class="strip-outer" id="stripOuter">
+          <div class="frame-slot" id="f0" data-photo-index="0" hidden>
+            <img class="layer layer-photo" id="p0" alt="촬영한 사진 1" />
             <canvas class="layer layer-draw" id="d0" width="680" height="460"></canvas>
             <canvas class="layer layer-stk" id="s0" width="680" height="460"></canvas>
             <textarea class="text-editor" id="txt0" rows="1"></textarea>
-            <div class="layer layer-border" id="b0"></div>
-            <div class="fnum">1</div>
-            <div class="flash-fx" id="fl0"></div>
+            <div class="layer layer-border" id="b0"></div><div class="fnum">1</div>
           </div>
-
-          <div class="frame-slot" id="f1">
-            <video class="layer layer-video" id="v1" autoplay muted playsinline></video>
-            <img class="layer layer-photo" id="p1" alt="photo 2" />
+          <div class="frame-slot" id="f1" data-photo-index="1" hidden>
+            <img class="layer layer-photo" id="p1" alt="촬영한 사진 2" />
             <canvas class="layer layer-draw" id="d1" width="680" height="460"></canvas>
             <canvas class="layer layer-stk" id="s1" width="680" height="460"></canvas>
             <textarea class="text-editor" id="txt1" rows="1"></textarea>
-            <div class="layer layer-border" id="b1"></div>
-            <div class="fnum">2</div>
-            <div class="flash-fx" id="fl1"></div>
+            <div class="layer layer-border" id="b1"></div><div class="fnum">2</div>
           </div>
-
-          <div class="strip-label" id="stripLabel">✦ My Gem Studio ✦</div>
-        </div>
-
-        <div class="cam-controls">
-          <div class="timer-row">
-            <div class="tbtn active" data-t="0" onclick="setTimer(this)">바로</div>
-            <div class="tbtn" data-t="3" onclick="setTimer(this)">3초</div>
-            <div class="tbtn" data-t="5" onclick="setTimer(this)">5초</div>
+          <div class="frame-slot" id="f2" data-photo-index="2" hidden>
+            <img class="layer layer-photo" id="p2" alt="촬영한 사진 3" />
+            <canvas class="layer layer-draw" id="d2" width="680" height="460"></canvas>
+            <canvas class="layer layer-stk" id="s2" width="680" height="460"></canvas>
+            <textarea class="text-editor" id="txt2" rows="1"></textarea>
+            <div class="layer layer-border" id="b2"></div><div class="fnum">3</div>
           </div>
-          <button class="shoot-btn" id="shootBtn" onclick="shoot()">📷</button>
-          <div style="display:flex;flex-direction:column;gap:5px;align-items:center;">
-            <span class="shot-info" id="shotInfo">0 / 2 촬영</span>
-            <button class="cam-btn red" onclick="resetPhotos()">사진 초기화</button>
+          <div class="frame-slot" id="f3" data-photo-index="3" hidden>
+            <img class="layer layer-photo" id="p3" alt="촬영한 사진 4" />
+            <canvas class="layer layer-draw" id="d3" width="680" height="460"></canvas>
+            <canvas class="layer layer-stk" id="s3" width="680" height="460"></canvas>
+            <textarea class="text-editor" id="txt3" rows="1"></textarea>
+            <div class="layer layer-border" id="b3"></div><div class="fnum">4</div>
           </div>
-        </div>
-
-        <p class="timelapse-note" id="timelapseNote" aria-live="polite">촬영하는 순간도 짧은 타임랩스 GIF로 함께 담아요.</p>
-
+            <div class="strip-label" id="stripLabel">✦ My Gem Studio ✦</div>
+          </div>
+          <div class="fit-tools"><span id="activePhotoLabel">사진 맞춤</span><button id="fitCover" type="button" onclick="setPhotoFit('cover')" aria-pressed="true">꽉 채우기</button><button id="fitContain" type="button" onclick="setPhotoFit('contain')" aria-pressed="false">사진 전체 보기</button></div>
+          <p class="booth-hint">꾸밀 사진을 누르면 해당 칸이 선택돼요. 꽉 채우기는 사진 가장자리가 잘릴 수 있어요.</p>
         <div class="label-wrap" style="display:flex;gap:8px;align-items:center;width:min(460px,94vw);">
           <input class="label-input" type="text" id="labelInput" value="✦ My Gem Studio ✦" oninput="document.getElementById('stripLabel').textContent=this.value" />
           <label class="label-color-control" for="labelColorInput">
@@ -1780,11 +1858,21 @@
           </label>
         </div>
 
-        <div class="save-actions">
-          <button class="save-main" type="button" onclick="saveToSite()">사이트에 저장하기</button>
-          <button class="qr-main" id="qrMainBtn" type="button" onclick="generatePhotoQR()">QR로 휴대폰 전송</button>
-          <p class="save-status" id="saveStatus" role="status" aria-live="polite" aria-atomic="true"></p>
-        </div>
+
+          <section class="editor-actions" aria-label="사진 저장과 다시 촬영">
+            <div class="editor-actions-title">완성한 사진 가져가기</div>
+            <div class="save-actions">
+              <button class="qr-main" id="qrMainBtn" type="button" onclick="generatePhotoQR()">QR로 휴대폰 전송</button>
+              <button class="save-main" type="button" onclick="saveToSite()">사이트에 저장하기</button>
+              <p class="save-status" id="saveStatus" role="status" aria-live="polite" aria-atomic="true"></p>
+            </div>
+            <div class="session-actions">
+              <span class="capture-summary" id="captureSummary" role="status"></span>
+              <div class="session-action-buttons"><button class="booth-secondary" id="resumeCaptureBtn" type="button" onclick="resumeCapture()">추가 촬영</button><button class="booth-secondary retake-action" type="button" onclick="resetPhotos()">전체 다시 찍기</button></div>
+            </div>
+          </section>
+        </section>
+        <p class="timelapse-note" id="timelapseNote" aria-live="polite">촬영하는 순간도 짧은 타임랩스 GIF로 함께 담아요.</p>
       </main>
 
       <aside class="col-r">
@@ -1840,11 +1928,11 @@
 
         <section class="card">
           <div class="rec-head">
-            <div class="ct" style="margin:0;">저장된 두컷</div>
+            <div class="ct" style="margin:0;">저장한 사진</div>
             <div class="rec-cnt" id="recCnt">0건</div>
           </div>
           <div class="rec-list" id="recList">
-            <div class="rec-empty">아직 저장된 두컷이 없어요<br />촬영 후 저장해보세요</div>
+            <div class="rec-empty">아직 저장한 사진이 없어요<br />촬영 후 저장해보세요</div>
           </div>
         </section>
       </aside>
@@ -2786,7 +2874,8 @@ self.onmessage = event => {
     const printMode = payload.m === 'print';
     document.getElementById('receivePhotoCard').hidden = false;
     document.getElementById('receivePrintNote').hidden = !printMode;
-    if (printMode) document.getElementById('receivePhotoTitle').textContent = 'CP1300 인쇄용 두 컷';
+    const receivedCount = Number.isInteger(payload.n) && payload.n >= 1 && payload.n <= 4 ? payload.n : 0;
+    document.getElementById('receivePhotoTitle').textContent = (printMode ? 'CP1300 인쇄용 ' : '나의 ') + (receivedCount ? `${receivedCount}컷 사진` : '사진');
     if (!payload.g) document.getElementById('receiveIntro').textContent = '아래 버튼을 눌러 완성 사진을 저장해 주세요. 이 QR에는 타임랩스 GIF가 포함되어 있지 않아요.';
 
     function canShareFiles(files) {
@@ -2971,7 +3060,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
   </script>
   <script>
     if (!document.documentElement.classList.contains('jem-receive')) {
-    const N = 2;
+    const N = 4;
     const CW = 680;
     const CH = 460;
     const PHOTO_CORNER_RADIUS = 18;
@@ -3075,6 +3164,226 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     let qrMode = 'view';
     let qrSession = null;
 
+    let captureFinished = false;
+    let selectedShots = [];
+    let photoFits = Array(N).fill('cover');
+    const CANVAS_FULL_W = 680;
+    const CANVAS_FULL_H = 460;
+    const frameToneCache = new Map();
+    const frameTonePending = new Set();
+
+    function getLayoutGeometry(count, hasFrame) {
+      const x = hasFrame ? 52 : 28, y = hasFrame ? FRAME_PHOTO_TOP : 28;
+      const gap = hasFrame ? 28 : 18, foot = hasFrame ? 90 : 70;
+      const width = CANVAS_FULL_W + x * 2;
+      const height = (hasFrame ? 64 : 28) * 2 + CANVAS_FULL_H * 2 + gap + foot;
+      const fullH = CANVAS_FULL_H * 2 + gap;
+      const halfW = (CANVAS_FULL_W - gap) / 2;
+      const top = { x, y, w: CANVAS_FULL_W, h: CANVAS_FULL_H };
+      let rects;
+      if (count === 1) rects = [{ x, y, w: CANVAS_FULL_W, h: fullH }];
+      else if (count === 2) rects = [top, { ...top, y: y + CANVAS_FULL_H + gap }];
+      else if (count === 3) rects = [top,
+        { x, y: y + CANVAS_FULL_H + gap, w: halfW, h: CANVAS_FULL_H },
+        { x: x + halfW + gap, y: y + CANVAS_FULL_H + gap, w: halfW, h: CANVAS_FULL_H }];
+      else rects = Array.from({ length: 4 }, (_, i) => ({
+        x: x + (i % 2) * (halfW + gap), y: y + Math.floor(i / 2) * (CANVAS_FULL_H + gap), w: halfW, h: CANVAS_FULL_H
+      }));
+      return { width, height, rects, foot, padX: x };
+    }
+
+    function drawFittedPhoto(ctx, image, x, y, width, height, fit = 'cover') {
+      const iw = image.naturalWidth || image.videoWidth || image.width;
+      const ih = image.naturalHeight || image.videoHeight || image.height;
+      const scale = (fit === 'contain' ? Math.min : Math.max)(width / iw, height / ih);
+      const w = iw * scale, h = ih * scale;
+      ctx.drawImage(image, x + (width - w) / 2, y + (height - h) / 2, w, h);
+    }
+
+    function resizePhotoDecoration(index, width, height) {
+      const drawing = document.getElementById('d' + index);
+      const stickerCanvas = document.getElementById('s' + index);
+      width = Math.round(width); height = Math.round(height);
+      if (drawing.width === width && drawing.height === height) return;
+      const old = document.createElement('canvas'); old.width = drawing.width; old.height = drawing.height;
+      old.getContext('2d').drawImage(drawing, 0, 0);
+      const rx = width / old.width, ry = height / old.height;
+      drawing.width = stickerCanvas.width = width;
+      drawing.height = stickerCanvas.height = height;
+      drawing.getContext('2d').drawImage(old, 0, 0, width, height);
+      stickers[index].forEach(sticker => { sticker.x *= rx; sticker.y *= ry; sticker.sz *= Math.min(rx, ry); });
+      drawHistory[index] = [];
+      redrawStk(index);
+    }
+
+    function useBasicFrame(ensureVisible = false) {
+      if (ensureVisible && bPx === 0) {
+        bPx = 10;
+        document.querySelectorAll('.bdr-btn').forEach((button,index)=>button.classList.toggle('active',index===2));
+      }
+      if (selectedFramePattern < 0) return;
+      selectedFramePattern = -1;
+      try { localStorage.setItem('pic2r_selected_frame', '-1'); } catch (error) {}
+      qrSession = null;
+      buildFrameGrid();
+    }
+
+    function updateFitControls() {
+      const ordinal = selectedShots.indexOf(activeF);
+      document.getElementById('activePhotoLabel').textContent = ordinal >= 0 ? `${ordinal + 1}번 칸 사진 맞춤` : '사진 맞춤';
+      document.getElementById('fitCover').setAttribute('aria-pressed', String(photoFits[activeF] !== 'contain'));
+      document.getElementById('fitContain').setAttribute('aria-pressed', String(photoFits[activeF] === 'contain'));
+    }
+
+    function setPhotoFit(fit) {
+      if (!captureFinished || !selectedShots.includes(activeF)) return;
+      photoFits[activeF] = fit === 'contain' ? 'contain' : 'cover';
+      qrSession = null;
+      applyBorder();
+      updateFitControls();
+    }
+
+    function refreshCaptureUi() {
+      document.getElementById('shotInfo').textContent = `${shotCount} / ${N} 촬영`;
+      document.getElementById('captureBadge').textContent = `${shotCount} / ${N}`;
+      document.getElementById('shootBtn').disabled = shootBusy || shotCount >= N || captureFinished;
+      const finish = document.getElementById('finishCaptureBtn');
+      finish.disabled = !shotCount || shootBusy;
+      finish.textContent = shotCount ? `${shotCount}장으로 사진 고르기` : '촬영 후 사진 고르기';
+      const thumbs = document.getElementById('captureThumbs');
+      thumbs.replaceChildren();
+      for (let i = 0; i < N; i++) {
+        const cell = document.createElement('div'); cell.className = 'capture-thumb';
+        if (shots[i]) { const image = document.createElement('img');image.src = shots[i];image.alt = `촬영한 사진 ${i + 1}`;cell.append(image); }
+        else cell.textContent = String(i + 1);
+        thumbs.append(cell);
+      }
+    }
+
+    function renderPhotoChoices() {
+      const grid = document.getElementById('photoChoices'); grid.replaceChildren();
+      for (let i = 0; i < shotCount; i++) {
+        const order = selectedShots.indexOf(i);
+        const wrapper = document.createElement('div'); wrapper.className = 'photo-choice';
+        const toggle = document.createElement('button'); toggle.type = 'button';toggle.className = 'photo-choice-toggle';
+        toggle.dataset.photo = i;toggle.setAttribute('aria-pressed', String(order >= 0));
+        toggle.setAttribute('aria-label', `촬영한 사진 ${i + 1}${order >= 0 ? `, ${order + 1}번 칸에 선택됨` : ', 선택 안 됨'}`);
+        const image = document.createElement('img');image.src = shots[i];image.alt = `촬영한 사진 ${i + 1}`;toggle.append(image);
+        if (order >= 0) { const badge = document.createElement('span');badge.className = 'choice-order';badge.textContent = String(order + 1);toggle.append(badge); }
+        const label = document.createElement('span');label.className = 'photo-choice-label';label.textContent = `사진 ${i + 1}`;toggle.append(label);
+        toggle.onclick = () => togglePhotoSelection(i);
+        const arrows = document.createElement('div'); arrows.className = 'choice-order-buttons';
+        for (const [delta, symbol] of [[-1, '←'], [1, '→']]) {
+          const button = document.createElement('button');button.type = 'button';button.textContent = symbol;
+          button.setAttribute('aria-label', `사진 ${i + 1}을 ${delta < 0 ? '앞으로' : '뒤로'} 이동`);
+          button.disabled = order < 0 || (delta < 0 ? order === 0 : order === selectedShots.length - 1);
+          button.onclick = () => moveSelectedPhoto(i, delta);arrows.append(button);
+        }
+        wrapper.append(toggle, arrows);grid.append(wrapper);
+      }
+      document.getElementById('selectionCount').textContent = `${selectedShots.length}장 선택`;
+      for (const button of document.querySelectorAll('[data-layout-count]')) {
+        const count = Number(button.dataset.layoutCount);
+        button.disabled = count > shotCount;
+        button.setAttribute('aria-pressed', String(count === selectedShots.length));
+      }
+      const more = document.getElementById('resumeCaptureBtn'); more.disabled = shotCount >= N;more.hidden = shotCount >= N;
+      more.textContent = '추가 촬영';
+      document.getElementById('captureSummary').textContent = shotCount >= N ? '✓ 4장 촬영 완료' : `${shotCount} / 4장 촬영`;
+    }
+
+    function commitPhotoSelection() {
+      commitTextEditor(true);
+      clearStickerSelection();
+      qrSession = null;
+      if (!selectedShots.includes(activeF)) activeF = selectedShots[0];
+      renderPhotoChoices(); applyBorder(); selectFrame(activeF);
+    }
+
+    function togglePhotoSelection(index) {
+      if (!captureFinished || !shots[index]) return;
+      const position = selectedShots.indexOf(index);
+      if (position >= 0) {
+        if (selectedShots.length === 1) { document.getElementById('selectionHint').textContent = '사진은 한 장 이상 선택해 주세요.';return; }
+        selectedShots.splice(position, 1);
+      } else selectedShots.push(index);
+      document.getElementById('selectionHint').textContent = '선택한 순서대로 배치돼요. 화살표로 순서를 바꿀 수 있어요.';
+      commitPhotoSelection();
+    }
+
+    function setLayoutCount(count) {
+      if (!captureFinished || count < 1 || count > shotCount) return;
+      selectedShots = selectedShots.slice(0, count);
+      for (let i = 0; selectedShots.length < count && i < shotCount; i++) if (!selectedShots.includes(i)) selectedShots.push(i);
+      commitPhotoSelection();
+    }
+
+    function moveSelectedPhoto(index, delta) {
+      const from = selectedShots.indexOf(index), to = from + delta;
+      if (from < 0 || to < 0 || to >= selectedShots.length) return;
+      [selectedShots[from], selectedShots[to]] = [selectedShots[to], selectedShots[from]];
+      commitPhotoSelection();
+    }
+
+    function finishCapture() {
+      if (!shotCount || shootBusy) return;
+      captureFinished = true;
+      clearInterval(timelapseTimer);timelapseTimer = null;timelapseActive = false;
+      if (!selectedShots.length) selectedShots = Array.from({ length: Math.min(2, shotCount) }, (_, i) => i);
+      document.getElementById('capturePanel').hidden = true;
+      document.getElementById('photoEditor').hidden = false;
+      document.getElementById('stepCapture').classList.remove('current');
+      document.getElementById('stepSelect').classList.add('current');
+      document.getElementById('timelapseNote').textContent = '사진을 골라 배치하고 꾸민 뒤, QR로 사진과 GIF를 가져가세요.';
+      refreshCaptureUi();commitPhotoSelection();
+    }
+
+    function resumeCapture() {
+      if (shotCount >= N) return;
+      commitTextEditor(true);captureFinished = false;
+      document.getElementById('capturePanel').hidden = false;
+      document.getElementById('photoEditor').hidden = true;
+      document.getElementById('stepCapture').classList.add('current');
+      document.getElementById('stepSelect').classList.remove('current');
+      timelapseActive = true;startTimelapseSampler();refreshCaptureUi();
+    }
+
+    function applyBorder() {
+      const frame = getSelectedFrame();
+      const layout = getLayoutGeometry(selectedShots.length || 2, !!frame);
+      const outer = document.getElementById('stripOuter');
+      outer.style.aspectRatio = `${layout.width} / ${layout.height}`;
+      outer.style.backgroundImage = frame ? `url("${frame.src}")` : 'none';
+      outer.style.backgroundColor = bPx > 0 ? getBorderColor() : '#fff';
+      outer.style.backgroundSize = '100% 100%';
+      if (frame && !frameToneCache.has(frame.src) && !frameTonePending.has(frame.src)) {
+        frameTonePending.add(frame.src);
+        loadImg(frame.src).then(image => {
+          frameToneCache.set(frame.src, getFrameBackgroundColor(image).css);
+          if (getSelectedFrame()?.src === frame.src) applyBorder();
+        }).catch(() => { frameToneCache.set(frame.src, '#ffffff'); }).finally(() => frameTonePending.delete(frame.src));
+      }
+      const photoBackground = frame ? (frameToneCache.get(frame.src) || '#ffffff') : (bPx > 0 ? getBorderColor() : '#ffffff');
+      const scale = (outer.getBoundingClientRect().width || 460) / layout.width;
+      for (let i = 0; i < N; i++) {
+        const slot = document.getElementById('f' + i), ordinal = selectedShots.indexOf(i);
+        slot.hidden = ordinal < 0;
+        if (ordinal < 0) continue;
+        const rect = layout.rects[ordinal];resizePhotoDecoration(i, rect.w, rect.h);
+        Object.assign(slot.style, { left: `${rect.x / layout.width * 100}%`, top: `${rect.y / layout.height * 100}%`,
+          width: `${rect.w / layout.width * 100}%`, height: `${rect.h / layout.height * 100}%`,
+          borderRadius: `${(PHOTO_CORNER_RADIUS + (frame ? 0 : bPx)) * scale}px`, backgroundColor: photoBackground });
+        slot.querySelector('.fnum').textContent = String(ordinal + 1);
+        const image = document.getElementById('p' + i);image.style.display = 'block';image.style.objectFit = photoFits[i];
+        document.getElementById('b' + i).style.boxShadow = !frame && bPx > 0 ? `inset 0 0 0 ${bPx * scale}px ${getBorderColor()}` : 'none';
+      }
+      const label = document.getElementById('stripLabel');
+      label.style.top = `${(layout.height - layout.foot / 2) / layout.height * 100}%`;
+      label.style.fontSize = `${28 * scale}px`;
+      applyLabelColor();updateFitControls();
+    }
+
+
     // Keep a short pre-roll, then sample the actual camera until both shots finish.
     // JPEG samples and adaptive thinning bound memory even between distant shots.
     const TIMELAPSE_W = 480;
@@ -3094,15 +3403,15 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     const timelapseContext = timelapseCanvas.getContext('2d');
 
     function sampleTimelapse(force = false) {
-      if (shotCount >= N || document.hidden) return;
-      const video = document.getElementById('v' + Math.min(shotCount, N - 1));
+      if (captureFinished || shotCount >= N || document.hidden) return;
+      const video = document.getElementById('boothCamera');
       if (!video.videoWidth || video.readyState < 2) return;
       if (!force && timelapseActive && timelapseSeen++ % timelapseStride !== 0) return;
       try {
         timelapseContext.save();
         timelapseContext.translate(TIMELAPSE_W, 0);
         timelapseContext.scale(-1, 1);
-        timelapseContext.drawImage(video, 0, 0, TIMELAPSE_W, TIMELAPSE_H);
+        drawFittedPhoto(timelapseContext, video, 0, 0, TIMELAPSE_W, TIMELAPSE_H);
         timelapseContext.restore();
         const frame = timelapseCanvas.toDataURL('image/jpeg', .75);
         if (timelapseActive) {
@@ -3123,7 +3432,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     function startTimelapseSampler() {
       clearInterval(timelapseTimer);
       timelapseTimer = null;
-      if (shotCount < N) timelapseTimer = setInterval(() => sampleTimelapse(), 200);
+      if (!captureFinished && shotCount < N) timelapseTimer = setInterval(() => sampleTimelapse(), 200);
     }
 
     function beginTimelapse() {
@@ -3201,40 +3510,17 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 
     async function startCam() {
       const status = document.getElementById('camStatus');
-
       try {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          status.textContent = '이 브라우저에서 카메라 API를 지원하지 않아요.';
-          return;
-        }
-
-        if (stream) {
-          stream.getTracks().forEach(track => track.stop());
-        }
-
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: 'user',
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          },
-          audio: false
-        });
-
-        for (let i = 0; i < N; i++) {
-          const v = document.getElementById('v' + i);
-          v.srcObject = stream;
-          v.style.display = 'block';
-          v.onloadedmetadata = () => {
-            status.textContent = '카메라 연결됨. 검정이면 렌즈 덮개/권한/다른 앱 점유를 확인해줘.';
-          };
-        }
-        startTimelapseSampler();
-      } catch (e) {
-        status.textContent = '카메라 연결 실패: 권한 허용, 브라우저 설정, 다른 앱 점유 여부를 확인해줘.';
-        console.warn(e);
-      }
+        if (!navigator.mediaDevices?.getUserMedia) { status.textContent = '카메라를 지원하는 브라우저에서 열어 주세요.';return; }
+        if (stream) stream.getTracks().forEach(track => track.stop());
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+        const video = document.getElementById('boothCamera');video.srcObject = stream;
+        video.onloadedmetadata = () => { status.textContent = '카메라 연결됨. 최대 4장을 찍은 뒤 사진을 골라 주세요.'; };
+        await video.play();startTimelapseSampler();refreshCaptureUi();
+      } catch (error) { status.textContent = '카메라 연결 실패: 카메라 권한과 다른 앱의 사용 여부를 확인해 주세요.'; }
     }
+
+
 
     async function checkCamera() {
       const status = document.getElementById('camStatus');
@@ -3263,107 +3549,49 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     }
 
     function shoot() {
-      if (shotCount >= N || shootBusy) return;
-      shootBusy = true;
-      beginTimelapse();
-      if (timerSec === 0) {
-        captureFrame();
-        shootBusy = false;
-        return;
-      }
-      const ov = document.getElementById('cdOverlay');
-      const nm = document.getElementById('cdNum');
-      ov.style.display = 'flex';
-      let c = timerSec;
-      nm.textContent = c;
+      if (shotCount >= N || shootBusy || captureFinished) return;
+      const video = document.getElementById('boothCamera');
+      if (!video.videoWidth || video.readyState < 2) { document.getElementById('camStatus').textContent = '카메라가 준비된 뒤 촬영해 주세요.';return; }
+      shootBusy = true;beginTimelapse();refreshCaptureUi();
+      if (!timerSec) { shootBusy = false;captureFrame();return; }
+      const overlay = document.getElementById('cdOverlay'), number = document.getElementById('cdNum');
+      overlay.style.display = 'flex';let count = timerSec;number.textContent = count;
       shootTimer = setInterval(() => {
-        c--;
-        if (c <= 0) {
-          clearInterval(shootTimer);
-          shootTimer = null;
-          ov.style.display = 'none';
-          captureFrame();
-          shootBusy = false;
-        } else { nm.textContent = c; }
+        number.textContent = --count;
+        if (count <= 0) { clearInterval(shootTimer);shootTimer = null;overlay.style.display = 'none';shootBusy = false;captureFrame(); }
       }, 1000);
     }
 
     function captureFrame() {
-      if (shotCount >= N) return;
-      beginTimelapse();
-      sampleTimelapse(true);
-      const i = shotCount;
-      const v = document.getElementById('v' + i);
-      const p = document.getElementById('p' + i);
-      const fl = document.getElementById('fl' + i);
-
-      fl.style.opacity = '1';
-      setTimeout(() => fl.style.opacity = '0', 150);
-
-      const oc = document.createElement('canvas');
-      oc.width = CW;
-      oc.height = CH;
-
-      const ctx = oc.getContext('2d');
-      ctx.fillStyle = '#18131d';
-      ctx.fillRect(0, 0, CW, CH);
-
-      try {
-        ctx.translate(CW, 0);
-        ctx.scale(-1, 1);
-        ctx.drawImage(v, 0, 0, CW, CH);
-      } catch (e) {
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.fillStyle = '#B0A0C0';
-        ctx.font = '42px serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('📷', CW / 2, CH / 2);
-      }
-
-      p.src = oc.toDataURL('image/jpeg', .92);
-      p.style.display = 'block';
-      v.style.display = 'none';
-
-      shots[i] = p.src;
-      shotCount++;
-
-      document.getElementById('shotInfo').textContent = `${shotCount} / ${N} 촬영`;
-
-      if (shotCount >= N) {
-        clearInterval(timelapseTimer);
-        timelapseTimer = null;
-        timelapseActive = false;
-        document.getElementById('timelapseNote').textContent = timelapseFrames.length >= 2
-          ? '✓ 촬영 타임랩스도 담았어요. QR로 함께 가져가세요.'
-          : '촬영 영상이 없어 이번에는 사진만 저장할 수 있어요.';
-        document.getElementById('shootBtn').style.opacity = '.38';
-        document.getElementById('shootBtn').style.pointerEvents = 'none';
-      } else {
-        selectFrame(shotCount);
-      }
+      if (shotCount >= N || captureFinished) return;
+      const video = document.getElementById('boothCamera');
+      if (!video.videoWidth || video.readyState < 2) { refreshCaptureUi();return; }
+      beginTimelapse();sampleTimelapse(true);
+      const canvas = document.createElement('canvas');canvas.width = video.videoWidth;canvas.height = video.videoHeight;
+      const context = canvas.getContext('2d');context.translate(canvas.width, 0);context.scale(-1, 1);context.drawImage(video, 0, 0);
+      const index = shotCount;shots[index] = canvas.toDataURL('image/jpeg', .92);
+      document.getElementById('p' + index).src = shots[index];shotCount++;qrSession = null;
+      const flash = document.getElementById('captureFlash');flash.style.opacity = '1';setTimeout(() => flash.style.opacity = '0', 120);
+      refreshCaptureUi();
+      if (shotCount >= N) finishCapture();
     }
 
     function resetPhotos() {
-      clearInterval(shootTimer);
-      shootTimer = null;
-      shootBusy = false;
+      clearInterval(shootTimer);shootTimer = null;shootBusy = false;captureFinished = false;
       document.getElementById('cdOverlay').style.display = 'none';
-      shots = Array(N).fill(null);
-      shotCount = 0;
-      resetTimelapse();
-
+      commitTextEditor(false);clearStickerSelection();
+      shots = Array(N).fill(null);shotCount = 0;selectedShots = [];photoFits = Array(N).fill('cover');
+      stickers = Array.from({ length: N }, () => []);drawHistory = Array.from({ length: N }, () => []);activeF = 0;
       for (let i = 0; i < N; i++) {
-        const p = document.getElementById('p' + i);
-        p.src = '';
-        p.style.display = 'none';
-        document.getElementById('v' + i).style.display = 'block';
+        document.getElementById('p' + i).removeAttribute('src');
+        for (const prefix of ['d', 's']) { const canvas = document.getElementById(prefix + i);canvas.width = CW;canvas.height = CH; }
       }
-
-      document.getElementById('shotInfo').textContent = `0 / ${N} 촬영`;
-      document.getElementById('shootBtn').style.opacity = '1';
-      document.getElementById('shootBtn').style.pointerEvents = 'auto';
-      selectFrame(0);
+      document.getElementById('capturePanel').hidden = false;document.getElementById('photoEditor').hidden = true;
+      document.getElementById('stepCapture').classList.add('current');document.getElementById('stepSelect').classList.remove('current');
+      document.getElementById('saveStatus').textContent = '';
+      resetTimelapse();refreshCaptureUi();applyBorder();
     }
+
 
     function getBorderColor() {
       return h2hex(bH, bS, bL);
@@ -3380,46 +3608,6 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 
     function applyLabelColor() {
       document.getElementById('stripLabel').style.color = getLabelColor();
-    }
-
-    function applyBorder() {
-      const col = getBorderColor();
-      const sw = document.getElementById('stripOuter');
-      const selectedImg = getSelectedFrame();
-      const frameWidth = document.getElementById('f0').getBoundingClientRect().width || 460;
-      const previewPhotoRadius = PHOTO_CORNER_RADIUS * frameWidth / CW;
-
-      if (selectedImg) {
-        const padX = Math.round(frameWidth * 52 / CW);
-        const padTop = Math.round(frameWidth * FRAME_PHOTO_TOP / CW);
-        const padBottom = Math.round(frameWidth * FRAME_PHOTO_BOTTOM / CW);
-        const frameGap = Math.round(frameWidth * 28 / CW);
-
-        sw.style.padding = `${padTop}px ${padX}px ${padBottom}px`;
-        sw.style.gap = `${frameGap}px`;
-        sw.style.backgroundImage = `url("${selectedImg.src}")`;
-        sw.style.backgroundSize = '100% 100%';
-        sw.style.backgroundPosition = 'center';
-        sw.style.backgroundRepeat = 'no-repeat';
-        sw.style.backgroundColor = 'transparent';
-      } else {
-        sw.style.padding = (bPx + 8) + 'px';
-        sw.style.gap = Math.max(7, bPx * .6) + 'px';
-        sw.style.backgroundImage = 'none';
-        sw.style.backgroundColor = bPx > 0 ? col : '#fff';
-      }
-
-      applyLabelColor();
-
-      for (let i = 0; i < N; i++) {
-        const b = document.getElementById('b' + i);
-        // Keep the visible photo corner equally round at every thickness.
-        document.getElementById('f' + i).style.borderRadius = selectedImg ? '' : `${bPx + previewPhotoRadius}px`;
-        b.style.borderRadius = 'inherit';
-        b.style.boxShadow = selectedImg
-          ? 'none'
-          : (bPx > 0 ? `inset 0 0 0 ${bPx}px ${col}` : 'none');
-      }
     }
 
     function getFrameBackgroundColor(img) {
@@ -3494,6 +3682,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 
       if (dx * dx + dy * dy > 74 * 74) return;
 
+      useBasicFrame(true);
       bH = ((Math.atan2(dy, dx) * 180 / Math.PI) + 360) % 360;
       syncBdrColor();
     }
@@ -3520,11 +3709,13 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     document.addEventListener('touchend', () => wDrag = false);
 
     document.getElementById('sSl').addEventListener('input', e => {
+      useBasicFrame(true);
       bS = +e.target.value;
       syncBdrColor();
     });
 
     document.getElementById('lSl').addEventListener('input', e => {
+      useBasicFrame(true);
       bL = +e.target.value;
       syncBdrColor();
     });
@@ -3533,6 +3724,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       const v = e.target.value.replace(/^#/, '');
 
       if (/^[0-9A-Fa-f]{6}$/.test(v)) {
+        useBasicFrame(true);
         const [h, s, l] = hexToHsl('#' + v);
         bH = h;
         bS = s;
@@ -3569,6 +3761,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
           document.querySelectorAll('.ps').forEach(s => s.classList.remove('active'));
           d.classList.add('active');
 
+          useBasicFrame(true);
           const [h, s, l] = hexToHsl(c);
           bH = h;
           bS = Math.max(s, 20);
@@ -3592,6 +3785,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         d.onclick = () => {
           document.querySelectorAll('.bdr-btn').forEach(b => b.classList.remove('active'));
           d.classList.add('active');
+          useBasicFrame();
           bPx = BORDERS[i];
           applyBorder();
         };
@@ -3693,25 +3887,17 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     });
 
     function canvasXY(e, el) {
-      const r = el.getBoundingClientRect();
-      const cl = e.touches ? e.touches[0] : e;
-      return [
-        (cl.clientX - r.left) * CW / r.width,
-        (cl.clientY - r.top) * CH / r.height
-      ];
+      const r=el.getBoundingClientRect(), cl=e.touches?e.touches[0]:e;
+      return [(cl.clientX-r.left)*el.width/r.width,(cl.clientY-r.top)*el.height/r.height];
     }
-
-    function screenXYFromCanvas(x, y, frameEl) {
-      const r = frameEl.getBoundingClientRect();
-      return [
-        x * r.width / CW,
-        y * r.height / CH
-      ];
+    function screenXYFromCanvas(x,y,frameEl) {
+      const r=frameEl.getBoundingClientRect(), canvas=frameEl.querySelector('.layer-draw');
+      return [x*r.width/canvas.width,y*r.height/canvas.height];
     }
 
     function saveDrawSnap(fi) {
       const ctx = document.getElementById('d' + fi).getContext('2d');
-      drawHistory[fi].push(ctx.getImageData(0, 0, CW, CH));
+      drawHistory[fi].push(ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height));
 
       if (drawHistory[fi].length > 24) {
         drawHistory[fi].shift();
@@ -3730,7 +3916,8 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     function clearDraw() {
       commitTextEditor(false);
       saveDrawSnap(activeF);
-      document.getElementById('d' + activeF).getContext('2d').clearRect(0, 0, CW, CH);
+      const canvas = document.getElementById('d' + activeF);
+      canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
     }
 
     function clearCurrentFrame() {
@@ -3923,7 +4110,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       editor.style.left = Math.max(8, sx - 65) + 'px';
       editor.style.top = Math.max(8, sy - fontSize * .8) + 'px';
       editor.style.color = penColor;
-      editor.style.fontSize = fontSize * frameEl.getBoundingClientRect().width / CW + 'px';
+      editor.style.fontSize = fontSize * frameEl.getBoundingClientRect().width / document.getElementById('d' + fi).width + 'px';
       editor.style.textShadow = penColor === '#ffffff' ? '0 1px 4px rgba(0,0,0,.55)' : '0 1px 4px rgba(255,255,255,.35)';
       editor.focus();
 
@@ -4135,15 +4322,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       dragI = -1;
     });
 
-    function sXY(e, fi) {
-      const r = document.getElementById('s' + fi).getBoundingClientRect();
-      const cl = e.touches ? e.touches[0] : e;
-
-      return [
-        (cl.clientX - r.left) * CW / r.width,
-        (cl.clientY - r.top) * CH / r.height
-      ];
-    }
+    function sXY(e,fi) { return canvasXY(e,document.getElementById('s'+fi)); }
 
     function sAt(mx, my, fi) {
       const a = stickers[fi];
@@ -4213,7 +4392,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       const cv = document.getElementById('s' + fi);
       const ctx = cv.getContext('2d');
 
-      ctx.clearRect(0, 0, CW, CH);
+      ctx.clearRect(0, 0, cv.width, cv.height);
 
       stickers[fi].forEach(s => {
         ctx.save();
@@ -4228,12 +4407,14 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     }
 
     function selectFrame(i) {
+      if (!selectedShots.includes(i)) return;
       if (activeF !== i && selectedStkF !== i) clearStickerSelection();
       activeF = i;
 
       for (let j = 0; j < N; j++) {
         document.getElementById('f' + j).classList.toggle('selected', j === i);
       }
+      updateFitControls();
     }
 
     function buildMoGrid() {
@@ -4297,6 +4478,9 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       const showConfirmation = options.showConfirmation !== false;
       const forPrint = options.forPrint === true;
       commitTextEditor(true);
+      if (!captureFinished || !selectedShots.length) throw new Error('촬영을 마친 뒤 저장할 사진을 골라 주세요.');
+      const chosenIndices = selectedShots.slice();
+      const fitsSnapshot = photoFits.slice();
 
       // Freeze the photographed/decorated session before any asynchronous image loading.
       const frameImg = getSelectedFrame();
@@ -4304,22 +4488,16 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       const shotStickers = stickers.map(list => list.map(sticker => ({ ...sticker })));
       const drawingLayers = Array.from({ length: N }, (_, i) => {
         const copy = document.createElement('canvas');
-        copy.width = CW; copy.height = CH;
+        const drawing = document.getElementById('d' + i);
+        copy.width = drawing.width; copy.height = drawing.height;
         copy.getContext('2d').drawImage(document.getElementById('d' + i), 0, 0);
         return copy;
       });
       const label = document.getElementById('labelInput').value;
       const borderWidth = bPx;
       const selectedMonth = selMo;
-      const FW = 680;
-      const FH = 460;
-      const PAD_X = frameImg ? 52 : 28;
-      const PAD_Y = frameImg ? 64 : 28;
-      const GAP = frameImg ? 28 : 18;
-      const FOOT = frameImg ? 90 : 70;
-      const PHOTO_TOP = frameImg ? FRAME_PHOTO_TOP : PAD_Y;
-      const W = FW + PAD_X * 2;
-      const H = PAD_Y * 2 + FH * N + GAP * (N - 1) + FOOT;
+      const layout = getLayoutGeometry(chosenIndices.length, !!frameImg);
+      const W = layout.width, H = layout.height, FOOT = layout.foot, PAD_X = layout.padX;
       // Canon SELPHY CP1300 postcard paper: 100 x 148 mm at 300 dpi.
       // Keep the complete decorated strip inside a 3.5 mm safe area so
       // borderless-print overscan removes only the outer background.
@@ -4350,43 +4528,23 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         ctx.fill();
       }
 
-      for (let i = 0; i < N; i++) {
-        const fy = PHOTO_TOP + i * (FH + GAP);
-        const photoInset = frameImg ? 0 : borderWidth;
-
+      for (let ordinal = 0; ordinal < chosenIndices.length; ordinal++) {
+        const i = chosenIndices[ordinal], rect = layout.rects[ordinal];
+        const inset = frameImg ? 0 : borderWidth;
         ctx.save();
-        // The selected background forms the border, without a white backing.
-        roundRect(ctx, PAD_X + photoInset, fy + photoInset,
-          FW - photoInset * 2, FH - photoInset * 2, PHOTO_CORNER_RADIUS);
+        roundRect(ctx, rect.x + inset, rect.y + inset, rect.w - inset * 2, rect.h - inset * 2, PHOTO_CORNER_RADIUS);
         ctx.clip();
-
-        if (shotSources[i]) {
-          const im = await loadImg(shotSources[i]);
-          ctx.drawImage(im, PAD_X, fy, FW, FH);
-        } else {
-          ctx.fillStyle = '#f3eef8';
-          ctx.fillRect(PAD_X, fy, FW, FH);
-          ctx.fillStyle = '#B0A0C0';
-          ctx.font = '56px serif';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText('📷', PAD_X + FW / 2, fy + FH / 2);
-        }
-
-        ctx.drawImage(drawingLayers[i], PAD_X, fy, FW, FH);
-
-        shotStickers[i].forEach(s => {
-          ctx.save();
-          ctx.translate(PAD_X + s.x, fy + s.y);
-          ctx.rotate((s.rot || 0) * Math.PI / 180);
-          ctx.font = `${s.sz}px ${EMOJI_FONT}`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(s.e, 0, 0);
-          ctx.restore();
+        ctx.fillStyle = printBackgroundColor;ctx.fillRect(rect.x,rect.y,rect.w,rect.h);
+        const image = await loadImg(shotSources[i]);
+        drawFittedPhoto(ctx,image,rect.x,rect.y,rect.w,rect.h,fitsSnapshot[i]);
+        ctx.drawImage(drawingLayers[i],rect.x,rect.y,rect.w,rect.h);
+        const rx=rect.w/drawingLayers[i].width,ry=rect.h/drawingLayers[i].height;
+        ctx.save();ctx.translate(rect.x,rect.y);ctx.scale(rx,ry);
+        shotStickers[i].forEach(sticker=>{
+          ctx.save();ctx.translate(sticker.x,sticker.y);ctx.rotate((sticker.rot||0)*Math.PI/180);
+          ctx.font=`${sticker.sz}px ${EMOJI_FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(sticker.e,0,0);ctx.restore();
         });
-
-        ctx.restore();
+        ctx.restore();ctx.restore();
       }
 
       ctx.fillStyle = frameLabelColor;
@@ -4437,7 +4595,8 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
           view: renderPrintCanvas(false).toDataURL('image/jpeg', .92),
           print: renderPrintCanvas(true).toDataURL('image/jpeg', .92),
           frameColor: printBackgroundColor,
-          labelColor: frameLabelColor
+          labelColor: frameLabelColor,
+          layoutCount: chosenIndices.length
         };
       }
       const printCanvas = renderPrintCanvas(forPrint);
@@ -4450,6 +4609,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       if (shouldStore) {
         const nextRecords = [{
           id: Date.now(),
+          layoutCount: chosenIndices.length,
           // Keep only a lightweight preview in localStorage. The QR upload still
           // receives the full 1181 x 1748 print image returned below.
           snap: recordPreview,
@@ -4533,18 +4693,18 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       } finally { clearTimeout(timeout); }
     }
 
-    function makeReceiveLink(photoUrl, gifUrl, mode) {
+    function makeReceiveLink(photoUrl, gifUrl, mode, count = selectedShots.length) {
       const url = new URL(window.location.href);
       if (url.protocol !== 'https:' || /^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(url.hostname)) {
         throw new Error('휴대폰 저장 화면은 웹에 올린 사이트에서 열 수 있어요. 이 HTML을 GitHub Pages 또는 Vercel에 올린 뒤 그 사이트에서 QR을 만들어 주세요.');
       }
-      url.hash = 'jem=' + encodeURIComponent(JSON.stringify({ v: 1, p: photoUrl, g: gifUrl || '', m: mode }));
+      url.hash = 'jem=' + encodeURIComponent(JSON.stringify({ v: 1, p: photoUrl, g: gifUrl || '', m: mode, n: count }));
       return url.href;
     }
 
     async function generatePhotoQR(mode = 'view', reuseSnapshot = false) {
       if (qrBusy) return;
-      if (shotCount < N) { alert('사진 2장을 먼저 촬영해 주세요.'); return; }
+      if (!captureFinished || !selectedShots.length) { alert('촬영을 마친 뒤 저장할 사진을 골라 주세요.'); return; }
       qrBusy = true;
       qrMode = mode === 'print' ? 'print' : 'view';
       if (!reuseSnapshot || !qrSession) {
@@ -4598,7 +4758,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
             gifWarning = error.message || 'GIF를 준비하지 못했어요.';
           }
         }
-        const receiveUrl = makeReceiveLink(session.urls[qrMode], session.gifUrl, qrMode);
+        const receiveUrl = makeReceiveLink(session.urls[qrMode], session.gifUrl, qrMode, session.data.layoutCount);
         await ensureQrLibrary();
         new QRCode(qrBox, { text: receiveUrl, width: 280, height: 280, colorDark: '#3D2A4E', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
         const photoLink = document.getElementById('qrPhotoLink');
@@ -4683,7 +4843,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       document.getElementById('recCnt').textContent = records.length + '건';
 
       if (!records.length) {
-        el.innerHTML = '<div class="rec-empty">아직 저장된 두컷이 없어요<br />촬영 후 저장해보세요</div>';
+        el.innerHTML = '<div class="rec-empty">아직 저장한 사진이 없어요<br />촬영 후 저장해보세요</div>';
         return;
       }
 
@@ -4831,6 +4991,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     // Async declarations in a conditional block need explicit globals for HTML handlers.
     Object.assign(window, { startCam, checkCamera, saveToSite, saveStrip, ensureQrLibrary,
       uploadFinalPhoto, generatePhotoQR, makeTimelapseGif });
+    refreshCaptureUi();
     startCam();
     } // Studio only: the QR receiver never requests camera access.
   </script>
