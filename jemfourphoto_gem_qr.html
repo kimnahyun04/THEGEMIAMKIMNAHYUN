@@ -1616,6 +1616,28 @@
     @media(min-width:1100px) { .col-l,.col-r { position:sticky;top:80px; } }
     @media(max-width:480px) { .capture-panel,.selection-panel { padding:12px; }.booth-steps { gap:12px;font-size:10px; }.choice-order-buttons button { min-height:34px; }.editor-actions { padding:14px; }.session-action-buttons { flex:1;justify-content:flex-end; }.session-action-buttons .booth-secondary { min-width:0; } }
 
+    .capture-guides { position:absolute;inset:0;pointer-events:none;overflow:hidden; }
+    .capture-guide-bounds,.capture-guide-wide { position:absolute;box-sizing:border-box; }
+    .capture-guide-bounds { z-index:2;border:2px solid #fff4cd;box-shadow:0 0 0 1500px rgba(12,14,30,.58),inset 0 0 0 1px rgba(12,14,30,.18); }
+    .capture-guide-wide { z-index:3;border:2px dashed rgba(255,255,255,.85); }
+    .capture-guide-label { position:absolute;top:9px;left:50%;transform:translateX(-50%);padding:5px 10px;max-width:calc(100% - 12px);border-radius:20px;background:rgba(20,22,35,.66);color:#fff4cd;font-size:11px;font-weight:600;line-height:1.4;white-space:nowrap; }
+    .capture-view .capture-badge { z-index:4; }
+    .capture-view .flash-fx { z-index:5; }
+    .capture-view .cd-overlay { position:absolute;z-index:6;inset:0;padding:12px;background:transparent;backdrop-filter:none;align-items:flex-end;justify-content:flex-start;gap:5px;pointer-events:none; }
+    .capture-view .cd-num { display:grid;place-items:center;width:62px;height:62px;border-radius:50%;background:rgba(15,19,34,.62);font-size:42px;line-height:1; }
+    .capture-view .cd-msg { padding:4px 7px;border-radius:12px;background:rgba(15,19,34,.55);color:#fff;font-size:10px; }
+    .capture-guide-controls { margin-top:14px; }
+    .capture-guide-heading { display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:9px; }
+    .capture-guide-heading strong { font-size:12px;font-weight:600; }
+    .capture-guide-heading span { font-size:11px;color:var(--mc-muted); }
+    .capture-guide-buttons { display:grid;grid-template-columns:1.4fr repeat(4,1fr);gap:6px; }
+    .capture-guide-button { min-width:0;min-height:42px;padding:8px 3px;border:1px solid var(--mc-line);border-radius:10px;background:var(--mc-panel);color:var(--mc-text);font:600 12px 'Poppins',sans-serif;cursor:pointer;touch-action:manipulation; }
+    .capture-guide-button[aria-pressed='true'] { border-color:#b18bd6;background:rgba(182,141,222,.25);box-shadow:inset 0 0 0 1px #b18bd6; }
+    .capture-guide-button:focus-visible { outline:3px solid #b18bd6;outline-offset:2px; }
+    .capture-guide-hint { margin:10px 0 0;color:var(--mc-text);font-size:12px;line-height:1.75; }
+    .capture-guide-note { margin:5px 0 0;color:var(--mc-muted);font-size:10px;line-height:1.7; }
+    @media(max-width:480px) { .capture-guide-buttons { gap:4px; }.capture-guide-button { min-height:40px;font-size:11px; }.capture-guide-label { top:7px;padding:4px 7px;font-size:10px; } }
+
   </style>
 </head>
 
@@ -1662,12 +1684,7 @@
     <div class="blob b4"></div>
   </div>
 
-  <div class="cd-overlay" id="cdOverlay">
-    <div class="cd-num" id="cdNum">3</div>
-    <div class="cd-msg">포즈를 취하세요</div>
-  </div>
-
-  <div class="modal" id="recModal">
+    <div class="modal" id="recModal">
     <div class="modal-inner">
       <button class="modal-close" onclick="closeModal()">×</button>
       <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--td);">내 사진 📸</div>
@@ -1800,7 +1817,22 @@
       <main class="col-c">
         <div class="booth-steps"><span id="stepCapture" class="current">1. 최대 4장 촬영</span><span id="stepSelect">2. 사진 선택 · 배치 · 꾸미기</span></div>
         <section class="capture-panel" id="capturePanel" aria-label="사진 촬영">
-          <div class="capture-view"><video id="boothCamera" autoplay muted playsinline></video><span class="capture-badge" id="captureBadge">0 / 4</span><div class="flash-fx" id="captureFlash"></div></div>
+          <div class="capture-view" id="captureView"><video id="boothCamera" autoplay muted playsinline aria-describedby="captureGuideHint"></video><div class="capture-guides" aria-hidden="true"><div class="capture-guide-bounds" id="captureGuideBounds"><span class="capture-guide-label" id="captureGuideLabel">안전영역</span></div><div class="capture-guide-wide" id="captureGuideWide" hidden></div></div><span class="capture-badge" id="captureBadge">0 / 4</span><div class="flash-fx" id="captureFlash"></div><div class="cd-overlay" id="cdOverlay">
+    <div class="cd-num" id="cdNum">3</div>
+    <div class="cd-msg">포즈를 취하세요</div>
+  </div></div>
+          <div class="capture-guide-controls">
+            <div class="capture-guide-heading"><strong>잘리지 않게 서기</strong><span id="captureGuideTitle">모든 컷 공통 안전영역</span></div>
+            <div class="capture-guide-buttons" role="group" aria-label="촬영 가이드 선택">
+              <button class="capture-guide-button" type="button" data-capture-guide="all" aria-pressed="true">공통 안전선</button>
+              <button class="capture-guide-button" type="button" data-capture-guide="1" aria-pressed="false">1컷</button>
+              <button class="capture-guide-button" type="button" data-capture-guide="2" aria-pressed="false">2컷</button>
+              <button class="capture-guide-button" type="button" data-capture-guide="3" aria-pressed="false">3컷</button>
+              <button class="capture-guide-button" type="button" data-capture-guide="4" aria-pressed="false">4컷</button>
+            </div>
+            <p class="capture-guide-hint" id="captureGuideHint" role="status" aria-live="polite">1~4컷 모두에 들어가는 범위예요. 얼굴과 몸을 밝은 영역 안쪽에 맞춰 주세요.</p>
+            <p class="capture-guide-note">컷수는 촬영 후 고를 수 있어요. 가이드는 서는 위치만 안내해요.</p>
+          </div>
           <div class="cam-controls">
             <div class="timer-row"><div class="tbtn active" data-t="0" onclick="setTimer(this)">바로</div><div class="tbtn" data-t="3" onclick="setTimer(this)">3초</div><div class="tbtn" data-t="5" onclick="setTimer(this)">5초</div></div>
             <button class="shoot-btn" id="shootBtn" type="button" onclick="shoot()" aria-label="사진 촬영">📷</button>
@@ -3258,6 +3290,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         else cell.textContent = String(i + 1);
         thumbs.append(cell);
       }
+      updateCaptureGuide();
     }
 
     function renderPhotoChoices() {
@@ -3381,6 +3414,73 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       label.style.top = `${(layout.height - layout.foot / 2) / layout.height * 100}%`;
       label.style.fontSize = `${28 * scale}px`;
       applyLabelColor();updateFitControls();
+      updateCaptureGuide();
+    }
+
+    let captureGuideMode = 'all';
+
+    function getCaptureCrop(rect, hasFrame, sourceWidth, sourceHeight) {
+      const scale = Math.max(rect.w / sourceWidth, rect.h / sourceHeight);
+      const inset = hasFrame ? 0 : bPx;
+      const width = (rect.w - inset * 2) / scale / sourceWidth;
+      const height = (rect.h - inset * 2) / scale / sourceHeight;
+      return { left: (1 - width) / 2, top: (1 - height) / 2, width, height };
+    }
+
+    function updateCaptureGuide() {
+      const view = document.getElementById('captureView');
+      const video = document.getElementById('boothCamera');
+      if (!view || !view.clientWidth || !view.clientHeight) return;
+      const sourceWidth = video.videoWidth || 1280, sourceHeight = video.videoHeight || 720;
+      const hasFrame = !!getSelectedFrame();
+      const displayScale = Math.min(view.clientWidth / sourceWidth, view.clientHeight / sourceHeight);
+      const displayWidth = sourceWidth * displayScale, displayHeight = sourceHeight * displayScale;
+      const offsetX = (view.clientWidth - displayWidth) / 2, offsetY = (view.clientHeight - displayHeight) / 2;
+      const counts = captureGuideMode === 'all' ? [1, 2, 3, 4] : [Number(captureGuideMode)];
+      const crops = counts.flatMap(count => getLayoutGeometry(count, hasFrame).rects.map(rect =>
+        getCaptureCrop(rect, hasFrame, sourceWidth, sourceHeight)));
+      // The intersection is safe even when one photo is later used in a narrower slot.
+      const left = Math.max(...crops.map(crop => crop.left));
+      const top = Math.max(...crops.map(crop => crop.top));
+      const right = Math.min(...crops.map(crop => crop.left + crop.width));
+      const bottom = Math.min(...crops.map(crop => crop.top + crop.height));
+      const position = (element, crop) => Object.assign(element.style, {
+        left: `${offsetX + crop.left * displayWidth}px`, top: `${offsetY + crop.top * displayHeight}px`,
+        width: `${crop.width * displayWidth}px`, height: `${crop.height * displayHeight}px`
+      });
+      position(document.getElementById('captureGuideBounds'), { left, top, width: right - left, height: bottom - top });
+      const secondary = document.getElementById('captureGuideWide');
+      secondary.hidden = captureGuideMode !== '3';
+      if (!secondary.hidden) position(secondary, crops[0]);
+      const labels = {
+        all: ['모든 컷 공통 안전영역', '1~4컷 모두에 들어가는 범위예요. 얼굴과 몸을 밝은 영역 안쪽에 맞춰 주세요.'],
+        '1': ['1컷 · 크게 남는 영역', '한 장을 크게 배치하면 양옆이 잘려요. 밝은 영역 안으로 모여 주세요.'],
+        '2': ['2컷 · 각 사진에 남는 영역', '위아래 두 칸에 남는 범위예요. 얼굴과 몸을 밝은 영역 안쪽에 맞춰 주세요.'],
+        '3': ['3컷 · 아래 두 칸 기준', '실선은 아래 두 칸, 점선은 위의 넓은 칸이에요. 모두 남기려면 실선 안에 서 주세요.'],
+        '4': ['4컷 · 각 사진에 남는 영역', '네 칸 모두 세로로 잘려요. 얼굴과 몸을 밝은 영역 안쪽에 맞춰 주세요.']
+      };
+      const [title, hint] = labels[captureGuideMode];
+      const titleElement = document.getElementById('captureGuideTitle'), hintElement = document.getElementById('captureGuideHint');
+      if (titleElement.textContent !== title) titleElement.textContent = title;
+      if (hintElement.textContent !== hint) hintElement.textContent = hint;
+      document.getElementById('captureGuideLabel').textContent = captureGuideMode === '3' ? '아래 두 칸' : '안전영역';
+      for (const button of document.querySelectorAll('[data-capture-guide]')) {
+        button.setAttribute('aria-pressed', String(button.dataset.captureGuide === captureGuideMode));
+      }
+    }
+
+    function setupCaptureGuide() {
+      for (const button of document.querySelectorAll('[data-capture-guide]')) {
+        button.addEventListener('click', () => { captureGuideMode = button.dataset.captureGuide;updateCaptureGuide(); });
+      }
+      const video = document.getElementById('boothCamera');
+      video.addEventListener('loadedmetadata', updateCaptureGuide);
+      video.addEventListener('resize', updateCaptureGuide);
+      if (window.ResizeObserver) {
+        const observer = new ResizeObserver(updateCaptureGuide);
+        observer.observe(document.getElementById('captureView'));
+      }
+      updateCaptureGuide();
     }
 
 
@@ -3581,6 +3681,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       document.getElementById('cdOverlay').style.display = 'none';
       commitTextEditor(false);clearStickerSelection();
       shots = Array(N).fill(null);shotCount = 0;selectedShots = [];photoFits = Array(N).fill('cover');
+      captureGuideMode = 'all';
       stickers = Array.from({ length: N }, () => []);drawHistory = Array.from({ length: N }, () => []);activeF = 0;
       for (let i = 0; i < N; i++) {
         document.getElementById('p' + i).removeAttribute('src');
@@ -4991,6 +5092,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     // Async declarations in a conditional block need explicit globals for HTML handlers.
     Object.assign(window, { startCam, checkCamera, saveToSite, saveStrip, ensureQrLibrary,
       uploadFinalPhoto, generatePhotoQR, makeTimelapseGif });
+    setupCaptureGuide();
     refreshCaptureUi();
     startCam();
     } // Studio only: the QR receiver never requests camera access.
