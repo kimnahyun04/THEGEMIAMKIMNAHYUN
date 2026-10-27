@@ -730,7 +730,6 @@
 
     .cam-btn,
     .save-main,
-    .print-main,
     .qr-main {
       padding: 9px 16px;
       border: 1px solid rgba(255, 255, 255, .85);
@@ -821,40 +820,7 @@
       box-shadow: 0 6px 22px rgba(127, 112, 220, .44);
     }
 
-    .print-main {
-      border: none;
-      padding: 12px 28px;
-      background: linear-gradient(120deg, #c5dfff, #a9c1f2);
-      color: #3f5685;
-      box-shadow: 0 3px 16px rgba(110, 149, 210, .3);
-    }
-
-    .print-main:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 22px rgba(110, 149, 210, .4);
-    }
-
-    .print-guide {
-      flex-basis: 100%;
-      margin: 0;
-      color: var(--tm);
-      font-size: 10px;
-      line-height: 1.7;
-      text-align: center;
-    }
-
-    .print-transport {
-      position: fixed;
-      left: -10000px;
-      top: 0;
-      width: 1px;
-      height: 1px;
-      border: 0;
-      pointer-events: none;
-    }
-
     .save-main:disabled,
-    .print-main:disabled,
     .qr-main:disabled {
       cursor: wait;
       opacity: .58;
@@ -1704,10 +1670,8 @@
         </div>
 
         <div class="save-actions">
-          <button class="print-main" id="printMainBtn" type="button" onclick="printFromComputer()">CP1300으로 인쇄</button>
           <button class="save-main" type="button" onclick="saveToSite()">사이트에 저장하기</button>
           <button class="qr-main" id="qrMainBtn" type="button" onclick="generatePhotoQR()">QR로 휴대폰 전송</button>
-          <p class="print-guide">인쇄 설정: CP1300 · 엽서(P) · 세로 · 테두리 없음<br>여백 없음 · 배율 100% · 머리글/바닥글 끄기</p>
           <p class="save-status" id="saveStatus" role="status" aria-live="polite" aria-atomic="true"></p>
         </div>
       </main>
@@ -1882,8 +1846,6 @@
 
     let selectedFramePattern = Number(readLocalValue('pic2r_selected_frame', -1));
     let saveBusy = false;
-    let printBusy = false;
-    let activePrintFrame = null;
     let qrBusy = false;
     let qrMode = 'view';
     let qrPhotoData = { view: '', print: '' };
@@ -2966,88 +2928,6 @@
         saveBusy = false;
         button.disabled = false;
         button.textContent = '사이트에 저장하기';
-      }
-    }
-
-    async function printFromComputer() {
-      if (printBusy) return;
-
-      if (shotCount < N || shots.some(photo => !photo)) {
-        alert('사진 2장을 먼저 촬영해 주세요.');
-        return;
-      }
-
-      const button = document.getElementById('printMainBtn');
-      const status = document.getElementById('saveStatus');
-      let frame = null;
-      printBusy = true;
-      button.disabled = true;
-      button.textContent = '인쇄 준비 중…';
-      status.classList.remove('error');
-      status.textContent = '프레임을 포함한 인쇄용 사진을 준비하고 있어요…';
-
-      try {
-        // Reuse the print export, including its safe area and JEM offset.
-        // USB printing does not need a QR upload or a saved site record.
-        const photo = await saveStrip({
-          storeRecord: false,
-          showConfirmation: false,
-          forPrint: true
-        });
-
-        if (activePrintFrame) activePrintFrame.remove();
-        frame = document.createElement('iframe');
-        frame.className = 'print-transport';
-        frame.title = 'CP1300 인쇄용 사진';
-        frame.setAttribute('aria-hidden', 'true');
-        frame.tabIndex = -1;
-        activePrintFrame = frame;
-
-        const ready = new Promise((resolve, reject) => {
-          frame.onload = resolve;
-          frame.onerror = () => reject(new Error('인쇄 페이지를 준비하지 못했어요. 다시 시도해 주세요.'));
-        });
-        // Print only the exported photograph on one postcard-sized page.
-        // The printer and its borderless setting are selected in the dialog.
-        frame.srcdoc = `<!DOCTYPE html>
-<html lang="ko"><head><meta charset="UTF-8"><title>JEM PHOTO</title>
-<style>
-  @page { size: 100mm 148mm; margin: 0; }
-  html, body { width: 100mm; height: 148mm; margin: 0; padding: 0; overflow: hidden; }
-  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  img { display: block; width: 100mm; height: 148mm; }
-</style></head><body><img id="printPhoto" src="${photo}" alt="완성된 2컷 사진"></body></html>`;
-        document.body.appendChild(frame);
-        await ready;
-
-        const image = frame.contentDocument.getElementById('printPhoto');
-        if (image && typeof image.decode === 'function') await image.decode();
-        if (!image || !image.complete || image.naturalWidth === 0) {
-          throw new Error('인쇄용 사진을 불러오지 못했어요. 다시 시도해 주세요.');
-        }
-
-        frame.contentWindow.addEventListener('afterprint', () => {
-          // Closing the dialog also includes cancellation; do not claim success.
-          if (activePrintFrame === frame) {
-            activePrintFrame = null;
-            status.textContent = '인쇄 창을 닫았어요. 다시 인쇄하려면 버튼을 눌러 주세요.';
-          }
-          setTimeout(() => frame.remove(), 0);
-        }, { once: true });
-
-        status.textContent = '인쇄 창에서 Canon SELPHY CP1300을 선택하고 인쇄해 주세요.';
-        frame.contentWindow.focus();
-        frame.contentWindow.print();
-      } catch (error) {
-        console.error(error);
-        if (frame) frame.remove();
-        if (activePrintFrame === frame) activePrintFrame = null;
-        status.classList.add('error');
-        status.textContent = error.message || '인쇄를 준비하지 못했어요. 다시 시도해 주세요.';
-      } finally {
-        printBusy = false;
-        button.disabled = false;
-        button.textContent = 'CP1300으로 인쇄';
       }
     }
 
