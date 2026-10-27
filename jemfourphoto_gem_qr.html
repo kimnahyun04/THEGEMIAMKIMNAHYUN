@@ -1543,6 +1543,7 @@
     .receive-dialog-icon { color: #a87fe8; font-size: 27px; margin-bottom: 10px; }
     .receive-print-dialog h2 { font-size: 20px; margin-bottom: 16px; letter-spacing: -.04em; }
     .receive-print-dialog p { font-size: 13px; color: #7a6689; line-height: 1.9; margin-bottom: 18px; }
+    .receive-print-dialog .receive-manual-note { font-size: 11px; color: #94819e; line-height: 1.65; margin: -2px 0 18px; }
     .receive-wifi-steps { background: #f1e8f8; padding: 18px 10px; border-radius: 15px; margin-bottom: 18px; font-size: 14px; line-height: 2; }
     .receive-wifi-steps span { padding: 0 8px; color: #a68bb9; }
     .receive-wifi-steps strong { color: #694285; font-size: 15px; }
@@ -1558,7 +1559,7 @@
     <p class="receive-intro" id="receiveIntro">사진과 촬영 타임랩스를<br>아래 버튼으로 저장해 주세요.</p>
     <section class="receive-card" id="receivePhotoCard" hidden>
       <div class="receive-card-head"><h2 id="receivePhotoTitle">나의 두 컷</h2><span class="receive-tag">JPG · 원본</span></div>
-      <p class="receive-print-note" id="receivePrintNote" hidden>CP1300 인쇄용 사진이에요. 저장 후 캐논 앱에서 인쇄해 주세요.</p>
+      <p class="receive-print-note" id="receivePrintNote" hidden>CP1300 인쇄용 사진이에요. 사진 저장·Wi-Fi 연결 후 사진 앱에서 프린트를 진행해 주세요.</p>
       <img class="receive-preview receive-photo" id="receivePhoto" alt="완성된 두 컷 사진" referrerpolicy="no-referrer" />
       <button class="receive-save" id="receivePhotoSave" type="button" disabled>사진 불러오는 중…</button>
       <p class="receive-file-status" id="receivePhotoStatus" role="status" aria-live="polite"></p>
@@ -1580,7 +1581,8 @@
       <h2 id="receivePrintGuideTitle">사진 인쇄 안내</h2>
       <p>사진을 먼저 저장한 뒤,<br>휴대폰에서 아래 Wi-Fi에 연결해 주세요.</p>
       <div class="receive-wifi-steps">설정 <span>›</span> Wi-Fi<br><strong>CP1300로 시작하는 Wi-Fi</strong></div>
-      <p>연결 후 저장한 사진을 인쇄해 주세요.</p>
+      <p>연결 후 <strong>사진 앱</strong>에서 저장한 사진을 열고<br><strong>공유 → 프린트</strong>로 진행해 주세요.</p>
+      <p class="receive-manual-note">자세한 방법은 하단 책상에 붙여진 종이 설명서를 확인해 주세요.</p>
       <button class="receive-save" id="receivePrintGuideSave" type="button">확인 · 사진 저장하기</button>
       <button class="receive-dialog-close" id="receivePrintGuideClose" type="button">닫기</button>
     </dialog>
@@ -3175,9 +3177,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
           context.fillStyle = clip.color;
           context.fillRect(0, 0, canvas.width, canvas.height);
           context.drawImage(image, 10, 10, 460, 311);
-          context.fillStyle = '#fff';
-          context.fillRect(10, 321, 460, 29);
-          context.fillStyle = '#604273';
+          context.fillStyle = clip.labelColor || '#604273';
           context.font = '14px sans-serif';
           context.textAlign = 'center';
           context.textBaseline = 'middle';
@@ -4435,7 +4435,9 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       if (options.returnBundle) {
         return {
           view: renderPrintCanvas(false).toDataURL('image/jpeg', .92),
-          print: renderPrintCanvas(true).toDataURL('image/jpeg', .92)
+          print: renderPrintCanvas(true).toDataURL('image/jpeg', .92),
+          frameColor: printBackgroundColor,
+          labelColor: frameLabelColor
         };
       }
       const printCanvas = renderPrintCanvas(forPrint);
@@ -4577,6 +4579,9 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       try {
         makeReceiveLink('', '', qrMode); // Fail before uploading if the phone cannot open this HTML.
         if (!session.data) session.data = await saveStrip({ storeRecord: false, showConfirmation: false, returnBundle: true });
+        // Reuse the finished photo's actual background, including birthstone-frame tones.
+        session.clip.color = session.data.frameColor || session.clip.color;
+        session.clip.labelColor = session.data.labelColor || getLabelColor();
         if (!session.urls[qrMode]) {
           status.textContent = `${printMode ? '인쇄용' : '보관용'} 사진을 전송하고 있어요…`;
           session.urls[qrMode] = await uploadFinalPhoto(session.data[qrMode]);
@@ -4600,7 +4605,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         photoLink.href = receiveUrl;
         photoLink.textContent = '휴대폰 저장 화면 직접 열기';
         document.getElementById('qrGuide').innerHTML = printMode
-          ? 'QR을 스캔하고 ‘사진 저장하기’를 눌러 주세요.<br>인쇄용 사진을 저장한 뒤 캐논 앱에서 인쇄해 주세요.<br>JEM 프레임은 왼쪽 0.35mm 인쇄 보정이 적용돼 있어요.'
+          ? 'QR을 스캔하고 ‘사진 저장하기’를 눌러 주세요.<br>사진 저장·Wi-Fi 연결 후 사진 앱에서 프린트를 진행해 주세요.<br>아이폰: 저장한 사진 → 공유 → 프린트<br>JEM 프레임은 왼쪽 0.35mm 인쇄 보정이 적용돼 있어요.'
           : 'QR을 스캔하면 사진과 GIF 저장 버튼이 나와요.<br>아이폰은 공유창에서 ‘이미지 저장’을 선택해 주세요.<br>인쇄하려면 위의 ‘CP1300 인쇄용’을 선택해 주세요.';
         if (session.gifUrl) {
           status.textContent = '사진 + 타임랩스 GIF 저장 QR 완성!';
