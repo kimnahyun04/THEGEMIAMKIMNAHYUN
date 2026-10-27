@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JEM PHOTO · Zodiac Night Studio</title>
   <meta name="theme-color" content="#07152d" />
+  <script>
+    if (location.hash.startsWith('#jem=')) document.documentElement.classList.add('jem-receive');
+    window.addEventListener('hashchange', () => {
+      if (location.hash.startsWith('#jem=') || document.documentElement.classList.contains('jem-receive')) location.reload();
+    });
+  </script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
@@ -1615,10 +1621,213 @@
       background: rgba(255, 255, 255, .95);
       transform: translateY(-2px);
     }
+    /* The same HTML serves a small camera-free phone download page. */
+    [hidden] { display: none !important; }
+    html.jem-receive .app,
+    html.jem-receive .blobs,
+    html.jem-receive .cd-overlay,
+    html.jem-receive .modal { display: none !important; }
+    .receive-page {
+      width: min(100% - 36px, 430px);
+      margin: 0 auto;
+      padding: max(36px, env(safe-area-inset-top)) 0 max(36px, env(safe-area-inset-bottom));
+      text-align: center;
+      position: relative;
+    }
+    .receive-brand { color: #63497b; font-size: 12px; letter-spacing: .22em; font-weight: 600; }
+    .receive-page h1 { font-size: 26px; margin: 12px 0 8px; letter-spacing: -.045em; }
+    .receive-intro { color: #6c5b7c; font-size: 13px; line-height: 1.8; margin-bottom: 24px; }
+    .receive-card {
+      background: rgba(255,255,255,.86);
+      border: 1px solid rgba(255,255,255,.9);
+      border-radius: 24px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 12px 36px rgba(82,51,108,.08);
+    }
+    .receive-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .receive-card h2 { font-size: 16px; letter-spacing: -.03em; }
+    .receive-tag { border-radius: 20px; background: #f0e8f8; padding: 5px 10px; font-size: 10px; color: #795593; }
+    .receive-preview { display: block; max-width: 100%; height: auto; margin: 0 auto 18px; border-radius: 10px; background: #f4eef9; }
+    .receive-photo { width: min(100%, 224px); }
+    .receive-gif { width: 100%; }
+    .receive-save, .receive-all, .receive-reload {
+      display: block; width: 100%; border: 0; border-radius: 14px;
+      min-height: 52px; padding: 14px 16px; font: inherit; font-size: 14px;
+      font-weight: 600; cursor: pointer; text-decoration: none; touch-action: manipulation;
+      color: #fff; background: linear-gradient(120deg, #ad7de3, #df8bbb);
+    }
+    .receive-save.secondary { color: #65487e; background: #eee5f7; }
+    .receive-all { background: #49315e; margin-top: 22px; }
+    .receive-reload { color: #65487e; background: #eee5f7; margin-top: 14px; }
+    .receive-save:disabled, .receive-all:disabled { opacity: .5; cursor: wait; }
+    .receive-file-status { color: #85718f; font-size: 11px; margin: 10px 0 0; line-height: 1.7; }
+    .receive-help { color: #6e5a7b; font-size: 12px; line-height: 1.9; margin-top: 16px; white-space: pre-line; }
+    .receive-status { min-height: 22px; margin: 12px 0; color: #65487e; font-size: 12px; line-height: 1.8; }
+    .receive-original { display: inline-block; color: #795593; margin-top: 10px; font-size: 12px; text-underline-offset: 3px; }
+    .receive-print-note { color: #80658f; font-size: 11px; line-height: 1.8; margin-bottom: 14px; }
+    .timelapse-note { margin-top: 10px; text-align: center; color: var(--tm); font-size: 11px; line-height: 1.7; }
+    .qr-code { width: min(320px, 100%); height: auto; aspect-ratio: 1; padding: 20px; }
+    .qr-code img, .qr-code canvas { max-width: 100%; height: auto !important; }
+    .receive-save:focus-visible, .receive-all:focus-visible { outline: 3px solid #735198; outline-offset: 4px; }
+    .receive-print-dialog {
+      width: min(100% - 44px, 350px); max-height: calc(100dvh - 44px); overflow-y: auto;
+      margin: auto; padding: 28px 24px 18px; border: 1px solid #fff; border-radius: 26px;
+      background: #fffafd; color: var(--td); text-align: center;
+      box-shadow: 0 20px 80px rgba(61,42,78,.22); font: inherit;
+    }
+    .receive-print-dialog::backdrop { background: rgba(49,30,66,.36); backdrop-filter: blur(5px); }
+    .receive-dialog-icon { color: #a87fe8; font-size: 27px; margin-bottom: 10px; }
+    .receive-print-dialog h2 { font-size: 20px; margin-bottom: 16px; letter-spacing: -.04em; }
+    .receive-print-dialog p { font-size: 13px; color: #7a6689; line-height: 1.9; margin-bottom: 18px; }
+    .receive-print-dialog .receive-manual-note { font-size: 11px; color: #94819e; line-height: 1.65; margin: -2px 0 18px; }
+    .receive-wifi-steps { background: #f1e8f8; padding: 18px 10px; border-radius: 15px; margin-bottom: 18px; font-size: 14px; line-height: 2; }
+    .receive-wifi-steps span { padding: 0 8px; color: #a68bb9; }
+    .receive-wifi-steps strong { color: #694285; font-size: 15px; }
+    .receive-dialog-close { background: none; border: 0; color: #8b759b; margin-top: 10px; min-height: 38px; cursor: pointer; font: inherit; font-size: 12px; }
+
+
+    html.jem-receive body {
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      background:
+        radial-gradient(120% 90% at 18% 12%, rgba(255, 190, 225, .95) 0%, rgba(255, 190, 225, 0) 55%),
+        radial-gradient(110% 85% at 88% 22%, rgba(196, 178, 255, .9) 0%, rgba(196, 178, 255, 0) 58%),
+        radial-gradient(120% 95% at 75% 92%, rgba(190, 240, 220, .9) 0%, rgba(190, 240, 220, 0) 60%),
+        radial-gradient(120% 95% at 10% 88%, rgba(190, 220, 255, .85) 0%, rgba(190, 220, 255, 0) 60%),
+        linear-gradient(150deg, #ffe0f0 0%, #ecd6ff 30%, #d3e2ff 62%, #cff5e6 100%);
+      background-attachment: fixed;
+    }
+    html:not(.jem-receive) .timelapse-note { color: #c3d0e8; }
+    .col-c { --mc-text: #49345e; --mc-muted: #7d688f; --mc-panel: rgba(255,255,255,.72); --mc-line: rgba(255,255,255,.75); }
+    body.zodiac-studio .col-c { --mc-text: #f2f5ff; --mc-muted: #c3d0e8; --mc-panel: rgba(24,46,91,.74); --mc-line: rgba(187,207,249,.28); }
+    .booth-steps { display:flex; width:min(100%,760px); justify-content:center; gap:18px; padding:10px 0; color:var(--mc-muted); font-size:11px; }
+    .booth-steps .current { color:var(--mc-text); font-weight:700; }
+    .capture-panel, .photo-editor { color:var(--mc-text); }
+    .photo-editor { width:min(100%,760px); }
+    .capture-panel { width:min(100%,760px); background:var(--mc-panel); border:1px solid var(--mc-line); border-radius:24px; padding:16px; }
+    .capture-view { position:relative; aspect-ratio:16/9; overflow:hidden; border-radius:15px; background:#14121c; }
+    #boothCamera { display:block; width:100%;height:100%;object-fit:contain;transform:scaleX(-1); }
+    .capture-view .capture-badge { position:absolute;top:12px;left:12px; border-radius:30px; padding:6px 10px; background:rgba(15,19,34,.55);color:#fff;font-size:11px; }
+    .capture-panel .cam-controls { width:100%;margin:18px 0 12px; }
+    .capture-thumbs,.photo-choices { display:grid;grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; }
+    .capture-thumb { aspect-ratio:4/3;background:rgba(132,120,166,.16);border:1px dashed var(--mc-line);border-radius:10px;overflow:hidden;display:grid;place-items:center;font-size:12px;color:var(--mc-muted); }
+    .capture-thumbs .capture-thumb { aspect-ratio:16/9; max-height:90px; }
+    .capture-thumb img { width:100%;height:100%;object-fit:cover; }
+    .booth-primary,.booth-secondary { width:100%;min-height:44px;border:0;border-radius:12px;cursor:pointer;font:600 12px 'Poppins',sans-serif; padding:11px 10px;touch-action:manipulation; }
+    .booth-primary { background:linear-gradient(120deg,#a87fe8,#e88eba);color:#fff;margin-top:14px; }
+    .booth-secondary { background:var(--mc-panel);color:var(--mc-text);border:1px solid var(--mc-line); }
+    .booth-primary:disabled,.booth-secondary:disabled { opacity:.4;cursor:default; }
+    .booth-hint { font-size:11px;line-height:1.8;color:var(--mc-muted);text-align:center;margin:10px 0 0; }
+    .selection-panel { border-radius:20px;padding:16px;background:var(--mc-panel);border:1px solid var(--mc-line);margin-bottom:14px; }
+    .selection-title { display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:600;margin-bottom:12px; }
+    .selection-title span { font-size:11px;font-weight:400;color:var(--mc-muted); }
+    .photo-choice { min-width:0; }
+    .photo-choice-toggle { position:relative;display:block;width:100%;padding:3px;border:2px solid transparent;border-radius:12px;background:rgba(133,116,161,.12);cursor:pointer;color:var(--mc-text);font:inherit; }
+    .photo-choice-toggle[aria-pressed='true'] { border-color:#c79be9;background:rgba(194,154,230,.28); }
+    .photo-choice-toggle img { display:block;aspect-ratio:4/3;width:100%;object-fit:cover;border-radius:7px; }
+    .photo-choice-toggle .choice-order { position:absolute;top:6px;right:6px;min-width:20px;height:20px;border-radius:20px;display:grid;place-items:center;color:#fff;background:#865cb1;font-size:11px; }
+    .photo-choice-label { display:block;font-size:10px;line-height:1.7;padding-top:4px; }
+    .choice-order-buttons { display:flex;gap:3px;margin-top:4px; }
+    .choice-order-buttons button { flex:1;min-width:0;min-height:30px;background:var(--mc-panel);border:1px solid var(--mc-line);border-radius:7px;color:var(--mc-text);cursor:pointer;font-size:14px; }
+    .choice-order-buttons button:disabled { opacity:.25;cursor:default; }
+    .layout-buttons { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:16px; }
+    .layout-button { min-width:0;min-height:66px;padding:8px 2px;border:1px solid var(--mc-line);border-radius:12px;background:var(--mc-panel);color:var(--mc-text);cursor:pointer;font:600 11px 'Poppins',sans-serif; }
+    .layout-button[aria-pressed='true'] { border:2px solid #c79be9;background:rgba(182,141,222,.22); }
+    .layout-button:disabled { opacity:.3;cursor:default; }
+    .layout-icon { width:26px;height:30px;display:grid;gap:2px;margin:0 auto 5px;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(2,1fr); }
+    .layout-icon i { display:block;background:currentColor;opacity:.6;border-radius:2px; }
+    .layout-icon.one i { grid-area:1/1/3/3; }
+    .layout-icon.two i { grid-column:1/3; }
+    .layout-icon.three i:first-child { grid-column:1/3; }
+    #stripOuter { display:block;position:relative;box-sizing:border-box;width:100%;padding:0!important;gap:0!important;max-width:none;overflow:hidden; }
+    #stripOuter .frame-slot { position:absolute;flex:none;min-width:0;min-height:0;aspect-ratio:auto; }
+    #stripOuter .layer-video { display:none!important; }
+    #stripOuter .strip-label { position:absolute;padding:0;margin:0;line-height:1.3;width:100%;left:0;transform:translateY(-50%);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .photo-editor .label-wrap { width:100%!important;margin-top:12px; }
+    .fit-tools { display:flex;gap:7px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:14px;font-size:11px;color:var(--mc-muted); }
+    .fit-tools button { min-height:36px;border:1px solid var(--mc-line);border-radius:20px;padding:7px 12px;color:var(--mc-text);background:var(--mc-panel);cursor:pointer;font:inherit; }
+    .fit-tools button[aria-pressed='true'] { border-color:#b18bd6;background:rgba(182,141,222,.22); }
+    .editor-actions { margin-top:18px;padding:18px;background:var(--mc-panel);border:1px solid var(--mc-line);border-radius:20px; }
+    .editor-actions-title { color:var(--mc-text);font-size:14px;font-weight:600;margin-bottom:14px; }
+    #photoEditor .save-actions { display:grid;grid-template-columns:minmax(0,1fr);width:100%;gap:10px;margin:0; }
+    #photoEditor .save-actions .qr-main,#photoEditor .save-actions .save-main { width:100%;min-width:0;margin:0;border-radius:13px;font-size:14px;line-height:1.4; }
+    #photoEditor .save-actions .qr-main { min-height:54px;padding:15px 16px;font-weight:700; }
+    #photoEditor .save-actions .save-main { min-height:46px;padding:12px 16px;background:var(--mc-panel);color:var(--mc-text);border:1px solid var(--mc-line);box-shadow:none; }
+    #photoEditor .save-status { color:var(--mc-muted); }
+    #photoEditor .save-status.error { color:#d84f72; }
+    .session-actions { display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px;padding-top:16px;border-top:1px solid var(--mc-line); }
+    .capture-summary { font-size:11px;line-height:1.7;color:var(--mc-muted); }
+    .session-action-buttons { display:flex;gap:8px;margin-left:auto; }
+    .session-action-buttons .booth-secondary { width:auto;min-width:126px;padding:10px 14px;font-size:12px; }
+    .session-action-buttons .retake-action { background:transparent;border-color:rgba(184,103,136,.45);color:#986078; }
+    body.zodiac-studio .session-action-buttons .retake-action { color:#f0bdd0;border-color:rgba(240,189,208,.4); }
+    .shoot-btn:disabled { opacity:.35;cursor:default; }
+    @media(min-width:1100px) { .col-l,.col-r { position:sticky;top:80px; } }
+    @media(max-width:480px) { .capture-panel,.selection-panel { padding:12px; }.booth-steps { gap:12px;font-size:10px; }.choice-order-buttons button { min-height:34px; }.editor-actions { padding:14px; }.session-action-buttons { flex:1;justify-content:flex-end; }.session-action-buttons .booth-secondary { min-width:0; } }
+
+    .capture-guides { position:absolute;inset:0;pointer-events:none;overflow:hidden; }
+    .capture-guide-bounds,.capture-guide-wide { position:absolute;box-sizing:border-box; }
+    .capture-guide-bounds { z-index:2;border:2px solid #fff4cd;box-shadow:0 0 0 1500px rgba(12,14,30,.58),inset 0 0 0 1px rgba(12,14,30,.18); }
+    .capture-guide-wide { z-index:3;border:2px dashed rgba(255,255,255,.85); }
+    .capture-guide-label { position:absolute;top:9px;left:50%;transform:translateX(-50%);padding:5px 10px;max-width:calc(100% - 12px);border-radius:20px;background:rgba(20,22,35,.66);color:#fff4cd;font-size:11px;font-weight:600;line-height:1.4;white-space:nowrap; }
+    .capture-view .capture-badge { z-index:4; }
+    .capture-view .flash-fx { z-index:5; }
+    .capture-view .cd-overlay { position:absolute;z-index:6;inset:0;padding:12px;background:transparent;backdrop-filter:none;align-items:flex-end;justify-content:flex-start;gap:5px;pointer-events:none; }
+    .capture-view .cd-num { display:grid;place-items:center;width:62px;height:62px;border-radius:50%;background:rgba(15,19,34,.62);font-size:42px;line-height:1; }
+    .capture-view .cd-msg { padding:4px 7px;border-radius:12px;background:rgba(15,19,34,.55);color:#fff;font-size:10px; }
+    .capture-guide-controls { margin-top:14px; }
+    .capture-guide-heading { display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:9px; }
+    .capture-guide-heading strong { font-size:12px;font-weight:600; }
+    .capture-guide-heading span { font-size:11px;color:var(--mc-muted); }
+    .capture-guide-buttons { display:grid;grid-template-columns:1.4fr repeat(4,1fr);gap:6px; }
+    .capture-guide-button { min-width:0;min-height:42px;padding:8px 3px;border:1px solid var(--mc-line);border-radius:10px;background:var(--mc-panel);color:var(--mc-text);font:600 12px 'Poppins',sans-serif;cursor:pointer;touch-action:manipulation; }
+    .capture-guide-button[aria-pressed='true'] { border-color:#b18bd6;background:rgba(182,141,222,.25);box-shadow:inset 0 0 0 1px #b18bd6; }
+    .capture-guide-button:focus-visible { outline:3px solid #b18bd6;outline-offset:2px; }
+    .capture-guide-hint { margin:10px 0 0;color:var(--mc-text);font-size:12px;line-height:1.75; }
+    .capture-guide-note { margin:5px 0 0;color:var(--mc-muted);font-size:10px;line-height:1.7; }
+    @media(max-width:480px) { .capture-guide-buttons { gap:4px; }.capture-guide-button { min-height:40px;font-size:11px; }.capture-guide-label { top:7px;padding:4px 7px;font-size:10px; } }
+
   </style>
 </head>
 
-<body>
+<body class="zodiac-studio">
+  <main class="receive-page" id="receivePage" hidden>
+    <div class="receive-brand">✦ JEM PHOTO ✦</div>
+    <h1>오늘의 순간을 간직해요</h1>
+    <p class="receive-intro" id="receiveIntro">사진과 촬영 타임랩스를<br>아래 버튼으로 저장해 주세요.</p>
+    <section class="receive-card" id="receivePhotoCard" hidden>
+      <div class="receive-card-head"><h2 id="receivePhotoTitle">나의 사진</h2><span class="receive-tag">JPG · 원본</span></div>
+      <p class="receive-print-note" id="receivePrintNote" hidden>CP1300 인쇄용 사진이에요. 사진 저장·Wi-Fi 연결 후 사진 앱에서 프린트를 진행해 주세요.</p>
+      <img class="receive-preview receive-photo" id="receivePhoto" alt="완성된 사진" referrerpolicy="no-referrer" />
+      <button class="receive-save" id="receivePhotoSave" type="button" disabled>사진 불러오는 중…</button>
+      <p class="receive-file-status" id="receivePhotoStatus" role="status" aria-live="polite"></p>
+      <a class="receive-original" id="receivePhotoOriginal" target="_blank" rel="noopener noreferrer" hidden>원본 사진 열기</a>
+    </section>
+    <section class="receive-card" id="receiveGifCard" hidden>
+      <div class="receive-card-head"><h2>촬영 타임랩스</h2><span class="receive-tag">GIF · 움직이는 추억</span></div>
+      <img class="receive-preview receive-gif" id="receiveGif" alt="촬영하는 모습을 담은 타임랩스 GIF" referrerpolicy="no-referrer" />
+      <button class="receive-save secondary" id="receiveGifSave" type="button" disabled>GIF 불러오는 중…</button>
+      <p class="receive-file-status" id="receiveGifStatus" role="status" aria-live="polite"></p>
+      <a class="receive-original" id="receiveGifOriginal" target="_blank" rel="noopener noreferrer" hidden>원본 GIF 열기</a>
+    </section>
+    <button class="receive-all" id="receiveAll" type="button" disabled hidden>사진 + GIF 함께 저장하기</button>
+    <p class="receive-help" id="receiveHelp"></p>
+    <p class="receive-status" id="receiveStatus" role="status" aria-live="polite" aria-atomic="true"></p>
+    <button class="receive-reload" id="receiveReload" type="button" hidden>다시 불러오기</button>
+    <dialog class="receive-print-dialog" id="receivePrintGuide" aria-labelledby="receivePrintGuideTitle">
+      <div class="receive-dialog-icon" aria-hidden="true">✦</div>
+      <h2 id="receivePrintGuideTitle">사진 인쇄 안내</h2>
+      <p>사진을 먼저 저장한 뒤,<br>휴대폰에서 아래 Wi-Fi에 연결해 주세요.</p>
+      <div class="receive-wifi-steps">설정 <span>›</span> Wi-Fi<br><strong>CP1300로 시작하는 Wi-Fi</strong></div>
+      <p>연결 후 <strong>사진 앱</strong>에서 저장한 사진을 열고<br><strong>공유 → 프린트</strong>로 진행해 주세요.</p>
+      <p class="receive-manual-note">자세한 방법은 하단 책상에 붙여진 종이 설명서를 확인해 주세요.</p>
+      <button class="receive-save" id="receivePrintGuideSave" type="button">확인 · 사진 저장하기</button>
+      <button class="receive-dialog-close" id="receivePrintGuideClose" type="button">닫기</button>
+    </dialog>
+  </main>
+
   <div class="blobs">
     <div class="star-field" aria-hidden="true"></div>
     <div class="blob b1"></div>
@@ -1627,15 +1836,10 @@
     <div class="blob b4"></div>
   </div>
 
-  <div class="cd-overlay" id="cdOverlay">
-    <div class="cd-num" id="cdNum">3</div>
-    <div class="cd-msg">포즈를 취하세요</div>
-  </div>
-
-  <div class="modal" id="recModal">
+    <div class="modal" id="recModal">
     <div class="modal-inner">
       <button class="modal-close" onclick="closeModal()">×</button>
-      <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--td);">내 2컷 📸</div>
+      <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--td);">내 사진 📸</div>
       <img class="modal-img" id="modalImg" src="" alt="saved photostrip" />
       <div class="modal-info" id="modalInfo"></div>
     </div>
@@ -1653,13 +1857,15 @@
       <div class="qr-result" id="qrResult" hidden>
         <div class="qr-code" id="qrCode" aria-label="완성 사진 QR 코드"></div>
         <div class="qr-guide" id="qrGuide">
-          휴대폰 카메라로 QR을 스캔하세요.<br>
+          휴대폰 카메라로 QR을 스캔하면 저장 버튼이 나와요.<br>
           보관용 사진은 좌우가 중앙에 맞춰져 있어요.<br>
           인쇄하려면 위의 ‘CP1300 인쇄용’을 선택해 주세요.
         </div>
-        <a class="qr-photo-link" id="qrPhotoLink" href="#" target="_blank" rel="noopener">사진 직접 열기</a>
+        <p class="qr-guide" id="qrMediaNote" role="status" aria-live="polite"></p>
+        <a class="qr-photo-link" id="qrPhotoLink" href="#" target="_blank" rel="noopener">휴대폰 저장 화면 직접 열기</a>
       </div>
       <button class="qr-retry" id="qrRetry" type="button" onclick="generatePhotoQR(qrMode, true)" hidden>다시 시도하기</button>
+      <button class="qr-retry" id="qrGifRetry" type="button" onclick="generatePhotoQR(qrMode, true)" hidden>GIF 포함해서 다시 만들기</button>
     </div>
   </div>
 
@@ -1715,7 +1921,7 @@
           </div>
           <div style="font-size:8.5px;color:rgba(232,239,255,.76);line-height:1.6;margin-top:8px;text-align:center;">
             프레임 이미지는 바로 선택해서 적용돼요.<br>
-            사진이 들어가는 두 컷 부분은 자동으로 비워지고, 바깥 프레임에만 이미지가 씌워져요.
+            선택한 사진이 들어가는 부분은 자동으로 비워지고, 바깥 프레임에만 이미지가 씌워져요.
           </div>
         </section>
 
@@ -1761,45 +1967,73 @@
       </aside>
 
       <main class="col-c">
-        <div class="strip-outer" id="stripOuter">
-          <div class="frame-slot selected" id="f0">
-            <video class="layer layer-video" id="v0" autoplay muted playsinline></video>
-            <img class="layer layer-photo" id="p0" alt="photo 1" />
+        <div class="booth-steps"><span id="stepCapture" class="current">1. 최대 4장 촬영</span><span id="stepSelect">2. 사진 선택 · 배치 · 꾸미기</span></div>
+        <section class="capture-panel" id="capturePanel" aria-label="사진 촬영">
+          <div class="capture-view" id="captureView"><video id="boothCamera" autoplay muted playsinline aria-describedby="captureGuideHint"></video><div class="capture-guides" aria-hidden="true"><div class="capture-guide-bounds" id="captureGuideBounds"><span class="capture-guide-label" id="captureGuideLabel">안전영역</span></div><div class="capture-guide-wide" id="captureGuideWide" hidden></div></div><span class="capture-badge" id="captureBadge">0 / 4</span><div class="flash-fx" id="captureFlash"></div><div class="cd-overlay" id="cdOverlay">
+    <div class="cd-num" id="cdNum">3</div>
+    <div class="cd-msg">포즈를 취하세요</div>
+  </div></div>
+          <div class="capture-guide-controls">
+            <div class="capture-guide-heading"><strong>잘리지 않게 서기</strong><span id="captureGuideTitle">모든 컷 공통 안전영역</span></div>
+            <div class="capture-guide-buttons" role="group" aria-label="촬영 가이드 선택">
+              <button class="capture-guide-button" type="button" data-capture-guide="all" aria-pressed="true">공통 안전선</button>
+              <button class="capture-guide-button" type="button" data-capture-guide="1" aria-pressed="false">1컷</button>
+              <button class="capture-guide-button" type="button" data-capture-guide="2" aria-pressed="false">2컷</button>
+              <button class="capture-guide-button" type="button" data-capture-guide="3" aria-pressed="false">3컷</button>
+              <button class="capture-guide-button" type="button" data-capture-guide="4" aria-pressed="false">4컷</button>
+            </div>
+            <p class="capture-guide-hint" id="captureGuideHint" role="status" aria-live="polite">1~4컷 모두에 들어가는 범위예요. 얼굴과 몸을 밝은 영역 안쪽에 맞춰 주세요.</p>
+            <p class="capture-guide-note">컷수는 촬영 후 고를 수 있어요. 가이드는 서는 위치만 안내해요.</p>
+          </div>
+          <div class="cam-controls">
+            <div class="timer-row"><div class="tbtn active" data-t="0" onclick="setTimer(this)">바로</div><div class="tbtn" data-t="3" onclick="setTimer(this)">3초</div><div class="tbtn" data-t="5" onclick="setTimer(this)">5초</div></div>
+            <button class="shoot-btn" id="shootBtn" type="button" onclick="shoot()" aria-label="사진 촬영">📷</button>
+            <span class="shot-info" id="shotInfo">0 / 4 촬영</span>
+          </div>
+          <div class="capture-thumbs" id="captureThumbs" aria-label="촬영한 사진"></div>
+          <button class="booth-primary" id="finishCaptureBtn" type="button" onclick="finishCapture()" disabled>촬영 후 사진 고르기</button>
+          <p class="booth-hint">최대 4장까지 찍을 수 있어요. 한 장만 찍고 다음으로 가도 돼요.</p>
+        </section>
+        <section class="photo-editor" id="photoEditor" aria-label="사진 선택과 프레임 꾸미기" hidden>
+          <div class="selection-panel">
+            <div class="selection-title">사용할 사진 고르기 <span id="selectionCount">0장 선택</span></div>
+            <div class="photo-choices" id="photoChoices"></div>
+            <p class="booth-hint" id="selectionHint" role="status" aria-live="polite">선택한 순서대로 배치돼요. 화살표로 순서를 바꿀 수 있어요.</p>
+            <div class="layout-buttons" role="group" aria-label="사진 배치 선택"><button class="layout-button" type="button" data-layout-count="1" onclick="setLayoutCount(1)" aria-pressed="false"><span class="layout-icon one" aria-hidden="true"><i></i></span>한 컷 크게</button><button class="layout-button" type="button" data-layout-count="2" onclick="setLayoutCount(2)" aria-pressed="false"><span class="layout-icon two" aria-hidden="true"><i></i><i></i></span>두 컷</button><button class="layout-button" type="button" data-layout-count="3" onclick="setLayoutCount(3)" aria-pressed="false"><span class="layout-icon three" aria-hidden="true"><i></i><i></i><i></i></span>세 컷</button><button class="layout-button" type="button" data-layout-count="4" onclick="setLayoutCount(4)" aria-pressed="false"><span class="layout-icon four" aria-hidden="true"><i></i><i></i><i></i><i></i></span>네 컷</button></div>
+          </div>
+          <div class="strip-outer" id="stripOuter">
+          <div class="frame-slot" id="f0" data-photo-index="0" hidden>
+            <img class="layer layer-photo" id="p0" alt="촬영한 사진 1" />
             <canvas class="layer layer-draw" id="d0" width="680" height="460"></canvas>
             <canvas class="layer layer-stk" id="s0" width="680" height="460"></canvas>
             <textarea class="text-editor" id="txt0" rows="1"></textarea>
-            <div class="layer layer-border" id="b0"></div>
-            <div class="fnum">1</div>
-            <div class="flash-fx" id="fl0"></div>
+            <div class="layer layer-border" id="b0"></div><div class="fnum">1</div>
           </div>
-
-          <div class="frame-slot" id="f1">
-            <video class="layer layer-video" id="v1" autoplay muted playsinline></video>
-            <img class="layer layer-photo" id="p1" alt="photo 2" />
+          <div class="frame-slot" id="f1" data-photo-index="1" hidden>
+            <img class="layer layer-photo" id="p1" alt="촬영한 사진 2" />
             <canvas class="layer layer-draw" id="d1" width="680" height="460"></canvas>
             <canvas class="layer layer-stk" id="s1" width="680" height="460"></canvas>
             <textarea class="text-editor" id="txt1" rows="1"></textarea>
-            <div class="layer layer-border" id="b1"></div>
-            <div class="fnum">2</div>
-            <div class="flash-fx" id="fl1"></div>
+            <div class="layer layer-border" id="b1"></div><div class="fnum">2</div>
           </div>
-
-          <div class="strip-label" id="stripLabel">✦ My Zodiac Night ✦</div>
-        </div>
-
-        <div class="cam-controls">
-          <div class="timer-row">
-            <div class="tbtn active" data-t="0" onclick="setTimer(this)">바로</div>
-            <div class="tbtn" data-t="3" onclick="setTimer(this)">3초</div>
-            <div class="tbtn" data-t="5" onclick="setTimer(this)">5초</div>
+          <div class="frame-slot" id="f2" data-photo-index="2" hidden>
+            <img class="layer layer-photo" id="p2" alt="촬영한 사진 3" />
+            <canvas class="layer layer-draw" id="d2" width="680" height="460"></canvas>
+            <canvas class="layer layer-stk" id="s2" width="680" height="460"></canvas>
+            <textarea class="text-editor" id="txt2" rows="1"></textarea>
+            <div class="layer layer-border" id="b2"></div><div class="fnum">3</div>
           </div>
-          <button class="shoot-btn" id="shootBtn" onclick="shoot()">📷</button>
-          <div style="display:flex;flex-direction:column;gap:5px;align-items:center;">
-            <span class="shot-info" id="shotInfo">0 / 2 촬영</span>
-            <button class="cam-btn red" onclick="resetPhotos()">사진 초기화</button>
+          <div class="frame-slot" id="f3" data-photo-index="3" hidden>
+            <img class="layer layer-photo" id="p3" alt="촬영한 사진 4" />
+            <canvas class="layer layer-draw" id="d3" width="680" height="460"></canvas>
+            <canvas class="layer layer-stk" id="s3" width="680" height="460"></canvas>
+            <textarea class="text-editor" id="txt3" rows="1"></textarea>
+            <div class="layer layer-border" id="b3"></div><div class="fnum">4</div>
           </div>
-        </div>
-
+            <div class="strip-label" id="stripLabel">✦ My Zodiac Night ✦</div>
+          </div>
+          <div class="fit-tools"><span id="activePhotoLabel">사진 맞춤</span><button id="fitCover" type="button" onclick="setPhotoFit('cover')" aria-pressed="true">꽉 채우기</button><button id="fitContain" type="button" onclick="setPhotoFit('contain')" aria-pressed="false">사진 전체 보기</button></div>
+          <p class="booth-hint">꾸밀 사진을 누르면 해당 칸이 선택돼요. 꽉 채우기는 사진 가장자리가 잘릴 수 있어요.</p>
         <div class="label-wrap" style="display:flex;gap:8px;align-items:center;width:min(460px,94vw);">
           <input class="label-input" type="text" id="labelInput" value="✦ My Zodiac Night ✦" oninput="document.getElementById('stripLabel').textContent=this.value" />
           <label class="label-color-control" for="labelColorInput">
@@ -1808,11 +2042,21 @@
           </label>
         </div>
 
-        <div class="save-actions">
-          <button class="save-main" type="button" onclick="saveToSite()">사이트에 저장하기</button>
-          <button class="qr-main" id="qrMainBtn" type="button" onclick="generatePhotoQR()">QR로 휴대폰 전송</button>
-          <p class="save-status" id="saveStatus" role="status" aria-live="polite" aria-atomic="true"></p>
-        </div>
+
+          <section class="editor-actions" aria-label="사진 저장과 다시 촬영">
+            <div class="editor-actions-title">완성한 사진 가져가기</div>
+            <div class="save-actions">
+              <button class="qr-main" id="qrMainBtn" type="button" onclick="generatePhotoQR()">QR로 휴대폰 전송</button>
+              <button class="save-main" type="button" onclick="saveToSite()">사이트에 저장하기</button>
+              <p class="save-status" id="saveStatus" role="status" aria-live="polite" aria-atomic="true"></p>
+            </div>
+            <div class="session-actions">
+              <span class="capture-summary" id="captureSummary" role="status"></span>
+              <div class="session-action-buttons"><button class="booth-secondary" id="resumeCaptureBtn" type="button" onclick="resumeCapture()">추가 촬영</button><button class="booth-secondary retake-action" type="button" onclick="resetPhotos()">전체 다시 찍기</button></div>
+            </div>
+          </section>
+        </section>
+        <p class="timelapse-note" id="timelapseNote" aria-live="polite">촬영하는 순간도 짧은 타임랩스 GIF로 함께 담아요.</p>
       </main>
 
       <aside class="col-r">
@@ -1868,11 +2112,11 @@
 
         <section class="card">
           <div class="rec-head">
-            <div class="ct" style="margin:0;">저장된 두컷</div>
+            <div class="ct" style="margin:0;">저장한 사진</div>
             <div class="rec-cnt" id="recCnt">0건</div>
           </div>
           <div class="rec-list" id="recList">
-            <div class="rec-empty">아직 저장된 두컷이 없어요<br />촬영 후 저장해보세요</div>
+            <div class="rec-empty">아직 저장한 사진이 없어요<br />촬영 후 저장해보세요</div>
           </div>
         </section>
       </aside>
@@ -1883,9 +2127,1124 @@
     </footer>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script id="jemGifWorker" type="text/plain">
+/* gifenc 1.0.3 — https://github.com/mattdesl/gifenc
+The MIT License (MIT)
+Copyright (c) 2017 Matt DesLauriers
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+*/
+const exports = {};
+var __defProp = Object.defineProperty;
+var __markAsModule = (target) => __defProp(target, "__esModule", {value: true});
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, {get: all[name], enumerable: true});
+};
+
+// src/index.js
+__markAsModule(exports);
+__export(exports, {
+  GIFEncoder: () => GIFEncoder,
+  applyPalette: () => applyPalette,
+  default: () => src_default,
+  nearestColor: () => nearestColor,
+  nearestColorIndex: () => nearestColorIndex,
+  nearestColorIndexWithDistance: () => nearestColorIndexWithDistance,
+  prequantize: () => prequantize,
+  quantize: () => quantize,
+  snapColorsToPalette: () => snapColorsToPalette
+});
+
+// src/constants.js
+var constants_default = {
+  signature: "GIF",
+  version: "89a",
+  trailer: 59,
+  extensionIntroducer: 33,
+  applicationExtensionLabel: 255,
+  graphicControlExtensionLabel: 249,
+  imageSeparator: 44,
+  signatureSize: 3,
+  versionSize: 3,
+  globalColorTableFlagMask: 128,
+  colorResolutionMask: 112,
+  sortFlagMask: 8,
+  globalColorTableSizeMask: 7,
+  applicationIdentifierSize: 8,
+  applicationAuthCodeSize: 3,
+  disposalMethodMask: 28,
+  userInputFlagMask: 2,
+  transparentColorFlagMask: 1,
+  localColorTableFlagMask: 128,
+  interlaceFlagMask: 64,
+  idSortFlagMask: 32,
+  localColorTableSizeMask: 7
+};
+
+// src/stream.js
+function createStream(initialCapacity = 256) {
+  let cursor = 0;
+  let contents = new Uint8Array(initialCapacity);
+  return {
+    get buffer() {
+      return contents.buffer;
+    },
+    reset() {
+      cursor = 0;
+    },
+    bytesView() {
+      return contents.subarray(0, cursor);
+    },
+    bytes() {
+      return contents.slice(0, cursor);
+    },
+    writeByte(byte) {
+      expand(cursor + 1);
+      contents[cursor] = byte;
+      cursor++;
+    },
+    writeBytes(data, offset = 0, byteLength = data.length) {
+      expand(cursor + byteLength);
+      for (let i = 0; i < byteLength; i++) {
+        contents[cursor++] = data[i + offset];
+      }
+    },
+    writeBytesView(data, offset = 0, byteLength = data.byteLength) {
+      expand(cursor + byteLength);
+      contents.set(data.subarray(offset, offset + byteLength), cursor);
+      cursor += byteLength;
+    }
+  };
+  function expand(newCapacity) {
+    var prevCapacity = contents.length;
+    if (prevCapacity >= newCapacity)
+      return;
+    var CAPACITY_DOUBLING_MAX = 1024 * 1024;
+    newCapacity = Math.max(newCapacity, prevCapacity * (prevCapacity < CAPACITY_DOUBLING_MAX ? 2 : 1.125) >>> 0);
+    if (prevCapacity != 0)
+      newCapacity = Math.max(newCapacity, 256);
+    const oldContents = contents;
+    contents = new Uint8Array(newCapacity);
+    if (cursor > 0)
+      contents.set(oldContents.subarray(0, cursor), 0);
+  }
+}
+
+// src/lzwEncode.js
+var BITS = 12;
+var DEFAULT_HSIZE = 5003;
+var MASKS = [
+  0,
+  1,
+  3,
+  7,
+  15,
+  31,
+  63,
+  127,
+  255,
+  511,
+  1023,
+  2047,
+  4095,
+  8191,
+  16383,
+  32767,
+  65535
+];
+function lzwEncode(width, height, pixels, colorDepth, outStream = createStream(512), accum = new Uint8Array(256), htab = new Int32Array(DEFAULT_HSIZE), codetab = new Int32Array(DEFAULT_HSIZE)) {
+  const hsize = htab.length;
+  const initCodeSize = Math.max(2, colorDepth);
+  accum.fill(0);
+  codetab.fill(0);
+  htab.fill(-1);
+  let cur_accum = 0;
+  let cur_bits = 0;
+  const init_bits = initCodeSize + 1;
+  const g_init_bits = init_bits;
+  let clear_flg = false;
+  let n_bits = g_init_bits;
+  let maxcode = (1 << n_bits) - 1;
+  const ClearCode = 1 << init_bits - 1;
+  const EOFCode = ClearCode + 1;
+  let free_ent = ClearCode + 2;
+  let a_count = 0;
+  let ent = pixels[0];
+  let hshift = 0;
+  for (let fcode = hsize; fcode < 65536; fcode *= 2) {
+    ++hshift;
+  }
+  hshift = 8 - hshift;
+  outStream.writeByte(initCodeSize);
+  output(ClearCode);
+  const length = pixels.length;
+  for (let idx = 1; idx < length; idx++) {
+    next_block: {
+      const c = pixels[idx];
+      const fcode = (c << BITS) + ent;
+      let i = c << hshift ^ ent;
+      if (htab[i] === fcode) {
+        ent = codetab[i];
+        break next_block;
+      }
+      const disp = i === 0 ? 1 : hsize - i;
+      while (htab[i] >= 0) {
+        i -= disp;
+        if (i < 0)
+          i += hsize;
+        if (htab[i] === fcode) {
+          ent = codetab[i];
+          break next_block;
+        }
+      }
+      output(ent);
+      ent = c;
+      if (free_ent < 1 << BITS) {
+        codetab[i] = free_ent++;
+        htab[i] = fcode;
+      } else {
+        htab.fill(-1);
+        free_ent = ClearCode + 2;
+        clear_flg = true;
+        output(ClearCode);
+      }
+    }
+  }
+  output(ent);
+  output(EOFCode);
+  outStream.writeByte(0);
+  return outStream.bytesView();
+  function output(code) {
+    cur_accum &= MASKS[cur_bits];
+    if (cur_bits > 0)
+      cur_accum |= code << cur_bits;
+    else
+      cur_accum = code;
+    cur_bits += n_bits;
+    while (cur_bits >= 8) {
+      accum[a_count++] = cur_accum & 255;
+      if (a_count >= 254) {
+        outStream.writeByte(a_count);
+        outStream.writeBytesView(accum, 0, a_count);
+        a_count = 0;
+      }
+      cur_accum >>= 8;
+      cur_bits -= 8;
+    }
+    if (free_ent > maxcode || clear_flg) {
+      if (clear_flg) {
+        n_bits = g_init_bits;
+        maxcode = (1 << n_bits) - 1;
+        clear_flg = false;
+      } else {
+        ++n_bits;
+        maxcode = n_bits === BITS ? 1 << n_bits : (1 << n_bits) - 1;
+      }
+    }
+    if (code == EOFCode) {
+      while (cur_bits > 0) {
+        accum[a_count++] = cur_accum & 255;
+        if (a_count >= 254) {
+          outStream.writeByte(a_count);
+          outStream.writeBytesView(accum, 0, a_count);
+          a_count = 0;
+        }
+        cur_accum >>= 8;
+        cur_bits -= 8;
+      }
+      if (a_count > 0) {
+        outStream.writeByte(a_count);
+        outStream.writeBytesView(accum, 0, a_count);
+        a_count = 0;
+      }
+    }
+  }
+}
+var lzwEncode_default = lzwEncode;
+
+// src/rgb-packing.js
+function rgb888_to_rgb565(r, g, b) {
+  return r << 8 & 63488 | g << 2 & 992 | b >> 3;
+}
+function rgba8888_to_rgba4444(r, g, b, a) {
+  return r >> 4 | g & 240 | (b & 240) << 4 | (a & 240) << 8;
+}
+function rgb888_to_rgb444(r, g, b) {
+  return r >> 4 << 8 | g & 240 | b >> 4;
+}
+
+// src/pnnquant2.js
+function clamp(value, min, max) {
+  return value < min ? min : value > max ? max : value;
+}
+function sqr(value) {
+  return value * value;
+}
+function find_nn(bins, idx, hasAlpha) {
+  var nn = 0;
+  var err = 1e100;
+  const bin1 = bins[idx];
+  const n1 = bin1.cnt;
+  const wa = bin1.ac;
+  const wr = bin1.rc;
+  const wg = bin1.gc;
+  const wb = bin1.bc;
+  for (var i = bin1.fw; i != 0; i = bins[i].fw) {
+    const bin = bins[i];
+    const n2 = bin.cnt;
+    const nerr2 = n1 * n2 / (n1 + n2);
+    if (nerr2 >= err)
+      continue;
+    var nerr = 0;
+    if (hasAlpha) {
+      nerr += nerr2 * sqr(bin.ac - wa);
+      if (nerr >= err)
+        continue;
+    }
+    nerr += nerr2 * sqr(bin.rc - wr);
+    if (nerr >= err)
+      continue;
+    nerr += nerr2 * sqr(bin.gc - wg);
+    if (nerr >= err)
+      continue;
+    nerr += nerr2 * sqr(bin.bc - wb);
+    if (nerr >= err)
+      continue;
+    err = nerr;
+    nn = i;
+  }
+  bin1.err = err;
+  bin1.nn = nn;
+}
+function create_bin() {
+  return {
+    ac: 0,
+    rc: 0,
+    gc: 0,
+    bc: 0,
+    cnt: 0,
+    nn: 0,
+    fw: 0,
+    bk: 0,
+    tm: 0,
+    mtm: 0,
+    err: 0
+  };
+}
+function create_bin_list(data, format) {
+  const bincount = format === "rgb444" ? 4096 : 65536;
+  const bins = new Array(bincount);
+  const size = data.length;
+  if (format === "rgba4444") {
+    for (let i = 0; i < size; ++i) {
+      const color = data[i];
+      const a = color >> 24 & 255;
+      const b = color >> 16 & 255;
+      const g = color >> 8 & 255;
+      const r = color & 255;
+      const index = rgba8888_to_rgba4444(r, g, b, a);
+      let bin = index in bins ? bins[index] : bins[index] = create_bin();
+      bin.rc += r;
+      bin.gc += g;
+      bin.bc += b;
+      bin.ac += a;
+      bin.cnt++;
+    }
+  } else if (format === "rgb444") {
+    for (let i = 0; i < size; ++i) {
+      const color = data[i];
+      const b = color >> 16 & 255;
+      const g = color >> 8 & 255;
+      const r = color & 255;
+      const index = rgb888_to_rgb444(r, g, b);
+      let bin = index in bins ? bins[index] : bins[index] = create_bin();
+      bin.rc += r;
+      bin.gc += g;
+      bin.bc += b;
+      bin.cnt++;
+    }
+  } else {
+    for (let i = 0; i < size; ++i) {
+      const color = data[i];
+      const b = color >> 16 & 255;
+      const g = color >> 8 & 255;
+      const r = color & 255;
+      const index = rgb888_to_rgb565(r, g, b);
+      let bin = index in bins ? bins[index] : bins[index] = create_bin();
+      bin.rc += r;
+      bin.gc += g;
+      bin.bc += b;
+      bin.cnt++;
+    }
+  }
+  return bins;
+}
+function quantize(rgba, maxColors, opts = {}) {
+  const {
+    format = "rgb565",
+    clearAlpha = true,
+    clearAlphaColor = 0,
+    clearAlphaThreshold = 0,
+    oneBitAlpha = false
+  } = opts;
+  if (!rgba || !rgba.buffer) {
+    throw new Error("quantize() expected RGBA Uint8Array data");
+  }
+  if (!(rgba instanceof Uint8Array) && !(rgba instanceof Uint8ClampedArray)) {
+    throw new Error("quantize() expected RGBA Uint8Array data");
+  }
+  const data = new Uint32Array(rgba.buffer);
+  let useSqrt = opts.useSqrt !== false;
+  const hasAlpha = format === "rgba4444";
+  const bins = create_bin_list(data, format);
+  const bincount = bins.length;
+  const bincountMinusOne = bincount - 1;
+  const heap = new Uint32Array(bincount + 1);
+  var maxbins = 0;
+  for (var i = 0; i < bincount; ++i) {
+    const bin = bins[i];
+    if (bin != null) {
+      var d = 1 / bin.cnt;
+      if (hasAlpha)
+        bin.ac *= d;
+      bin.rc *= d;
+      bin.gc *= d;
+      bin.bc *= d;
+      bins[maxbins++] = bin;
+    }
+  }
+  if (sqr(maxColors) / maxbins < 0.022) {
+    useSqrt = false;
+  }
+  var i = 0;
+  for (; i < maxbins - 1; ++i) {
+    bins[i].fw = i + 1;
+    bins[i + 1].bk = i;
+    if (useSqrt)
+      bins[i].cnt = Math.sqrt(bins[i].cnt);
+  }
+  if (useSqrt)
+    bins[i].cnt = Math.sqrt(bins[i].cnt);
+  var h, l, l2;
+  for (i = 0; i < maxbins; ++i) {
+    find_nn(bins, i, false);
+    var err = bins[i].err;
+    for (l = ++heap[0]; l > 1; l = l2) {
+      l2 = l >> 1;
+      if (bins[h = heap[l2]].err <= err)
+        break;
+      heap[l] = h;
+    }
+    heap[l] = i;
+  }
+  var extbins = maxbins - maxColors;
+  for (i = 0; i < extbins; ) {
+    var tb;
+    for (; ; ) {
+      var b1 = heap[1];
+      tb = bins[b1];
+      if (tb.tm >= tb.mtm && bins[tb.nn].mtm <= tb.tm)
+        break;
+      if (tb.mtm == bincountMinusOne)
+        b1 = heap[1] = heap[heap[0]--];
+      else {
+        find_nn(bins, b1, false);
+        tb.tm = i;
+      }
+      var err = bins[b1].err;
+      for (l = 1; (l2 = l + l) <= heap[0]; l = l2) {
+        if (l2 < heap[0] && bins[heap[l2]].err > bins[heap[l2 + 1]].err)
+          l2++;
+        if (err <= bins[h = heap[l2]].err)
+          break;
+        heap[l] = h;
+      }
+      heap[l] = b1;
+    }
+    var nb = bins[tb.nn];
+    var n1 = tb.cnt;
+    var n2 = nb.cnt;
+    var d = 1 / (n1 + n2);
+    if (hasAlpha)
+      tb.ac = d * (n1 * tb.ac + n2 * nb.ac);
+    tb.rc = d * (n1 * tb.rc + n2 * nb.rc);
+    tb.gc = d * (n1 * tb.gc + n2 * nb.gc);
+    tb.bc = d * (n1 * tb.bc + n2 * nb.bc);
+    tb.cnt += nb.cnt;
+    tb.mtm = ++i;
+    bins[nb.bk].fw = nb.fw;
+    bins[nb.fw].bk = nb.bk;
+    nb.mtm = bincountMinusOne;
+  }
+  let palette = [];
+  var k = 0;
+  for (i = 0; ; ++k) {
+    let r = clamp(Math.round(bins[i].rc), 0, 255);
+    let g = clamp(Math.round(bins[i].gc), 0, 255);
+    let b = clamp(Math.round(bins[i].bc), 0, 255);
+    let a = 255;
+    if (hasAlpha) {
+      a = clamp(Math.round(bins[i].ac), 0, 255);
+      if (oneBitAlpha) {
+        const threshold = typeof oneBitAlpha === "number" ? oneBitAlpha : 127;
+        a = a <= threshold ? 0 : 255;
+      }
+      if (clearAlpha && a <= clearAlphaThreshold) {
+        r = g = b = clearAlphaColor;
+        a = 0;
+      }
+    }
+    const color = hasAlpha ? [r, g, b, a] : [r, g, b];
+    const exists = existsInPalette(palette, color);
+    if (!exists)
+      palette.push(color);
+    if ((i = bins[i].fw) == 0)
+      break;
+  }
+  return palette;
+}
+function existsInPalette(palette, color) {
+  for (let i = 0; i < palette.length; i++) {
+    const p = palette[i];
+    let matchesRGB = p[0] === color[0] && p[1] === color[1] && p[2] === color[2];
+    let matchesAlpha = p.length >= 4 && color.length >= 4 ? p[3] === color[3] : true;
+    if (matchesRGB && matchesAlpha)
+      return true;
+  }
+  return false;
+}
+
+// src/color.js
+function euclideanDistanceSquared(a, b) {
+  var sum = 0;
+  var n;
+  for (n = 0; n < a.length; n++) {
+    const dx = a[n] - b[n];
+    sum += dx * dx;
+  }
+  return sum;
+}
+
+// src/palettize.js
+function roundStep(byte, step) {
+  return step > 1 ? Math.round(byte / step) * step : byte;
+}
+function prequantize(rgba, {roundRGB = 5, roundAlpha = 10, oneBitAlpha = null} = {}) {
+  const data = new Uint32Array(rgba.buffer);
+  for (let i = 0; i < data.length; i++) {
+    const color = data[i];
+    let a = color >> 24 & 255;
+    let b = color >> 16 & 255;
+    let g = color >> 8 & 255;
+    let r = color & 255;
+    a = roundStep(a, roundAlpha);
+    if (oneBitAlpha) {
+      const threshold = typeof oneBitAlpha === "number" ? oneBitAlpha : 127;
+      a = a <= threshold ? 0 : 255;
+    }
+    r = roundStep(r, roundRGB);
+    g = roundStep(g, roundRGB);
+    b = roundStep(b, roundRGB);
+    data[i] = a << 24 | b << 16 | g << 8 | r << 0;
+  }
+}
+function applyPalette(rgba, palette, format = "rgb565") {
+  if (!rgba || !rgba.buffer) {
+    throw new Error("quantize() expected RGBA Uint8Array data");
+  }
+  if (!(rgba instanceof Uint8Array) && !(rgba instanceof Uint8ClampedArray)) {
+    throw new Error("quantize() expected RGBA Uint8Array data");
+  }
+  if (palette.length > 256) {
+    throw new Error("applyPalette() only works with 256 colors or less");
+  }
+  const data = new Uint32Array(rgba.buffer);
+  const length = data.length;
+  const bincount = format === "rgb444" ? 4096 : 65536;
+  const index = new Uint8Array(length);
+  const cache = new Array(bincount);
+  const hasAlpha = format === "rgba4444";
+  if (format === "rgba4444") {
+    for (let i = 0; i < length; i++) {
+      const color = data[i];
+      const a = color >> 24 & 255;
+      const b = color >> 16 & 255;
+      const g = color >> 8 & 255;
+      const r = color & 255;
+      const key = rgba8888_to_rgba4444(r, g, b, a);
+      const idx = key in cache ? cache[key] : cache[key] = nearestColorIndexRGBA(r, g, b, a, palette);
+      index[i] = idx;
+    }
+  } else {
+    const rgb888_to_key = format === "rgb444" ? rgb888_to_rgb444 : rgb888_to_rgb565;
+    for (let i = 0; i < length; i++) {
+      const color = data[i];
+      const b = color >> 16 & 255;
+      const g = color >> 8 & 255;
+      const r = color & 255;
+      const key = rgb888_to_key(r, g, b);
+      const idx = key in cache ? cache[key] : cache[key] = nearestColorIndexRGB(r, g, b, palette);
+      index[i] = idx;
+    }
+  }
+  return index;
+}
+function nearestColorIndexRGBA(r, g, b, a, palette) {
+  let k = 0;
+  let mindist = 1e100;
+  for (let i = 0; i < palette.length; i++) {
+    const px2 = palette[i];
+    const a2 = px2[3];
+    let curdist = sqr2(a2 - a);
+    if (curdist > mindist)
+      continue;
+    const r2 = px2[0];
+    curdist += sqr2(r2 - r);
+    if (curdist > mindist)
+      continue;
+    const g2 = px2[1];
+    curdist += sqr2(g2 - g);
+    if (curdist > mindist)
+      continue;
+    const b2 = px2[2];
+    curdist += sqr2(b2 - b);
+    if (curdist > mindist)
+      continue;
+    mindist = curdist;
+    k = i;
+  }
+  return k;
+}
+function nearestColorIndexRGB(r, g, b, palette) {
+  let k = 0;
+  let mindist = 1e100;
+  for (let i = 0; i < palette.length; i++) {
+    const px2 = palette[i];
+    const r2 = px2[0];
+    let curdist = sqr2(r2 - r);
+    if (curdist > mindist)
+      continue;
+    const g2 = px2[1];
+    curdist += sqr2(g2 - g);
+    if (curdist > mindist)
+      continue;
+    const b2 = px2[2];
+    curdist += sqr2(b2 - b);
+    if (curdist > mindist)
+      continue;
+    mindist = curdist;
+    k = i;
+  }
+  return k;
+}
+function snapColorsToPalette(palette, knownColors, threshold = 5) {
+  if (!palette.length || !knownColors.length)
+    return;
+  const paletteRGB = palette.map((p) => p.slice(0, 3));
+  const thresholdSq = threshold * threshold;
+  const dim = palette[0].length;
+  for (let i = 0; i < knownColors.length; i++) {
+    let color = knownColors[i];
+    if (color.length < dim) {
+      color = [color[0], color[1], color[2], 255];
+    } else if (color.length > dim) {
+      color = color.slice(0, 3);
+    } else {
+      color = color.slice();
+    }
+    const r = nearestColorIndexWithDistance(paletteRGB, color.slice(0, 3), euclideanDistanceSquared);
+    const idx = r[0];
+    const distanceSq = r[1];
+    if (distanceSq > 0 && distanceSq <= thresholdSq) {
+      palette[idx] = color;
+    }
+  }
+}
+function sqr2(a) {
+  return a * a;
+}
+function nearestColorIndex(colors, pixel, distanceFn = euclideanDistanceSquared) {
+  let minDist = Infinity;
+  let minDistIndex = -1;
+  for (let j = 0; j < colors.length; j++) {
+    const paletteColor = colors[j];
+    const dist = distanceFn(pixel, paletteColor);
+    if (dist < minDist) {
+      minDist = dist;
+      minDistIndex = j;
+    }
+  }
+  return minDistIndex;
+}
+function nearestColorIndexWithDistance(colors, pixel, distanceFn = euclideanDistanceSquared) {
+  let minDist = Infinity;
+  let minDistIndex = -1;
+  for (let j = 0; j < colors.length; j++) {
+    const paletteColor = colors[j];
+    const dist = distanceFn(pixel, paletteColor);
+    if (dist < minDist) {
+      minDist = dist;
+      minDistIndex = j;
+    }
+  }
+  return [minDistIndex, minDist];
+}
+function nearestColor(colors, pixel, distanceFn = euclideanDistanceSquared) {
+  return colors[nearestColorIndex(colors, pixel, distanceFn)];
+}
+
+// src/index.js
+function GIFEncoder(opt = {}) {
+  const {initialCapacity = 4096, auto = true} = opt;
+  const stream = createStream(initialCapacity);
+  const HSIZE = 5003;
+  const accum = new Uint8Array(256);
+  const htab = new Int32Array(HSIZE);
+  const codetab = new Int32Array(HSIZE);
+  let hasInit = false;
+  return {
+    reset() {
+      stream.reset();
+      hasInit = false;
+    },
+    finish() {
+      stream.writeByte(constants_default.trailer);
+    },
+    bytes() {
+      return stream.bytes();
+    },
+    bytesView() {
+      return stream.bytesView();
+    },
+    get buffer() {
+      return stream.buffer;
+    },
+    get stream() {
+      return stream;
+    },
+    writeHeader,
+    writeFrame(index, width, height, opts = {}) {
+      const {
+        transparent = false,
+        transparentIndex = 0,
+        delay = 0,
+        palette = null,
+        repeat = 0,
+        colorDepth = 8,
+        dispose = -1
+      } = opts;
+      let first = false;
+      if (auto) {
+        if (!hasInit) {
+          first = true;
+          writeHeader();
+          hasInit = true;
+        }
+      } else {
+        first = Boolean(opts.first);
+      }
+      width = Math.max(0, Math.floor(width));
+      height = Math.max(0, Math.floor(height));
+      if (first) {
+        if (!palette) {
+          throw new Error("First frame must include a { palette } option");
+        }
+        encodeLogicalScreenDescriptor(stream, width, height, palette, colorDepth);
+        encodeColorTable(stream, palette);
+        if (repeat >= 0) {
+          encodeNetscapeExt(stream, repeat);
+        }
+      }
+      const delayTime = Math.round(delay / 10);
+      encodeGraphicControlExt(stream, dispose, delayTime, transparent, transparentIndex);
+      const useLocalColorTable = Boolean(palette) && !first;
+      encodeImageDescriptor(stream, width, height, useLocalColorTable ? palette : null);
+      if (useLocalColorTable)
+        encodeColorTable(stream, palette);
+      encodePixels(stream, index, width, height, colorDepth, accum, htab, codetab);
+    }
+  };
+  function writeHeader() {
+    writeUTFBytes(stream, "GIF89a");
+  }
+}
+function encodeGraphicControlExt(stream, dispose, delay, transparent, transparentIndex) {
+  stream.writeByte(33);
+  stream.writeByte(249);
+  stream.writeByte(4);
+  if (transparentIndex < 0) {
+    transparentIndex = 0;
+    transparent = false;
+  }
+  var transp, disp;
+  if (!transparent) {
+    transp = 0;
+    disp = 0;
+  } else {
+    transp = 1;
+    disp = 2;
+  }
+  if (dispose >= 0) {
+    disp = dispose & 7;
+  }
+  disp <<= 2;
+  const userInput = 0;
+  stream.writeByte(0 | disp | userInput | transp);
+  writeUInt16(stream, delay);
+  stream.writeByte(transparentIndex || 0);
+  stream.writeByte(0);
+}
+function encodeLogicalScreenDescriptor(stream, width, height, palette, colorDepth = 8) {
+  const globalColorTableFlag = 1;
+  const sortFlag = 0;
+  const globalColorTableSize = colorTableSize(palette.length) - 1;
+  const fields = globalColorTableFlag << 7 | colorDepth - 1 << 4 | sortFlag << 3 | globalColorTableSize;
+  const backgroundColorIndex = 0;
+  const pixelAspectRatio = 0;
+  writeUInt16(stream, width);
+  writeUInt16(stream, height);
+  stream.writeBytes([fields, backgroundColorIndex, pixelAspectRatio]);
+}
+function encodeNetscapeExt(stream, repeat) {
+  stream.writeByte(33);
+  stream.writeByte(255);
+  stream.writeByte(11);
+  writeUTFBytes(stream, "NETSCAPE2.0");
+  stream.writeByte(3);
+  stream.writeByte(1);
+  writeUInt16(stream, repeat);
+  stream.writeByte(0);
+}
+function encodeColorTable(stream, palette) {
+  const colorTableLength = 1 << colorTableSize(palette.length);
+  for (let i = 0; i < colorTableLength; i++) {
+    let color = [0, 0, 0];
+    if (i < palette.length) {
+      color = palette[i];
+    }
+    stream.writeByte(color[0]);
+    stream.writeByte(color[1]);
+    stream.writeByte(color[2]);
+  }
+}
+function encodeImageDescriptor(stream, width, height, localPalette) {
+  stream.writeByte(44);
+  writeUInt16(stream, 0);
+  writeUInt16(stream, 0);
+  writeUInt16(stream, width);
+  writeUInt16(stream, height);
+  if (localPalette) {
+    const interlace = 0;
+    const sorted = 0;
+    const palSize = colorTableSize(localPalette.length) - 1;
+    stream.writeByte(128 | interlace | sorted | 0 | palSize);
+  } else {
+    stream.writeByte(0);
+  }
+}
+function encodePixels(stream, index, width, height, colorDepth = 8, accum, htab, codetab) {
+  lzwEncode_default(width, height, index, colorDepth, stream, accum, htab, codetab);
+}
+function writeUInt16(stream, short) {
+  stream.writeByte(short & 255);
+  stream.writeByte(short >> 8 & 255);
+}
+function writeUTFBytes(stream, text) {
+  for (var i = 0; i < text.length; i++) {
+    stream.writeByte(text.charCodeAt(i));
+  }
+}
+function colorTableSize(length) {
+  return Math.max(Math.ceil(Math.log2(length)), 1);
+}
+var src_default = GIFEncoder;
+
+
+let jemEncoder = null;
+self.onmessage = event => {
+  try {
+    const data = event.data;
+    if (data.type === 'frame') {
+      if (!jemEncoder) jemEncoder = exports.GIFEncoder();
+      const rgba = new Uint8Array(data.rgba);
+      const palette = exports.quantize(rgba, 256, { format: 'rgb565' });
+      const index = exports.applyPalette(rgba, palette, 'rgb565');
+      jemEncoder.writeFrame(index, data.width, data.height, { palette, delay: data.delay, repeat: 0, dispose: 1 });
+      self.postMessage({ type: 'frame' });
+    } else if (data.type === 'finish') {
+      if (!jemEncoder) throw new Error('촬영 프레임이 없어요.');
+      jemEncoder.finish();
+      const bytes = jemEncoder.bytes();
+      self.postMessage({ type: 'done', bytes: bytes.buffer }, [bytes.buffer]);
+      self.close();
+    }
+  } catch (error) { self.postMessage({ error: error.message }); }
+};
+  </script>
   <script>
-    const N = 2;
+  // Receiver files are fetched before a tap so iOS keeps user activation for share().
+  async function initJemReceivePage() {
+    const page = document.getElementById('receivePage');
+    const status = document.getElementById('receiveStatus');
+    const help = document.getElementById('receiveHelp');
+    const allButton = document.getElementById('receiveAll');
+    const reloadButton = document.getElementById('receiveReload');
+    const printGuide = document.getElementById('receivePrintGuide');
+    const printGuideSave = document.getElementById('receivePrintGuideSave');
+    let pendingPhotoSave = null;
+    const isAppleMobile = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const items = [];
+    let zipUrl = '';
+    let preparingZip = false;
+    let saving = false;
+    page.hidden = false;
+    document.title = '사진과 타임랩스 저장 · JEM PHOTO';
+    reloadButton.onclick = () => location.reload();
+    document.getElementById('receivePrintGuideClose').onclick = () => { pendingPhotoSave = null; printGuide.close(); };
+    printGuide.addEventListener('cancel', () => { pendingPhotoSave = null; });
+    printGuideSave.onclick = () => {
+      const save = pendingPhotoSave;
+      pendingPhotoSave = null;
+      printGuide.close();
+      // The confirmation tap still supplies activation for the iPhone share sheet.
+      if (save) save();
+    };
+    function showPrintGuide(save) {
+      pendingPhotoSave = save;
+      printGuide.showModal();
+    }
+
+    function mediaUrl(value) {
+      const url = new URL(value);
+      if (url.protocol !== 'https:' || !['i.ibb.co', 'i.imgbb.com'].includes(url.hostname) || url.username || url.password) {
+        throw new Error('올바른 사진 주소가 아니에요. QR을 다시 스캔해 주세요.');
+      }
+      return url.href;
+    }
+
+    let payload;
+    try {
+      if (location.hash.length > 5000) throw new Error('QR 주소가 올바르지 않아요.');
+      payload = JSON.parse(decodeURIComponent(location.hash.slice(5)));
+      if (payload.v !== 1 || typeof payload.p !== 'string') throw new Error('QR을 다시 스캔해 주세요.');
+      payload.p = mediaUrl(payload.p);
+      if (payload.g) payload.g = mediaUrl(payload.g);
+    } catch (error) {
+      document.getElementById('receiveIntro').textContent = '저장할 사진을 찾지 못했어요. 촬영 화면에서 QR을 다시 만들어 주세요.';
+      status.textContent = '올바른 QR 주소인지 확인해 주세요.';
+      return;
+    }
+
+    const printMode = payload.m === 'print';
+    document.getElementById('receivePhotoCard').hidden = false;
+    document.getElementById('receivePrintNote').hidden = !printMode;
+    const receivedCount = Number.isInteger(payload.n) && payload.n >= 1 && payload.n <= 4 ? payload.n : 0;
+    document.getElementById('receivePhotoTitle').textContent = (printMode ? 'CP1300 인쇄용 ' : '나의 ') + (receivedCount ? `${receivedCount}컷 사진` : '사진');
+    if (!payload.g) document.getElementById('receiveIntro').textContent = '아래 버튼을 눌러 완성 사진을 저장해 주세요. 이 QR에는 타임랩스 GIF가 포함되어 있지 않아요.';
+
+    function canShareFiles(files) {
+      try { return !!(navigator.share && navigator.canShare && navigator.canShare({ files })); }
+      catch (error) { return false; }
+    }
+
+    function downloadUrl(url, name) {
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = name;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+
+    async function saveFiles(files, url, name, useShare) {
+      if (saving) return;
+      saving = true;
+      status.textContent = '';
+      try {
+        if (useShare) {
+          // No fetch/await before this call: Safari requires a direct tap.
+          await navigator.share({ files });
+          status.textContent = '공유창에서 저장을 마쳐 주세요. 저장 여부는 사진 앱 또는 파일 앱에서 확인할 수 있어요.';
+        } else {
+          downloadUrl(url, name);
+          status.textContent = name.endsWith('.zip')
+            ? '사진과 GIF를 ZIP으로 내려받아요. 압축을 풀어 사용해 주세요.'
+            : '다운로드를 시작했어요. 브라우저의 다운로드 목록에서 확인해 주세요.';
+        }
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          status.textContent = '공유창을 닫았어요. 다시 저장할 수 있어요.';
+        } else {
+          status.textContent = '공유창을 열지 못했어요. 아래 파일 다운로드 버튼을 이용하거나 Safari·Chrome에서 다시 열어 주세요.';
+          for (const item of items) {
+            if (!item.file) continue;
+            item.original.hidden = false;
+            item.original.href = item.objectUrl;
+            item.original.download = item.file.name;
+            item.original.removeAttribute('target');
+            item.original.textContent = item.kind === 'photo' ? '사진 파일 다운로드' : 'GIF 파일 다운로드';
+          }
+        }
+      } finally { saving = false; }
+    }
+
+    function updateHelp() {
+      help.textContent = isAppleMobile
+        ? '아이폰: 저장 버튼 → 공유창에서 ‘이미지 저장’을 선택해 주세요.\nGIF는 사진 앱에서 움직이는 이미지로 볼 수 있어요.'
+        : '저장한 파일은 브라우저의 다운로드 목록에서 확인해 주세요.';
+    }
+
+    async function updateAllButton() {
+      if (items.length < 2) return;
+      allButton.hidden = false;
+      if (!items.every(item => item.file)) return;
+      const files = items.map(item => item.file);
+      if (canShareFiles(files)) {
+        allButton.disabled = false;
+        allButton.textContent = '사진 + GIF 함께 저장하기';
+        allButton.onclick = () => saveFiles(files, '', '', true);
+        help.textContent += '\n함께 저장은 두 파일을 담은 공유창을 열어요.';
+      } else if (!preparingZip) {
+        preparingZip = true;
+        try {
+          zipUrl = URL.createObjectURL(await makeJemZip(files));
+          allButton.textContent = '사진 + GIF 묶음 다운로드 (ZIP)';
+          allButton.disabled = false;
+          allButton.onclick = () => saveFiles(files, zipUrl, 'JEM-PHOTO-and-TIMELAPSE.zip', false);
+          help.textContent += '\n묶음 다운로드는 ZIP으로 저장돼요. 압축을 풀어 주세요.';
+        } catch (error) {
+          allButton.hidden = true;
+          status.textContent = '묶음 파일을 만들지 못했어요. 사진과 GIF를 각각 저장해 주세요.';
+        }
+      }
+    }
+
+    async function preload(item) {
+      item.button.disabled = true;
+      item.note.textContent = '저장할 원본 파일을 불러오고 있어요…';
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 45000);
+      try {
+        const response = await fetch(item.url, { mode: 'cors', credentials: 'omit', referrerPolicy: 'no-referrer', signal: controller.signal });
+        if (!response.ok) throw new Error('파일을 불러올 수 없어요.');
+        const blob = await response.blob();
+        if (!blob.size || blob.size > 32 * 1024 * 1024) throw new Error('파일 크기가 올바르지 않아요.');
+        const signature = new Uint8Array(await blob.slice(0, 6).arrayBuffer());
+        const valid = item.kind === 'gif'
+          ? String.fromCharCode(...signature).startsWith('GIF8')
+          : signature[0] === 255 && signature[1] === 216 && signature[2] === 255;
+        if (!valid) throw new Error('올바른 이미지 파일이 아니에요.');
+        // Keep the exact uploaded bytes: no canvas conversion, no GIF flattening.
+        item.file = new File([blob], item.kind === 'photo' ? `JEM-PHOTO${printMode ? '-CP1300' : ''}.jpg` : 'JEM-TIMELAPSE.gif', { type: item.kind === 'photo' ? 'image/jpeg' : 'image/gif' });
+        item.objectUrl = URL.createObjectURL(item.file);
+        item.image.src = item.objectUrl;
+        item.button.textContent = item.kind === 'photo'
+          ? `${printMode ? '인쇄용 ' : ''}사진 저장하기` : '타임랩스 GIF 저장하기';
+        const save = () => saveFiles([item.file], item.objectUrl, item.file.name, isAppleMobile && canShareFiles([item.file]));
+        item.button.onclick = item.kind === 'photo' ? () => showPrintGuide(save) : save;
+        item.note.textContent = `${(blob.size / 1024 / 1024).toFixed(1)} MB · 저장 준비 완료`;
+        item.original.hidden = true;
+      } catch (error) {
+        item.note.textContent = '파일을 불러오지 못했어요. 다시 시도하거나 원본을 열어 주세요.';
+        item.button.textContent = item.kind === 'photo' ? '사진 다시 불러오기' : 'GIF 다시 불러오기';
+        item.button.onclick = () => preload(item);
+        item.original.href = item.url;
+        item.original.hidden = false;
+      } finally {
+        clearTimeout(timer);
+        item.button.disabled = false;
+        updateAllButton();
+      }
+    }
+
+    for (const [kind, url] of [['photo', payload.p], ['gif', payload.g]]) {
+      if (!url) continue;
+      const prefix = kind === 'photo' ? 'receivePhoto' : 'receiveGif';
+      document.getElementById(prefix + 'Card').hidden = false;
+      const item = {
+        kind, url, file: null, objectUrl: '',
+        image: document.getElementById(prefix),
+        button: document.getElementById(prefix + 'Save'),
+        note: document.getElementById(prefix + 'Status'),
+        original: document.getElementById(prefix + 'Original')
+      };
+      item.image.src = url;
+      items.push(item);
+    }
+    updateHelp();
+    if (items.length > 1) allButton.hidden = false;
+    await Promise.allSettled(items.map(preload));
+  }
+
+  // A small, uncompressed ZIP avoids browsers blocking two automatic downloads.
+  async function makeJemZip(files) {
+    const chunks = [], central = [];
+    const encode = new TextEncoder();
+    let offset = 0, centralSize = 0;
+    const table = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+      let c = n;
+      for (let k = 0; k < 8; k++) c = (c & 1) ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+      table[n] = c >>> 0;
+    }
+    const record = (length) => ({ data: new Uint8Array(length), view: null });
+    for (const file of files) {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const name = encode.encode(file.name);
+      let crc = 0xffffffff;
+      for (const value of bytes) crc = table[(crc ^ value) & 255] ^ (crc >>> 8);
+      crc = (crc ^ 0xffffffff) >>> 0;
+      const local = record(30 + name.length);
+      const lv = new DataView(local.data.buffer);
+      lv.setUint32(0, 0x04034b50, true); lv.setUint16(4, 20, true); lv.setUint16(6, 0x0800, true);
+      lv.setUint16(12, 33, true); lv.setUint32(14, crc, true);
+      lv.setUint32(18, bytes.length, true); lv.setUint32(22, bytes.length, true); lv.setUint16(26, name.length, true);
+      local.data.set(name, 30);
+      chunks.push(local.data, bytes);
+      const entry = record(46 + name.length);
+      const cv = new DataView(entry.data.buffer);
+      cv.setUint32(0, 0x02014b50, true); cv.setUint16(4, 20, true); cv.setUint16(6, 20, true);
+      cv.setUint16(8, 0x0800, true); cv.setUint16(14, 33, true); cv.setUint32(16, crc, true);
+      cv.setUint32(20, bytes.length, true); cv.setUint32(24, bytes.length, true); cv.setUint16(28, name.length, true);
+      cv.setUint32(42, offset, true); entry.data.set(name, 46);
+      central.push(entry.data); centralSize += entry.data.length;
+      offset += local.data.length + bytes.length;
+    }
+    const end = new Uint8Array(22), ev = new DataView(end.buffer);
+    ev.setUint32(0, 0x06054b50, true); ev.setUint16(8, files.length, true); ev.setUint16(10, files.length, true);
+    ev.setUint32(12, centralSize, true); ev.setUint32(16, offset, true);
+    return new Blob([...chunks, ...central, end], { type: 'application/zip' });
+  }
+
+  if (document.documentElement.classList.contains('jem-receive')) initJemReceivePage();
+
+  </script>
+  <script>
+var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this.parsedData=[];for(var b=[],d=0,e=this.data.length;e>d;d++){var f=this.data.charCodeAt(d);f>65536?(b[0]=240|(1835008&f)>>>18,b[1]=128|(258048&f)>>>12,b[2]=128|(4032&f)>>>6,b[3]=128|63&f):f>2048?(b[0]=224|(61440&f)>>>12,b[1]=128|(4032&f)>>>6,b[2]=128|63&f):f>128?(b[0]=192|(1984&f)>>>6,b[1]=128|63&f):b[0]=f,this.parsedData=this.parsedData.concat(b)}this.parsedData.length!=this.data.length&&(this.parsedData.unshift(191),this.parsedData.unshift(187),this.parsedData.unshift(239))}function b(a,b){this.typeNumber=a,this.errorCorrectLevel=b,this.modules=null,this.moduleCount=0,this.dataCache=null,this.dataList=[]}function i(a,b){if(void 0==a.length)throw new Error(a.length+"/"+b);for(var c=0;c<a.length&&0==a[c];)c++;this.num=new Array(a.length-c+b);for(var d=0;d<a.length-c;d++)this.num[d]=a[d+c]}function j(a,b){this.totalCount=a,this.dataCount=b}function k(){this.buffer=[],this.length=0}function m(){return"undefined"!=typeof CanvasRenderingContext2D}function n(){var a=!1,b=navigator.userAgent;return/android/i.test(b)&&(a=!0,aMat=b.toString().match(/android ([0-9]\.[0-9])/i),aMat&&aMat[1]&&(a=parseFloat(aMat[1]))),a}function r(a,b){for(var c=1,e=s(a),f=0,g=l.length;g>=f;f++){var h=0;switch(b){case d.L:h=l[f][0];break;case d.M:h=l[f][1];break;case d.Q:h=l[f][2];break;case d.H:h=l[f][3]}if(h>=e)break;c++}if(c>l.length)throw new Error("Too long data");return c}function s(a){var b=encodeURI(a).toString().replace(/\%[0-9a-fA-F]{2}/g,"a");return b.length+(b.length!=a?3:0)}a.prototype={getLength:function(){return this.parsedData.length},write:function(a){for(var b=0,c=this.parsedData.length;c>b;b++)a.put(this.parsedData[b],8)}},b.prototype={addData:function(b){var c=new a(b);this.dataList.push(c),this.dataCache=null},isDark:function(a,b){if(0>a||this.moduleCount<=a||0>b||this.moduleCount<=b)throw new Error(a+","+b);return this.modules[a][b]},getModuleCount:function(){return this.moduleCount},make:function(){this.makeImpl(!1,this.getBestMaskPattern())},makeImpl:function(a,c){this.moduleCount=4*this.typeNumber+17,this.modules=new Array(this.moduleCount);for(var d=0;d<this.moduleCount;d++){this.modules[d]=new Array(this.moduleCount);for(var e=0;e<this.moduleCount;e++)this.modules[d][e]=null}this.setupPositionProbePattern(0,0),this.setupPositionProbePattern(this.moduleCount-7,0),this.setupPositionProbePattern(0,this.moduleCount-7),this.setupPositionAdjustPattern(),this.setupTimingPattern(),this.setupTypeInfo(a,c),this.typeNumber>=7&&this.setupTypeNumber(a),null==this.dataCache&&(this.dataCache=b.createData(this.typeNumber,this.errorCorrectLevel,this.dataList)),this.mapData(this.dataCache,c)},setupPositionProbePattern:function(a,b){for(var c=-1;7>=c;c++)if(!(-1>=a+c||this.moduleCount<=a+c))for(var d=-1;7>=d;d++)-1>=b+d||this.moduleCount<=b+d||(this.modules[a+c][b+d]=c>=0&&6>=c&&(0==d||6==d)||d>=0&&6>=d&&(0==c||6==c)||c>=2&&4>=c&&d>=2&&4>=d?!0:!1)},getBestMaskPattern:function(){for(var a=0,b=0,c=0;8>c;c++){this.makeImpl(!0,c);var d=f.getLostPoint(this);(0==c||a>d)&&(a=d,b=c)}return b},createMovieClip:function(a,b,c){var d=a.createEmptyMovieClip(b,c),e=1;this.make();for(var f=0;f<this.modules.length;f++)for(var g=f*e,h=0;h<this.modules[f].length;h++){var i=h*e,j=this.modules[f][h];j&&(d.beginFill(0,100),d.moveTo(i,g),d.lineTo(i+e,g),d.lineTo(i+e,g+e),d.lineTo(i,g+e),d.endFill())}return d},setupTimingPattern:function(){for(var a=8;a<this.moduleCount-8;a++)null==this.modules[a][6]&&(this.modules[a][6]=0==a%2);for(var b=8;b<this.moduleCount-8;b++)null==this.modules[6][b]&&(this.modules[6][b]=0==b%2)},setupPositionAdjustPattern:function(){for(var a=f.getPatternPosition(this.typeNumber),b=0;b<a.length;b++)for(var c=0;c<a.length;c++){var d=a[b],e=a[c];if(null==this.modules[d][e])for(var g=-2;2>=g;g++)for(var h=-2;2>=h;h++)this.modules[d+g][e+h]=-2==g||2==g||-2==h||2==h||0==g&&0==h?!0:!1}},setupTypeNumber:function(a){for(var b=f.getBCHTypeNumber(this.typeNumber),c=0;18>c;c++){var d=!a&&1==(1&b>>c);this.modules[Math.floor(c/3)][c%3+this.moduleCount-8-3]=d}for(var c=0;18>c;c++){var d=!a&&1==(1&b>>c);this.modules[c%3+this.moduleCount-8-3][Math.floor(c/3)]=d}},setupTypeInfo:function(a,b){for(var c=this.errorCorrectLevel<<3|b,d=f.getBCHTypeInfo(c),e=0;15>e;e++){var g=!a&&1==(1&d>>e);6>e?this.modules[e][8]=g:8>e?this.modules[e+1][8]=g:this.modules[this.moduleCount-15+e][8]=g}for(var e=0;15>e;e++){var g=!a&&1==(1&d>>e);8>e?this.modules[8][this.moduleCount-e-1]=g:9>e?this.modules[8][15-e-1+1]=g:this.modules[8][15-e-1]=g}this.modules[this.moduleCount-8][8]=!a},mapData:function(a,b){for(var c=-1,d=this.moduleCount-1,e=7,g=0,h=this.moduleCount-1;h>0;h-=2)for(6==h&&h--;;){for(var i=0;2>i;i++)if(null==this.modules[d][h-i]){var j=!1;g<a.length&&(j=1==(1&a[g]>>>e));var k=f.getMask(b,d,h-i);k&&(j=!j),this.modules[d][h-i]=j,e--,-1==e&&(g++,e=7)}if(d+=c,0>d||this.moduleCount<=d){d-=c,c=-c;break}}}},b.PAD0=236,b.PAD1=17,b.createData=function(a,c,d){for(var e=j.getRSBlocks(a,c),g=new k,h=0;h<d.length;h++){var i=d[h];g.put(i.mode,4),g.put(i.getLength(),f.getLengthInBits(i.mode,a)),i.write(g)}for(var l=0,h=0;h<e.length;h++)l+=e[h].dataCount;if(g.getLengthInBits()>8*l)throw new Error("code length overflow. ("+g.getLengthInBits()+">"+8*l+")");for(g.getLengthInBits()+4<=8*l&&g.put(0,4);0!=g.getLengthInBits()%8;)g.putBit(!1);for(;;){if(g.getLengthInBits()>=8*l)break;if(g.put(b.PAD0,8),g.getLengthInBits()>=8*l)break;g.put(b.PAD1,8)}return b.createBytes(g,e)},b.createBytes=function(a,b){for(var c=0,d=0,e=0,g=new Array(b.length),h=new Array(b.length),j=0;j<b.length;j++){var k=b[j].dataCount,l=b[j].totalCount-k;d=Math.max(d,k),e=Math.max(e,l),g[j]=new Array(k);for(var m=0;m<g[j].length;m++)g[j][m]=255&a.buffer[m+c];c+=k;var n=f.getErrorCorrectPolynomial(l),o=new i(g[j],n.getLength()-1),p=o.mod(n);h[j]=new Array(n.getLength()-1);for(var m=0;m<h[j].length;m++){var q=m+p.getLength()-h[j].length;h[j][m]=q>=0?p.get(q):0}}for(var r=0,m=0;m<b.length;m++)r+=b[m].totalCount;for(var s=new Array(r),t=0,m=0;d>m;m++)for(var j=0;j<b.length;j++)m<g[j].length&&(s[t++]=g[j][m]);for(var m=0;e>m;m++)for(var j=0;j<b.length;j++)m<h[j].length&&(s[t++]=h[j][m]);return s};for(var c={MODE_NUMBER:1,MODE_ALPHA_NUM:2,MODE_8BIT_BYTE:4,MODE_KANJI:8},d={L:1,M:0,Q:3,H:2},e={PATTERN000:0,PATTERN001:1,PATTERN010:2,PATTERN011:3,PATTERN100:4,PATTERN101:5,PATTERN110:6,PATTERN111:7},f={PATTERN_POSITION_TABLE:[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],G15:1335,G18:7973,G15_MASK:21522,getBCHTypeInfo:function(a){for(var b=a<<10;f.getBCHDigit(b)-f.getBCHDigit(f.G15)>=0;)b^=f.G15<<f.getBCHDigit(b)-f.getBCHDigit(f.G15);return(a<<10|b)^f.G15_MASK},getBCHTypeNumber:function(a){for(var b=a<<12;f.getBCHDigit(b)-f.getBCHDigit(f.G18)>=0;)b^=f.G18<<f.getBCHDigit(b)-f.getBCHDigit(f.G18);return a<<12|b},getBCHDigit:function(a){for(var b=0;0!=a;)b++,a>>>=1;return b},getPatternPosition:function(a){return f.PATTERN_POSITION_TABLE[a-1]},getMask:function(a,b,c){switch(a){case e.PATTERN000:return 0==(b+c)%2;case e.PATTERN001:return 0==b%2;case e.PATTERN010:return 0==c%3;case e.PATTERN011:return 0==(b+c)%3;case e.PATTERN100:return 0==(Math.floor(b/2)+Math.floor(c/3))%2;case e.PATTERN101:return 0==b*c%2+b*c%3;case e.PATTERN110:return 0==(b*c%2+b*c%3)%2;case e.PATTERN111:return 0==(b*c%3+(b+c)%2)%2;default:throw new Error("bad maskPattern:"+a)}},getErrorCorrectPolynomial:function(a){for(var b=new i([1],0),c=0;a>c;c++)b=b.multiply(new i([1,g.gexp(c)],0));return b},getLengthInBits:function(a,b){if(b>=1&&10>b)switch(a){case c.MODE_NUMBER:return 10;case c.MODE_ALPHA_NUM:return 9;case c.MODE_8BIT_BYTE:return 8;case c.MODE_KANJI:return 8;default:throw new Error("mode:"+a)}else if(27>b)switch(a){case c.MODE_NUMBER:return 12;case c.MODE_ALPHA_NUM:return 11;case c.MODE_8BIT_BYTE:return 16;case c.MODE_KANJI:return 10;default:throw new Error("mode:"+a)}else{if(!(41>b))throw new Error("type:"+b);switch(a){case c.MODE_NUMBER:return 14;case c.MODE_ALPHA_NUM:return 13;case c.MODE_8BIT_BYTE:return 16;case c.MODE_KANJI:return 12;default:throw new Error("mode:"+a)}}},getLostPoint:function(a){for(var b=a.getModuleCount(),c=0,d=0;b>d;d++)for(var e=0;b>e;e++){for(var f=0,g=a.isDark(d,e),h=-1;1>=h;h++)if(!(0>d+h||d+h>=b))for(var i=-1;1>=i;i++)0>e+i||e+i>=b||(0!=h||0!=i)&&g==a.isDark(d+h,e+i)&&f++;f>5&&(c+=3+f-5)}for(var d=0;b-1>d;d++)for(var e=0;b-1>e;e++){var j=0;a.isDark(d,e)&&j++,a.isDark(d+1,e)&&j++,a.isDark(d,e+1)&&j++,a.isDark(d+1,e+1)&&j++,(0==j||4==j)&&(c+=3)}for(var d=0;b>d;d++)for(var e=0;b-6>e;e++)a.isDark(d,e)&&!a.isDark(d,e+1)&&a.isDark(d,e+2)&&a.isDark(d,e+3)&&a.isDark(d,e+4)&&!a.isDark(d,e+5)&&a.isDark(d,e+6)&&(c+=40);for(var e=0;b>e;e++)for(var d=0;b-6>d;d++)a.isDark(d,e)&&!a.isDark(d+1,e)&&a.isDark(d+2,e)&&a.isDark(d+3,e)&&a.isDark(d+4,e)&&!a.isDark(d+5,e)&&a.isDark(d+6,e)&&(c+=40);for(var k=0,e=0;b>e;e++)for(var d=0;b>d;d++)a.isDark(d,e)&&k++;var l=Math.abs(100*k/b/b-50)/5;return c+=10*l}},g={glog:function(a){if(1>a)throw new Error("glog("+a+")");return g.LOG_TABLE[a]},gexp:function(a){for(;0>a;)a+=255;for(;a>=256;)a-=255;return g.EXP_TABLE[a]},EXP_TABLE:new Array(256),LOG_TABLE:new Array(256)},h=0;8>h;h++)g.EXP_TABLE[h]=1<<h;for(var h=8;256>h;h++)g.EXP_TABLE[h]=g.EXP_TABLE[h-4]^g.EXP_TABLE[h-5]^g.EXP_TABLE[h-6]^g.EXP_TABLE[h-8];for(var h=0;255>h;h++)g.LOG_TABLE[g.EXP_TABLE[h]]=h;i.prototype={get:function(a){return this.num[a]},getLength:function(){return this.num.length},multiply:function(a){for(var b=new Array(this.getLength()+a.getLength()-1),c=0;c<this.getLength();c++)for(var d=0;d<a.getLength();d++)b[c+d]^=g.gexp(g.glog(this.get(c))+g.glog(a.get(d)));return new i(b,0)},mod:function(a){if(this.getLength()-a.getLength()<0)return this;for(var b=g.glog(this.get(0))-g.glog(a.get(0)),c=new Array(this.getLength()),d=0;d<this.getLength();d++)c[d]=this.get(d);for(var d=0;d<a.getLength();d++)c[d]^=g.gexp(g.glog(a.get(d))+b);return new i(c,0).mod(a)}},j.RS_BLOCK_TABLE=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],j.getRSBlocks=function(a,b){var c=j.getRsBlockTable(a,b);if(void 0==c)throw new Error("bad rs block @ typeNumber:"+a+"/errorCorrectLevel:"+b);for(var d=c.length/3,e=[],f=0;d>f;f++)for(var g=c[3*f+0],h=c[3*f+1],i=c[3*f+2],k=0;g>k;k++)e.push(new j(h,i));return e},j.getRsBlockTable=function(a,b){switch(b){case d.L:return j.RS_BLOCK_TABLE[4*(a-1)+0];case d.M:return j.RS_BLOCK_TABLE[4*(a-1)+1];case d.Q:return j.RS_BLOCK_TABLE[4*(a-1)+2];case d.H:return j.RS_BLOCK_TABLE[4*(a-1)+3];default:return void 0}},k.prototype={get:function(a){var b=Math.floor(a/8);return 1==(1&this.buffer[b]>>>7-a%8)},put:function(a,b){for(var c=0;b>c;c++)this.putBit(1==(1&a>>>b-c-1))},getLengthInBits:function(){return this.length},putBit:function(a){var b=Math.floor(this.length/8);this.buffer.length<=b&&this.buffer.push(0),a&&(this.buffer[b]|=128>>>this.length%8),this.length++}};var l=[[17,14,11,7],[32,26,20,14],[53,42,32,24],[78,62,46,34],[106,84,60,44],[134,106,74,58],[154,122,86,64],[192,152,108,84],[230,180,130,98],[271,213,151,119],[321,251,177,137],[367,287,203,155],[425,331,241,177],[458,362,258,194],[520,412,292,220],[586,450,322,250],[644,504,364,280],[718,560,394,310],[792,624,442,338],[858,666,482,382],[929,711,509,403],[1003,779,565,439],[1091,857,611,461],[1171,911,661,511],[1273,997,715,535],[1367,1059,751,593],[1465,1125,805,625],[1528,1190,868,658],[1628,1264,908,698],[1732,1370,982,742],[1840,1452,1030,790],[1952,1538,1112,842],[2068,1628,1168,898],[2188,1722,1228,958],[2303,1809,1283,983],[2431,1911,1351,1051],[2563,1989,1423,1093],[2699,2099,1499,1139],[2809,2213,1579,1219],[2953,2331,1663,1273]],o=function(){var a=function(a,b){this._el=a,this._htOption=b};return a.prototype.draw=function(a){function g(a,b){var c=document.createElementNS("http://www.w3.org/2000/svg",a);for(var d in b)b.hasOwnProperty(d)&&c.setAttribute(d,b[d]);return c}var b=this._htOption,c=this._el,d=a.getModuleCount();Math.floor(b.width/d),Math.floor(b.height/d),this.clear();var h=g("svg",{viewBox:"0 0 "+String(d)+" "+String(d),width:"100%",height:"100%",fill:b.colorLight});h.setAttributeNS("http://www.w3.org/2000/xmlns/","xmlns:xlink","http://www.w3.org/1999/xlink"),c.appendChild(h),h.appendChild(g("rect",{fill:b.colorDark,width:"1",height:"1",id:"template"}));for(var i=0;d>i;i++)for(var j=0;d>j;j++)if(a.isDark(i,j)){var k=g("use",{x:String(i),y:String(j)});k.setAttributeNS("http://www.w3.org/1999/xlink","href","#template"),h.appendChild(k)}},a.prototype.clear=function(){for(;this._el.hasChildNodes();)this._el.removeChild(this._el.lastChild)},a}(),p="svg"===document.documentElement.tagName.toLowerCase(),q=p?o:m()?function(){function a(){this._elImage.src=this._elCanvas.toDataURL("image/png"),this._elImage.style.display="block",this._elCanvas.style.display="none"}function d(a,b){var c=this;if(c._fFail=b,c._fSuccess=a,null===c._bSupportDataURI){var d=document.createElement("img"),e=function(){c._bSupportDataURI=!1,c._fFail&&_fFail.call(c)},f=function(){c._bSupportDataURI=!0,c._fSuccess&&c._fSuccess.call(c)};return d.onabort=e,d.onerror=e,d.onload=f,d.src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==",void 0}c._bSupportDataURI===!0&&c._fSuccess?c._fSuccess.call(c):c._bSupportDataURI===!1&&c._fFail&&c._fFail.call(c)}if(this._android&&this._android<=2.1){var b=1/window.devicePixelRatio,c=CanvasRenderingContext2D.prototype.drawImage;CanvasRenderingContext2D.prototype.drawImage=function(a,d,e,f,g,h,i,j){if("nodeName"in a&&/img/i.test(a.nodeName))for(var l=arguments.length-1;l>=1;l--)arguments[l]=arguments[l]*b;else"undefined"==typeof j&&(arguments[1]*=b,arguments[2]*=b,arguments[3]*=b,arguments[4]*=b);c.apply(this,arguments)}}var e=function(a,b){this._bIsPainted=!1,this._android=n(),this._htOption=b,this._elCanvas=document.createElement("canvas"),this._elCanvas.width=b.width,this._elCanvas.height=b.height,a.appendChild(this._elCanvas),this._el=a,this._oContext=this._elCanvas.getContext("2d"),this._bIsPainted=!1,this._elImage=document.createElement("img"),this._elImage.style.display="none",this._el.appendChild(this._elImage),this._bSupportDataURI=null};return e.prototype.draw=function(a){var b=this._elImage,c=this._oContext,d=this._htOption,e=a.getModuleCount(),f=d.width/e,g=d.height/e,h=Math.round(f),i=Math.round(g);b.style.display="none",this.clear();for(var j=0;e>j;j++)for(var k=0;e>k;k++){var l=a.isDark(j,k),m=k*f,n=j*g;c.strokeStyle=l?d.colorDark:d.colorLight,c.lineWidth=1,c.fillStyle=l?d.colorDark:d.colorLight,c.fillRect(m,n,f,g),c.strokeRect(Math.floor(m)+.5,Math.floor(n)+.5,h,i),c.strokeRect(Math.ceil(m)-.5,Math.ceil(n)-.5,h,i)}this._bIsPainted=!0},e.prototype.makeImage=function(){this._bIsPainted&&d.call(this,a)},e.prototype.isPainted=function(){return this._bIsPainted},e.prototype.clear=function(){this._oContext.clearRect(0,0,this._elCanvas.width,this._elCanvas.height),this._bIsPainted=!1},e.prototype.round=function(a){return a?Math.floor(1e3*a)/1e3:a},e}():function(){var a=function(a,b){this._el=a,this._htOption=b};return a.prototype.draw=function(a){for(var b=this._htOption,c=this._el,d=a.getModuleCount(),e=Math.floor(b.width/d),f=Math.floor(b.height/d),g=['<table style="border:0;border-collapse:collapse;">'],h=0;d>h;h++){g.push("<tr>");for(var i=0;d>i;i++)g.push('<td style="border:0;border-collapse:collapse;padding:0;margin:0;width:'+e+"px;height:"+f+"px;background-color:"+(a.isDark(h,i)?b.colorDark:b.colorLight)+';"></td>');g.push("</tr>")}g.push("</table>"),c.innerHTML=g.join("");var j=c.childNodes[0],k=(b.width-j.offsetWidth)/2,l=(b.height-j.offsetHeight)/2;k>0&&l>0&&(j.style.margin=l+"px "+k+"px")},a.prototype.clear=function(){this._el.innerHTML=""},a}();QRCode=function(a,b){if(this._htOption={width:256,height:256,typeNumber:4,colorDark:"#000000",colorLight:"#ffffff",correctLevel:d.H},"string"==typeof b&&(b={text:b}),b)for(var c in b)this._htOption[c]=b[c];"string"==typeof a&&(a=document.getElementById(a)),this._android=n(),this._el=a,this._oQRCode=null,this._oDrawing=new q(this._el,this._htOption),this._htOption.text&&this.makeCode(this._htOption.text)},QRCode.prototype.makeCode=function(a){this._oQRCode=new b(r(a,this._htOption.correctLevel),this._htOption.correctLevel),this._oQRCode.addData(a),this._oQRCode.make(),this._el.title=a,this._oDrawing.draw(this._oQRCode),this.makeImage()},QRCode.prototype.makeImage=function(){"function"==typeof this._oDrawing.makeImage&&(!this._android||this._android>=3)&&this._oDrawing.makeImage()},QRCode.prototype.clear=function(){this._oDrawing.clear()},QRCode.CorrectLevel=d}();
+  </script>
+  <script>
+    if (!document.documentElement.classList.contains('jem-receive')) {
+    const N = 4;
     const CW = 680;
     const CH = 460;
     const PHOTO_CORNER_RADIUS = 18;
@@ -1988,44 +3347,433 @@
     let saveBusy = false;
     let qrBusy = false;
     let qrMode = 'view';
-    let qrPhotoData = { view: '', print: '' };
-    let qrPhotoUrls = { view: '', print: '' };
+    let qrSession = null;
+
+    let captureFinished = false;
+    let selectedShots = [];
+    let photoFits = Array(N).fill('cover');
+    const CANVAS_FULL_W = 680;
+    const CANVAS_FULL_H = 460;
+    const frameToneCache = new Map();
+    const frameTonePending = new Set();
+
+    function getLayoutGeometry(count, hasFrame) {
+      const x = hasFrame ? 52 : 28, y = hasFrame ? FRAME_PHOTO_TOP : 28;
+      const gap = hasFrame ? 28 : 18, foot = hasFrame ? 90 : 70;
+      const width = CANVAS_FULL_W + x * 2;
+      const height = (hasFrame ? 64 : 28) * 2 + CANVAS_FULL_H * 2 + gap + foot;
+      const fullH = CANVAS_FULL_H * 2 + gap;
+      const halfW = (CANVAS_FULL_W - gap) / 2;
+      const top = { x, y, w: CANVAS_FULL_W, h: CANVAS_FULL_H };
+      let rects;
+      if (count === 1) rects = [{ x, y, w: CANVAS_FULL_W, h: fullH }];
+      else if (count === 2) rects = [top, { ...top, y: y + CANVAS_FULL_H + gap }];
+      else if (count === 3) rects = [top,
+        { x, y: y + CANVAS_FULL_H + gap, w: halfW, h: CANVAS_FULL_H },
+        { x: x + halfW + gap, y: y + CANVAS_FULL_H + gap, w: halfW, h: CANVAS_FULL_H }];
+      else rects = Array.from({ length: 4 }, (_, i) => ({
+        x: x + (i % 2) * (halfW + gap), y: y + Math.floor(i / 2) * (CANVAS_FULL_H + gap), w: halfW, h: CANVAS_FULL_H
+      }));
+      return { width, height, rects, foot, padX: x };
+    }
+
+    function drawFittedPhoto(ctx, image, x, y, width, height, fit = 'cover') {
+      const iw = image.naturalWidth || image.videoWidth || image.width;
+      const ih = image.naturalHeight || image.videoHeight || image.height;
+      const scale = (fit === 'contain' ? Math.min : Math.max)(width / iw, height / ih);
+      const w = iw * scale, h = ih * scale;
+      ctx.drawImage(image, x + (width - w) / 2, y + (height - h) / 2, w, h);
+    }
+
+    function resizePhotoDecoration(index, width, height) {
+      const drawing = document.getElementById('d' + index);
+      const stickerCanvas = document.getElementById('s' + index);
+      width = Math.round(width); height = Math.round(height);
+      if (drawing.width === width && drawing.height === height) return;
+      const old = document.createElement('canvas'); old.width = drawing.width; old.height = drawing.height;
+      old.getContext('2d').drawImage(drawing, 0, 0);
+      const rx = width / old.width, ry = height / old.height;
+      drawing.width = stickerCanvas.width = width;
+      drawing.height = stickerCanvas.height = height;
+      drawing.getContext('2d').drawImage(old, 0, 0, width, height);
+      stickers[index].forEach(sticker => { sticker.x *= rx; sticker.y *= ry; sticker.sz *= Math.min(rx, ry); });
+      drawHistory[index] = [];
+      redrawStk(index);
+    }
+
+    function useBasicFrame(ensureVisible = false) {
+      if (ensureVisible && bPx === 0) {
+        bPx = 10;
+        document.querySelectorAll('.bdr-btn').forEach((button,index)=>button.classList.toggle('active',index===2));
+      }
+      if (selectedFramePattern < 0) return;
+      selectedFramePattern = -1;
+      try { localStorage.setItem('zodiac_pic2r_selected_frame', '-1'); } catch (error) {}
+      qrSession = null;
+      buildFrameGrid();
+    }
+
+    function updateFitControls() {
+      const ordinal = selectedShots.indexOf(activeF);
+      document.getElementById('activePhotoLabel').textContent = ordinal >= 0 ? `${ordinal + 1}번 칸 사진 맞춤` : '사진 맞춤';
+      document.getElementById('fitCover').setAttribute('aria-pressed', String(photoFits[activeF] !== 'contain'));
+      document.getElementById('fitContain').setAttribute('aria-pressed', String(photoFits[activeF] === 'contain'));
+    }
+
+    function setPhotoFit(fit) {
+      if (!captureFinished || !selectedShots.includes(activeF)) return;
+      photoFits[activeF] = fit === 'contain' ? 'contain' : 'cover';
+      qrSession = null;
+      applyBorder();
+      updateFitControls();
+    }
+
+    function refreshCaptureUi() {
+      document.getElementById('shotInfo').textContent = `${shotCount} / ${N} 촬영`;
+      document.getElementById('captureBadge').textContent = `${shotCount} / ${N}`;
+      document.getElementById('shootBtn').disabled = shootBusy || shotCount >= N || captureFinished;
+      const finish = document.getElementById('finishCaptureBtn');
+      finish.disabled = !shotCount || shootBusy;
+      finish.textContent = shotCount ? `${shotCount}장으로 사진 고르기` : '촬영 후 사진 고르기';
+      const thumbs = document.getElementById('captureThumbs');
+      thumbs.replaceChildren();
+      for (let i = 0; i < N; i++) {
+        const cell = document.createElement('div'); cell.className = 'capture-thumb';
+        if (shots[i]) { const image = document.createElement('img');image.src = shots[i];image.alt = `촬영한 사진 ${i + 1}`;cell.append(image); }
+        else cell.textContent = String(i + 1);
+        thumbs.append(cell);
+      }
+      updateCaptureGuide();
+    }
+
+    function renderPhotoChoices() {
+      const grid = document.getElementById('photoChoices'); grid.replaceChildren();
+      for (let i = 0; i < shotCount; i++) {
+        const order = selectedShots.indexOf(i);
+        const wrapper = document.createElement('div'); wrapper.className = 'photo-choice';
+        const toggle = document.createElement('button'); toggle.type = 'button';toggle.className = 'photo-choice-toggle';
+        toggle.dataset.photo = i;toggle.setAttribute('aria-pressed', String(order >= 0));
+        toggle.setAttribute('aria-label', `촬영한 사진 ${i + 1}${order >= 0 ? `, ${order + 1}번 칸에 선택됨` : ', 선택 안 됨'}`);
+        const image = document.createElement('img');image.src = shots[i];image.alt = `촬영한 사진 ${i + 1}`;toggle.append(image);
+        if (order >= 0) { const badge = document.createElement('span');badge.className = 'choice-order';badge.textContent = String(order + 1);toggle.append(badge); }
+        const label = document.createElement('span');label.className = 'photo-choice-label';label.textContent = `사진 ${i + 1}`;toggle.append(label);
+        toggle.onclick = () => togglePhotoSelection(i);
+        const arrows = document.createElement('div'); arrows.className = 'choice-order-buttons';
+        for (const [delta, symbol] of [[-1, '←'], [1, '→']]) {
+          const button = document.createElement('button');button.type = 'button';button.textContent = symbol;
+          button.setAttribute('aria-label', `사진 ${i + 1}을 ${delta < 0 ? '앞으로' : '뒤로'} 이동`);
+          button.disabled = order < 0 || (delta < 0 ? order === 0 : order === selectedShots.length - 1);
+          button.onclick = () => moveSelectedPhoto(i, delta);arrows.append(button);
+        }
+        wrapper.append(toggle, arrows);grid.append(wrapper);
+      }
+      document.getElementById('selectionCount').textContent = `${selectedShots.length}장 선택`;
+      for (const button of document.querySelectorAll('[data-layout-count]')) {
+        const count = Number(button.dataset.layoutCount);
+        button.disabled = count > shotCount;
+        button.setAttribute('aria-pressed', String(count === selectedShots.length));
+      }
+      const more = document.getElementById('resumeCaptureBtn'); more.disabled = shotCount >= N;more.hidden = shotCount >= N;
+      more.textContent = '추가 촬영';
+      document.getElementById('captureSummary').textContent = shotCount >= N ? '✓ 4장 촬영 완료' : `${shotCount} / 4장 촬영`;
+    }
+
+    function commitPhotoSelection() {
+      commitTextEditor(true);
+      clearStickerSelection();
+      qrSession = null;
+      if (!selectedShots.includes(activeF)) activeF = selectedShots[0];
+      renderPhotoChoices(); applyBorder(); selectFrame(activeF);
+    }
+
+    function togglePhotoSelection(index) {
+      if (!captureFinished || !shots[index]) return;
+      const position = selectedShots.indexOf(index);
+      if (position >= 0) {
+        if (selectedShots.length === 1) { document.getElementById('selectionHint').textContent = '사진은 한 장 이상 선택해 주세요.';return; }
+        selectedShots.splice(position, 1);
+      } else selectedShots.push(index);
+      document.getElementById('selectionHint').textContent = '선택한 순서대로 배치돼요. 화살표로 순서를 바꿀 수 있어요.';
+      commitPhotoSelection();
+    }
+
+    function setLayoutCount(count) {
+      if (!captureFinished || count < 1 || count > shotCount) return;
+      selectedShots = selectedShots.slice(0, count);
+      for (let i = 0; selectedShots.length < count && i < shotCount; i++) if (!selectedShots.includes(i)) selectedShots.push(i);
+      commitPhotoSelection();
+    }
+
+    function moveSelectedPhoto(index, delta) {
+      const from = selectedShots.indexOf(index), to = from + delta;
+      if (from < 0 || to < 0 || to >= selectedShots.length) return;
+      [selectedShots[from], selectedShots[to]] = [selectedShots[to], selectedShots[from]];
+      commitPhotoSelection();
+    }
+
+    function finishCapture() {
+      if (!shotCount || shootBusy) return;
+      captureFinished = true;
+      clearInterval(timelapseTimer);timelapseTimer = null;timelapseActive = false;
+      if (!selectedShots.length) selectedShots = Array.from({ length: Math.min(2, shotCount) }, (_, i) => i);
+      document.getElementById('capturePanel').hidden = true;
+      document.getElementById('photoEditor').hidden = false;
+      document.getElementById('stepCapture').classList.remove('current');
+      document.getElementById('stepSelect').classList.add('current');
+      document.getElementById('timelapseNote').textContent = '사진을 골라 배치하고 꾸민 뒤, QR로 사진과 GIF를 가져가세요.';
+      refreshCaptureUi();commitPhotoSelection();
+    }
+
+    function resumeCapture() {
+      if (shotCount >= N) return;
+      commitTextEditor(true);captureFinished = false;
+      document.getElementById('capturePanel').hidden = false;
+      document.getElementById('photoEditor').hidden = true;
+      document.getElementById('stepCapture').classList.add('current');
+      document.getElementById('stepSelect').classList.remove('current');
+      timelapseActive = true;startTimelapseSampler();refreshCaptureUi();
+    }
+
+    function applyBorder() {
+      const frame = getSelectedFrame();
+      const layout = getLayoutGeometry(selectedShots.length || 2, !!frame);
+      const outer = document.getElementById('stripOuter');
+      outer.style.aspectRatio = `${layout.width} / ${layout.height}`;
+      outer.style.backgroundImage = frame ? `url("${frame.src}")` : 'none';
+      outer.style.backgroundColor = bPx > 0 ? getBorderColor() : '#fff';
+      outer.style.backgroundSize = '100% 100%';
+      if (frame && !frameToneCache.has(frame.src) && !frameTonePending.has(frame.src)) {
+        frameTonePending.add(frame.src);
+        loadImg(frame.src).then(image => {
+          frameToneCache.set(frame.src, getFrameBackgroundColor(image).css);
+          if (getSelectedFrame()?.src === frame.src) applyBorder();
+        }).catch(() => { frameToneCache.set(frame.src, '#ffffff'); }).finally(() => frameTonePending.delete(frame.src));
+      }
+      const photoBackground = frame ? (frameToneCache.get(frame.src) || '#ffffff') : (bPx > 0 ? getBorderColor() : '#ffffff');
+      const scale = (outer.getBoundingClientRect().width || 460) / layout.width;
+      for (let i = 0; i < N; i++) {
+        const slot = document.getElementById('f' + i), ordinal = selectedShots.indexOf(i);
+        slot.hidden = ordinal < 0;
+        if (ordinal < 0) continue;
+        const rect = layout.rects[ordinal];resizePhotoDecoration(i, rect.w, rect.h);
+        Object.assign(slot.style, { left: `${rect.x / layout.width * 100}%`, top: `${rect.y / layout.height * 100}%`,
+          width: `${rect.w / layout.width * 100}%`, height: `${rect.h / layout.height * 100}%`,
+          borderRadius: `${(PHOTO_CORNER_RADIUS + (frame ? 0 : bPx)) * scale}px`, backgroundColor: photoBackground });
+        slot.querySelector('.fnum').textContent = String(ordinal + 1);
+        const image = document.getElementById('p' + i);image.style.display = 'block';image.style.objectFit = photoFits[i];
+        document.getElementById('b' + i).style.boxShadow = !frame && bPx > 0 ? `inset 0 0 0 ${bPx * scale}px ${getBorderColor()}` : 'none';
+      }
+      const label = document.getElementById('stripLabel');
+      label.style.top = `${(layout.height - layout.foot / 2) / layout.height * 100}%`;
+      label.style.fontSize = `${28 * scale}px`;
+      applyLabelColor();updateFitControls();
+      updateCaptureGuide();
+    }
+
+    let captureGuideMode = 'all';
+
+    function getCaptureCrop(rect, hasFrame, sourceWidth, sourceHeight) {
+      const scale = Math.max(rect.w / sourceWidth, rect.h / sourceHeight);
+      const inset = hasFrame ? 0 : bPx;
+      const width = (rect.w - inset * 2) / scale / sourceWidth;
+      const height = (rect.h - inset * 2) / scale / sourceHeight;
+      return { left: (1 - width) / 2, top: (1 - height) / 2, width, height };
+    }
+
+    function updateCaptureGuide() {
+      const view = document.getElementById('captureView');
+      const video = document.getElementById('boothCamera');
+      if (!view || !view.clientWidth || !view.clientHeight) return;
+      const sourceWidth = video.videoWidth || 1280, sourceHeight = video.videoHeight || 720;
+      const hasFrame = !!getSelectedFrame();
+      const displayScale = Math.min(view.clientWidth / sourceWidth, view.clientHeight / sourceHeight);
+      const displayWidth = sourceWidth * displayScale, displayHeight = sourceHeight * displayScale;
+      const offsetX = (view.clientWidth - displayWidth) / 2, offsetY = (view.clientHeight - displayHeight) / 2;
+      const counts = captureGuideMode === 'all' ? [1, 2, 3, 4] : [Number(captureGuideMode)];
+      const crops = counts.flatMap(count => getLayoutGeometry(count, hasFrame).rects.map(rect =>
+        getCaptureCrop(rect, hasFrame, sourceWidth, sourceHeight)));
+      // The intersection is safe even when one photo is later used in a narrower slot.
+      const left = Math.max(...crops.map(crop => crop.left));
+      const top = Math.max(...crops.map(crop => crop.top));
+      const right = Math.min(...crops.map(crop => crop.left + crop.width));
+      const bottom = Math.min(...crops.map(crop => crop.top + crop.height));
+      const position = (element, crop) => Object.assign(element.style, {
+        left: `${offsetX + crop.left * displayWidth}px`, top: `${offsetY + crop.top * displayHeight}px`,
+        width: `${crop.width * displayWidth}px`, height: `${crop.height * displayHeight}px`
+      });
+      position(document.getElementById('captureGuideBounds'), { left, top, width: right - left, height: bottom - top });
+      const secondary = document.getElementById('captureGuideWide');
+      secondary.hidden = captureGuideMode !== '3';
+      if (!secondary.hidden) position(secondary, crops[0]);
+      const labels = {
+        all: ['모든 컷 공통 안전영역', '1~4컷 모두에 들어가는 범위예요. 얼굴과 몸을 밝은 영역 안쪽에 맞춰 주세요.'],
+        '1': ['1컷 · 크게 남는 영역', '한 장을 크게 배치하면 양옆이 잘려요. 밝은 영역 안으로 모여 주세요.'],
+        '2': ['2컷 · 각 사진에 남는 영역', '위아래 두 칸에 남는 범위예요. 얼굴과 몸을 밝은 영역 안쪽에 맞춰 주세요.'],
+        '3': ['3컷 · 아래 두 칸 기준', '실선은 아래 두 칸, 점선은 위의 넓은 칸이에요. 모두 남기려면 실선 안에 서 주세요.'],
+        '4': ['4컷 · 각 사진에 남는 영역', '네 칸 모두 세로로 잘려요. 얼굴과 몸을 밝은 영역 안쪽에 맞춰 주세요.']
+      };
+      const [title, hint] = labels[captureGuideMode];
+      const titleElement = document.getElementById('captureGuideTitle'), hintElement = document.getElementById('captureGuideHint');
+      if (titleElement.textContent !== title) titleElement.textContent = title;
+      if (hintElement.textContent !== hint) hintElement.textContent = hint;
+      document.getElementById('captureGuideLabel').textContent = captureGuideMode === '3' ? '아래 두 칸' : '안전영역';
+      for (const button of document.querySelectorAll('[data-capture-guide]')) {
+        button.setAttribute('aria-pressed', String(button.dataset.captureGuide === captureGuideMode));
+      }
+    }
+
+    function setupCaptureGuide() {
+      for (const button of document.querySelectorAll('[data-capture-guide]')) {
+        button.addEventListener('click', () => { captureGuideMode = button.dataset.captureGuide;updateCaptureGuide(); });
+      }
+      const video = document.getElementById('boothCamera');
+      video.addEventListener('loadedmetadata', updateCaptureGuide);
+      video.addEventListener('resize', updateCaptureGuide);
+      if (window.ResizeObserver) {
+        const observer = new ResizeObserver(updateCaptureGuide);
+        observer.observe(document.getElementById('captureView'));
+      }
+      updateCaptureGuide();
+    }
+
+
+    // Keep a short pre-roll, then sample the actual camera until both shots finish.
+    // JPEG samples and adaptive thinning bound memory even between distant shots.
+    const TIMELAPSE_W = 480;
+    const TIMELAPSE_H = Math.round(TIMELAPSE_W * CH / CW);
+    const TIMELAPSE_MAX = 48;
+    let timelapseTimer = null;
+    let timelapsePreroll = [];
+    let timelapseFrames = [];
+    let timelapseActive = false;
+    let timelapseStride = 1;
+    let timelapseSeen = 0;
+    let shootTimer = null;
+    let shootBusy = false;
+    const timelapseCanvas = document.createElement('canvas');
+    timelapseCanvas.width = TIMELAPSE_W;
+    timelapseCanvas.height = TIMELAPSE_H;
+    const timelapseContext = timelapseCanvas.getContext('2d');
+
+    function sampleTimelapse(force = false) {
+      if (captureFinished || shotCount >= N || document.hidden) return;
+      const video = document.getElementById('boothCamera');
+      if (!video.videoWidth || video.readyState < 2) return;
+      if (!force && timelapseActive && timelapseSeen++ % timelapseStride !== 0) return;
+      try {
+        timelapseContext.save();
+        timelapseContext.translate(TIMELAPSE_W, 0);
+        timelapseContext.scale(-1, 1);
+        drawFittedPhoto(timelapseContext, video, 0, 0, TIMELAPSE_W, TIMELAPSE_H);
+        timelapseContext.restore();
+        const frame = timelapseCanvas.toDataURL('image/jpeg', .75);
+        if (timelapseActive) {
+          timelapseFrames.push(frame);
+          if (timelapseFrames.length > TIMELAPSE_MAX) {
+            timelapseFrames = timelapseFrames.filter((_, index) => index % 2 === 0);
+            timelapseStride *= 2;
+          }
+        } else {
+          timelapsePreroll.push(frame);
+          if (timelapsePreroll.length > 10) timelapsePreroll.shift();
+        }
+      } catch (error) {
+        timelapseContext.setTransform(1, 0, 0, 1, 0, 0);
+      }
+    }
+
+    function startTimelapseSampler() {
+      clearInterval(timelapseTimer);
+      timelapseTimer = null;
+      if (!captureFinished && shotCount < N) timelapseTimer = setInterval(() => sampleTimelapse(), 200);
+    }
+
+    function beginTimelapse() {
+      if (timelapseActive || shotCount > 0) return;
+      timelapseFrames = timelapsePreroll.slice();
+      timelapseActive = true;
+      timelapseStride = 1;
+      timelapseSeen = 0;
+      sampleTimelapse(true);
+      document.getElementById('timelapseNote').textContent = '● 촬영 타임랩스를 담고 있어요';
+    }
+
+    function resetTimelapse() {
+      timelapseFrames = [];
+      timelapsePreroll = [];
+      timelapseActive = false;
+      timelapseStride = 1;
+      timelapseSeen = 0;
+      qrSession = null;
+      document.getElementById('timelapseNote').textContent = '촬영하는 순간도 짧은 타임랩스 GIF로 함께 담아요.';
+      if (stream) startTimelapseSampler();
+    }
+
+    async function makeTimelapseGif(clip, onProgress) {
+      if (clip.frames.length < 2) throw new Error('촬영 영상이 없어 GIF를 만들지 못했어요. 카메라를 켜고 다시 촬영해 주세요.');
+      if (!window.Worker) throw new Error('이 브라우저는 GIF 만들기를 지원하지 않아요. Chrome 또는 Edge에서 다시 시도해 주세요.');
+      const source = document.getElementById('jemGifWorker').textContent;
+      const workerUrl = URL.createObjectURL(new Blob([source], { type: 'text/javascript' }));
+      const worker = new Worker(workerUrl);
+      const canvas = document.createElement('canvas');
+      canvas.width = 480;
+      canvas.height = 360;
+      const context = canvas.getContext('2d', { willReadFrequently: true });
+      function send(message, transfer = []) {
+        return new Promise((resolve, reject) => {
+          const timeout = setTimeout(() => reject(new Error('GIF 만들기가 지연되고 있어요. 다시 시도해 주세요.')), 20000);
+          worker.onmessage = event => {
+            clearTimeout(timeout);
+            event.data.error ? reject(new Error(event.data.error)) : resolve(event.data);
+          };
+          worker.onerror = () => {
+            clearTimeout(timeout);
+            reject(new Error('GIF를 만들지 못했어요. 다시 시도해 주세요.'));
+          };
+          worker.postMessage(message, transfer);
+        });
+      }
+      try {
+        for (let i = 0; i < clip.frames.length; i++) {
+          const image = await loadImg(clip.frames[i]);
+          context.fillStyle = clip.color;
+          context.fillRect(0, 0, canvas.width, canvas.height);
+          context.drawImage(image, 10, 10, 460, 311);
+          context.fillStyle = clip.labelColor || '#604273';
+          context.font = '14px sans-serif';
+          context.textAlign = 'center';
+          context.textBaseline = 'middle';
+          context.fillText(clip.label || 'JEM PHOTO · My moment', 240, 336, 438);
+          const rgba = context.getImageData(0, 0, canvas.width, canvas.height).data;
+          await send({ type: 'frame', rgba: rgba.buffer, width: canvas.width, height: canvas.height,
+            delay: i === clip.frames.length - 1 ? 700 : 100 }, [rgba.buffer]);
+          onProgress?.(Math.round((i + 1) / clip.frames.length * 100));
+        }
+        const output = await send({ type: 'finish' });
+        return new Blob([output.bytes], { type: 'image/gif' });
+      } finally {
+        worker.terminate();
+        URL.revokeObjectURL(workerUrl);
+      }
+    }
+
+    window.addEventListener('pagehide', () => clearInterval(timelapseTimer));
+    window.addEventListener('pageshow', event => { if (event.persisted && stream) startTimelapseSampler(); });
+
 
     async function startCam() {
       const status = document.getElementById('camStatus');
-
       try {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          status.textContent = '이 브라우저에서 카메라 API를 지원하지 않아요.';
-          return;
-        }
-
-        if (stream) {
-          stream.getTracks().forEach(track => track.stop());
-        }
-
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: 'user',
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          },
-          audio: false
-        });
-
-        for (let i = 0; i < N; i++) {
-          const v = document.getElementById('v' + i);
-          v.srcObject = stream;
-          v.style.display = 'block';
-          v.onloadedmetadata = () => {
-            status.textContent = '카메라 연결됨. 검정이면 렌즈 덮개/권한/다른 앱 점유를 확인해줘.';
-          };
-        }
-      } catch (e) {
-        status.textContent = '카메라 연결 실패: 권한 허용, 브라우저 설정, 다른 앱 점유 여부를 확인해줘.';
-        console.warn(e);
-      }
+        if (!navigator.mediaDevices?.getUserMedia) { status.textContent = '카메라를 지원하는 브라우저에서 열어 주세요.';return; }
+        if (stream) stream.getTracks().forEach(track => track.stop());
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+        const video = document.getElementById('boothCamera');video.srcObject = stream;
+        video.onloadedmetadata = () => { status.textContent = '카메라 연결됨. 최대 4장을 찍은 뒤 사진을 골라 주세요.'; };
+        await video.play();startTimelapseSampler();refreshCaptureUi();
+      } catch (error) { status.textContent = '카메라 연결 실패: 카메라 권한과 다른 앱의 사용 여부를 확인해 주세요.'; }
     }
+
+
 
     async function checkCamera() {
       const status = document.getElementById('camStatus');
@@ -2054,95 +3802,50 @@
     }
 
     function shoot() {
-      if (shotCount >= N) return;
-
-      if (timerSec === 0) {
-        captureFrame();
-        return;
-      }
-
-      const ov = document.getElementById('cdOverlay');
-      const nm = document.getElementById('cdNum');
-
-      ov.style.display = 'flex';
-      let c = timerSec;
-      nm.textContent = c;
-
-      const h = setInterval(() => {
-        c--;
-
-        if (c <= 0) {
-          clearInterval(h);
-          ov.style.display = 'none';
-          captureFrame();
-        } else {
-          nm.textContent = c;
-        }
+      if (shotCount >= N || shootBusy || captureFinished) return;
+      const video = document.getElementById('boothCamera');
+      if (!video.videoWidth || video.readyState < 2) { document.getElementById('camStatus').textContent = '카메라가 준비된 뒤 촬영해 주세요.';return; }
+      shootBusy = true;beginTimelapse();refreshCaptureUi();
+      if (!timerSec) { shootBusy = false;captureFrame();return; }
+      const overlay = document.getElementById('cdOverlay'), number = document.getElementById('cdNum');
+      overlay.style.display = 'flex';let count = timerSec;number.textContent = count;
+      shootTimer = setInterval(() => {
+        number.textContent = --count;
+        if (count <= 0) { clearInterval(shootTimer);shootTimer = null;overlay.style.display = 'none';shootBusy = false;captureFrame(); }
       }, 1000);
     }
 
     function captureFrame() {
-      const i = shotCount;
-      const v = document.getElementById('v' + i);
-      const p = document.getElementById('p' + i);
-      const fl = document.getElementById('fl' + i);
-
-      fl.style.opacity = '1';
-      setTimeout(() => fl.style.opacity = '0', 150);
-
-      const oc = document.createElement('canvas');
-      oc.width = CW;
-      oc.height = CH;
-
-      const ctx = oc.getContext('2d');
-      ctx.fillStyle = '#18131d';
-      ctx.fillRect(0, 0, CW, CH);
-
-      try {
-        ctx.translate(CW, 0);
-        ctx.scale(-1, 1);
-        ctx.drawImage(v, 0, 0, CW, CH);
-      } catch (e) {
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.fillStyle = '#B0A0C0';
-        ctx.font = '42px serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('📷', CW / 2, CH / 2);
-      }
-
-      p.src = oc.toDataURL('image/jpeg', .92);
-      p.style.display = 'block';
-      v.style.display = 'none';
-
-      shots[i] = p.src;
-      shotCount++;
-
-      document.getElementById('shotInfo').textContent = `${shotCount} / ${N} 촬영`;
-
-      if (shotCount >= N) {
-        document.getElementById('shootBtn').style.opacity = '.38';
-        document.getElementById('shootBtn').style.pointerEvents = 'none';
-      } else {
-        selectFrame(shotCount);
-      }
+      if (shotCount >= N || captureFinished) return;
+      const video = document.getElementById('boothCamera');
+      if (!video.videoWidth || video.readyState < 2) { refreshCaptureUi();return; }
+      beginTimelapse();sampleTimelapse(true);
+      const canvas = document.createElement('canvas');canvas.width = video.videoWidth;canvas.height = video.videoHeight;
+      const context = canvas.getContext('2d');context.translate(canvas.width, 0);context.scale(-1, 1);context.drawImage(video, 0, 0);
+      const index = shotCount;shots[index] = canvas.toDataURL('image/jpeg', .92);
+      document.getElementById('p' + index).src = shots[index];shotCount++;qrSession = null;
+      const flash = document.getElementById('captureFlash');flash.style.opacity = '1';setTimeout(() => flash.style.opacity = '0', 120);
+      refreshCaptureUi();
+      if (shotCount >= N) finishCapture();
     }
 
     function resetPhotos() {
-      shots = Array(N).fill(null);
-      shotCount = 0;
-
+      clearInterval(shootTimer);shootTimer = null;shootBusy = false;captureFinished = false;
+      document.getElementById('cdOverlay').style.display = 'none';
+      commitTextEditor(false);clearStickerSelection();
+      shots = Array(N).fill(null);shotCount = 0;selectedShots = [];photoFits = Array(N).fill('cover');
+      captureGuideMode = 'all';
+      stickers = Array.from({ length: N }, () => []);drawHistory = Array.from({ length: N }, () => []);activeF = 0;
       for (let i = 0; i < N; i++) {
-        const p = document.getElementById('p' + i);
-        p.src = '';
-        p.style.display = 'none';
-        document.getElementById('v' + i).style.display = 'block';
+        document.getElementById('p' + i).removeAttribute('src');
+        for (const prefix of ['d', 's']) { const canvas = document.getElementById(prefix + i);canvas.width = CW;canvas.height = CH; }
       }
-
-      document.getElementById('shotInfo').textContent = `0 / ${N} 촬영`;
-      document.getElementById('shootBtn').style.opacity = '1';
-      document.getElementById('shootBtn').style.pointerEvents = 'auto';
-      selectFrame(0);
+      document.getElementById('capturePanel').hidden = false;document.getElementById('photoEditor').hidden = true;
+      document.getElementById('stepCapture').classList.add('current');document.getElementById('stepSelect').classList.remove('current');
+      document.getElementById('saveStatus').textContent = '';
+      resetTimelapse();refreshCaptureUi();applyBorder();
     }
+
 
     function getBorderColor() {
       return h2hex(bH, bS, bL);
@@ -2159,46 +3862,6 @@
 
     function applyLabelColor() {
       document.getElementById('stripLabel').style.color = getLabelColor();
-    }
-
-    function applyBorder() {
-      const col = getBorderColor();
-      const sw = document.getElementById('stripOuter');
-      const selectedImg = getSelectedFrame();
-      const frameWidth = document.getElementById('f0').getBoundingClientRect().width || 460;
-      const previewPhotoRadius = PHOTO_CORNER_RADIUS * frameWidth / CW;
-
-      if (selectedImg) {
-        const padX = Math.round(frameWidth * 52 / CW);
-        const padTop = Math.round(frameWidth * FRAME_PHOTO_TOP / CW);
-        const padBottom = Math.round(frameWidth * FRAME_PHOTO_BOTTOM / CW);
-        const frameGap = Math.round(frameWidth * 28 / CW);
-
-        sw.style.padding = `${padTop}px ${padX}px ${padBottom}px`;
-        sw.style.gap = `${frameGap}px`;
-        sw.style.backgroundImage = `url("${selectedImg.src}")`;
-        sw.style.backgroundSize = '100% 100%';
-        sw.style.backgroundPosition = 'center';
-        sw.style.backgroundRepeat = 'no-repeat';
-        sw.style.backgroundColor = 'transparent';
-      } else {
-        sw.style.padding = (bPx + 8) + 'px';
-        sw.style.gap = Math.max(7, bPx * .6) + 'px';
-        sw.style.backgroundImage = 'none';
-        sw.style.backgroundColor = bPx > 0 ? col : '#fff';
-      }
-
-      applyLabelColor();
-
-      for (let i = 0; i < N; i++) {
-        const b = document.getElementById('b' + i);
-        // Keep the visible photo corner equally round at every thickness.
-        document.getElementById('f' + i).style.borderRadius = selectedImg ? '' : `${bPx + previewPhotoRadius}px`;
-        b.style.borderRadius = 'inherit';
-        b.style.boxShadow = selectedImg
-          ? 'none'
-          : (bPx > 0 ? `inset 0 0 0 ${bPx}px ${col}` : 'none');
-      }
     }
 
     function getFrameBackgroundColor(img) {
@@ -2273,6 +3936,7 @@
 
       if (dx * dx + dy * dy > 74 * 74) return;
 
+      useBasicFrame(true);
       bH = ((Math.atan2(dy, dx) * 180 / Math.PI) + 360) % 360;
       syncBdrColor();
     }
@@ -2299,11 +3963,13 @@
     document.addEventListener('touchend', () => wDrag = false);
 
     document.getElementById('sSl').addEventListener('input', e => {
+      useBasicFrame(true);
       bS = +e.target.value;
       syncBdrColor();
     });
 
     document.getElementById('lSl').addEventListener('input', e => {
+      useBasicFrame(true);
       bL = +e.target.value;
       syncBdrColor();
     });
@@ -2312,6 +3978,7 @@
       const v = e.target.value.replace(/^#/, '');
 
       if (/^[0-9A-Fa-f]{6}$/.test(v)) {
+        useBasicFrame(true);
         const [h, s, l] = hexToHsl('#' + v);
         bH = h;
         bS = s;
@@ -2348,6 +4015,7 @@
           document.querySelectorAll('.ps').forEach(s => s.classList.remove('active'));
           d.classList.add('active');
 
+          useBasicFrame(true);
           const [h, s, l] = hexToHsl(c);
           bH = h;
           bS = Math.max(s, 20);
@@ -2371,6 +4039,7 @@
         d.onclick = () => {
           document.querySelectorAll('.bdr-btn').forEach(b => b.classList.remove('active'));
           d.classList.add('active');
+          useBasicFrame();
           bPx = BORDERS[i];
           applyBorder();
         };
@@ -2472,25 +4141,17 @@
     });
 
     function canvasXY(e, el) {
-      const r = el.getBoundingClientRect();
-      const cl = e.touches ? e.touches[0] : e;
-      return [
-        (cl.clientX - r.left) * CW / r.width,
-        (cl.clientY - r.top) * CH / r.height
-      ];
+      const r=el.getBoundingClientRect(), cl=e.touches?e.touches[0]:e;
+      return [(cl.clientX-r.left)*el.width/r.width,(cl.clientY-r.top)*el.height/r.height];
     }
-
-    function screenXYFromCanvas(x, y, frameEl) {
-      const r = frameEl.getBoundingClientRect();
-      return [
-        x * r.width / CW,
-        y * r.height / CH
-      ];
+    function screenXYFromCanvas(x,y,frameEl) {
+      const r=frameEl.getBoundingClientRect(), canvas=frameEl.querySelector('.layer-draw');
+      return [x*r.width/canvas.width,y*r.height/canvas.height];
     }
 
     function saveDrawSnap(fi) {
       const ctx = document.getElementById('d' + fi).getContext('2d');
-      drawHistory[fi].push(ctx.getImageData(0, 0, CW, CH));
+      drawHistory[fi].push(ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height));
 
       if (drawHistory[fi].length > 24) {
         drawHistory[fi].shift();
@@ -2509,7 +4170,8 @@
     function clearDraw() {
       commitTextEditor(false);
       saveDrawSnap(activeF);
-      document.getElementById('d' + activeF).getContext('2d').clearRect(0, 0, CW, CH);
+      const canvas = document.getElementById('d' + activeF);
+      canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
     }
 
     function clearCurrentFrame() {
@@ -2702,7 +4364,7 @@
       editor.style.left = Math.max(8, sx - 65) + 'px';
       editor.style.top = Math.max(8, sy - fontSize * .8) + 'px';
       editor.style.color = penColor;
-      editor.style.fontSize = fontSize * frameEl.getBoundingClientRect().width / CW + 'px';
+      editor.style.fontSize = fontSize * frameEl.getBoundingClientRect().width / document.getElementById('d' + fi).width + 'px';
       editor.style.textShadow = penColor === '#ffffff' ? '0 1px 4px rgba(0,0,0,.55)' : '0 1px 4px rgba(255,255,255,.35)';
       editor.focus();
 
@@ -2914,15 +4576,7 @@
       dragI = -1;
     });
 
-    function sXY(e, fi) {
-      const r = document.getElementById('s' + fi).getBoundingClientRect();
-      const cl = e.touches ? e.touches[0] : e;
-
-      return [
-        (cl.clientX - r.left) * CW / r.width,
-        (cl.clientY - r.top) * CH / r.height
-      ];
-    }
+    function sXY(e,fi) { return canvasXY(e,document.getElementById('s'+fi)); }
 
     function sAt(mx, my, fi) {
       const a = stickers[fi];
@@ -2992,7 +4646,7 @@
       const cv = document.getElementById('s' + fi);
       const ctx = cv.getContext('2d');
 
-      ctx.clearRect(0, 0, CW, CH);
+      ctx.clearRect(0, 0, cv.width, cv.height);
 
       stickers[fi].forEach(s => {
         ctx.save();
@@ -3007,12 +4661,14 @@
     }
 
     function selectFrame(i) {
+      if (!selectedShots.includes(i)) return;
       if (activeF !== i && selectedStkF !== i) clearStickerSelection();
       activeF = i;
 
       for (let j = 0; j < N; j++) {
         document.getElementById('f' + j).classList.toggle('selected', j === i);
       }
+      updateFitControls();
     }
 
     function buildZodiacGrid() {
@@ -3076,17 +4732,26 @@
       const showConfirmation = options.showConfirmation !== false;
       const forPrint = options.forPrint === true;
       commitTextEditor(true);
+      if (!captureFinished || !selectedShots.length) throw new Error('촬영을 마친 뒤 저장할 사진을 골라 주세요.');
+      const chosenIndices = selectedShots.slice();
+      const fitsSnapshot = photoFits.slice();
 
+      // Freeze the photographed/decorated session before any asynchronous image loading.
       const frameImg = getSelectedFrame();
-      const FW = 680;
-      const FH = 460;
-      const PAD_X = frameImg ? 52 : 28;
-      const PAD_Y = frameImg ? 64 : 28;
-      const GAP = frameImg ? 28 : 18;
-      const FOOT = frameImg ? 90 : 70;
-      const PHOTO_TOP = frameImg ? FRAME_PHOTO_TOP : PAD_Y;
-      const W = FW + PAD_X * 2;
-      const H = PAD_Y * 2 + FH * N + GAP * (N - 1) + FOOT;
+      const shotSources = shots.slice();
+      const shotStickers = stickers.map(list => list.map(sticker => ({ ...sticker })));
+      const drawingLayers = Array.from({ length: N }, (_, i) => {
+        const copy = document.createElement('canvas');
+        const drawing = document.getElementById('d' + i);
+        copy.width = drawing.width; copy.height = drawing.height;
+        copy.getContext('2d').drawImage(document.getElementById('d' + i), 0, 0);
+        return copy;
+      });
+      const label = document.getElementById('labelInput').value;
+      const borderWidth = bPx;
+      const selectedZodiacSnapshot = selectedZodiacIndex;
+      const layout = getLayoutGeometry(chosenIndices.length, !!frameImg);
+      const W = layout.width, H = layout.height, FOOT = layout.foot, PAD_X = layout.padX;
       // Canon SELPHY CP1300 postcard paper: 100 x 148 mm at 300 dpi.
       // Keep the complete decorated strip inside a 3.5 mm safe area so
       // borderless-print overscan removes only the outer background.
@@ -3103,7 +4768,7 @@
 
       const ctx = oc.getContext('2d');
       const bdrCol = getBorderColor();
-      let printBackgroundColor = bPx > 0 ? bdrCol : '#fff';
+      let printBackgroundColor = borderWidth > 0 ? bdrCol : '#fff';
       const frameLabelColor = getLabelColor();
 
       if (frameImg) {
@@ -3112,59 +4777,38 @@
         printBackgroundColor = frameTone.css;
         ctx.drawImage(frameBackground, 0, 0, W, H);
       } else {
-        ctx.fillStyle = bPx > 0 ? bdrCol : '#fff';
+        ctx.fillStyle = borderWidth > 0 ? bdrCol : '#fff';
         roundRect(ctx, 0, 0, W, H, 34);
         ctx.fill();
       }
 
-      for (let i = 0; i < N; i++) {
-        const fy = PHOTO_TOP + i * (FH + GAP);
-        const photoInset = frameImg ? 0 : bPx;
-
+      for (let ordinal = 0; ordinal < chosenIndices.length; ordinal++) {
+        const i = chosenIndices[ordinal], rect = layout.rects[ordinal];
+        const inset = frameImg ? 0 : borderWidth;
         ctx.save();
-        // The selected background forms the border, without a white backing.
-        roundRect(ctx, PAD_X + photoInset, fy + photoInset,
-          FW - photoInset * 2, FH - photoInset * 2, PHOTO_CORNER_RADIUS);
+        roundRect(ctx, rect.x + inset, rect.y + inset, rect.w - inset * 2, rect.h - inset * 2, PHOTO_CORNER_RADIUS);
         ctx.clip();
-
-        if (shots[i]) {
-          const im = await loadImg(shots[i]);
-          ctx.drawImage(im, PAD_X, fy, FW, FH);
-        } else {
-          ctx.fillStyle = '#f3eef8';
-          ctx.fillRect(PAD_X, fy, FW, FH);
-          ctx.fillStyle = '#B0A0C0';
-          ctx.font = '56px serif';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText('📷', PAD_X + FW / 2, fy + FH / 2);
-        }
-
-        ctx.drawImage(document.getElementById('d' + i), PAD_X, fy, FW, FH);
-
-        stickers[i].forEach(s => {
-          ctx.save();
-          ctx.translate(PAD_X + s.x, fy + s.y);
-          ctx.rotate((s.rot || 0) * Math.PI / 180);
-          ctx.font = `${s.sz}px ${EMOJI_FONT}`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(s.e, 0, 0);
-          ctx.restore();
+        ctx.fillStyle = printBackgroundColor;ctx.fillRect(rect.x,rect.y,rect.w,rect.h);
+        const image = await loadImg(shotSources[i]);
+        drawFittedPhoto(ctx,image,rect.x,rect.y,rect.w,rect.h,fitsSnapshot[i]);
+        ctx.drawImage(drawingLayers[i],rect.x,rect.y,rect.w,rect.h);
+        const rx=rect.w/drawingLayers[i].width,ry=rect.h/drawingLayers[i].height;
+        ctx.save();ctx.translate(rect.x,rect.y);ctx.scale(rx,ry);
+        shotStickers[i].forEach(sticker=>{
+          ctx.save();ctx.translate(sticker.x,sticker.y);ctx.rotate((sticker.rot||0)*Math.PI/180);
+          ctx.font=`${sticker.sz}px ${EMOJI_FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(sticker.e,0,0);ctx.restore();
         });
-
-        ctx.restore();
+        ctx.restore();ctx.restore();
       }
 
-      const label = document.getElementById('labelInput').value;
       ctx.fillStyle = frameLabelColor;
       ctx.font = 'italic 28px Playfair Display, serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(label, W / 2, H - FOOT / 2);
 
-      if (selectedZodiacIndex >= 0) {
-        const zodiac = ZODIACS[selectedZodiacIndex];
+      if (selectedZodiacSnapshot >= 0) {
+        const zodiac = ZODIACS[selectedZodiacSnapshot];
         ctx.fillStyle = zodiac.c;
         ctx.beginPath();
         ctx.arc(PAD_X + 16, H - FOOT / 2, 10, 0, Math.PI * 2);
@@ -3175,39 +4819,53 @@
         ctx.fillText(`${zodiac.n} · ${zodiac.en.toUpperCase()}`, PAD_X + 34, H - FOOT / 2 + 1);
       }
 
-      const printCanvas = document.createElement('canvas');
-      printCanvas.width = PRINT_W;
-      printCanvas.height = PRINT_H;
+      function renderPrintCanvas(correctForPrint) {
+        const printCanvas = document.createElement('canvas');
+        printCanvas.width = PRINT_W;
+        printCanvas.height = PRINT_H;
+  
+        const printCtx = printCanvas.getContext('2d');
+        printCtx.imageSmoothingEnabled = true;
+        printCtx.imageSmoothingQuality = 'high';
+        printCtx.fillStyle = printBackgroundColor;
+        printCtx.fillRect(0, 0, PRINT_W, PRINT_H);
+  
+        const printScale = Math.min(
+          (PRINT_W - PRINT_SAFE * 2) / W,
+          (PRINT_H - PRINT_SAFE * 2) / H
+        );
+        const printStripW = Math.round(W * printScale);
+        const printStripH = Math.round(H * printScale);
+        const jemShiftX = frameImg && correctForPrint ? JEM_PRINT_SHIFT_X_MM * PRINT_W / 100 : 0;
+        const printX = Math.round((PRINT_W - printStripW) / 2) + jemShiftX;
+        const printY = Math.round((PRINT_H - printStripH) / 2);
+  
+        printCtx.drawImage(oc, printX, printY, printStripW, printStripH);
 
-      const printCtx = printCanvas.getContext('2d');
-      printCtx.imageSmoothingEnabled = true;
-      printCtx.imageSmoothingQuality = 'high';
-      printCtx.fillStyle = printBackgroundColor;
-      printCtx.fillRect(0, 0, PRINT_W, PRINT_H);
-
-      const printScale = Math.min(
-        (PRINT_W - PRINT_SAFE * 2) / W,
-        (PRINT_H - PRINT_SAFE * 2) / H
-      );
-      const printStripW = Math.round(W * printScale);
-      const printStripH = Math.round(H * printScale);
-      const jemShiftX = frameImg && forPrint ? JEM_PRINT_SHIFT_X_MM * PRINT_W / 100 : 0;
-      const printX = Math.round((PRINT_W - printStripW) / 2) + jemShiftX;
-      const printY = Math.round((PRINT_H - printStripH) / 2);
-
-      printCtx.drawImage(oc, printX, printY, printStripW, printStripH);
-
+        return printCanvas;
+      }
+      if (options.returnBundle) {
+        return {
+          view: renderPrintCanvas(false).toDataURL('image/jpeg', .92),
+          print: renderPrintCanvas(true).toDataURL('image/jpeg', .92),
+          frameColor: printBackgroundColor,
+          labelColor: frameLabelColor,
+          layoutCount: chosenIndices.length
+        };
+      }
+      const printCanvas = renderPrintCanvas(forPrint);
       const url = printCanvas.toDataURL('image/jpeg', .92);
       const recordPreview = shouldStore ? makeRecordPreview(printCanvas) : '';
       const name = document.getElementById('fName').value.trim() || '익명';
       const msg = document.getElementById('fMsg').value.trim();
-      const zodiacInfo = selectedZodiacIndex >= 0
-        ? `${ZODIACS[selectedZodiacIndex].n} (${ZODIACS[selectedZodiacIndex].en})`
+      const zodiacInfo = selectedZodiacSnapshot >= 0
+        ? `${ZODIACS[selectedZodiacSnapshot].n} (${ZODIACS[selectedZodiacSnapshot].en})`
         : '';
 
       if (shouldStore) {
         const nextRecords = [{
           id: Date.now(),
+          layoutCount: chosenIndices.length,
           // Keep only a lightweight preview in localStorage. The QR upload still
           // receives the full 1181 x 1748 print image returned below.
           snap: recordPreview,
@@ -3268,50 +4926,54 @@
       }
     }
 
-    async function uploadFinalPhoto(dataUrl) {
-      const imageBlob = await fetch(dataUrl).then(response => response.blob());
+    const JEM_UPLOAD_ENDPOINT = 'https://api.imgbb.com/1/upload?key=288c01c85aa450435234c88f3926e7e6';
+
+    async function uploadFinalPhoto(source, extension = 'jpg') {
+      const imageBlob = source instanceof Blob ? source : await fetch(source).then(response => response.blob());
       const formData = new FormData();
-      formData.append('image', imageBlob, `jem-photo-${Date.now()}.jpg`);
+      formData.append('image', imageBlob, `jem-${extension === 'gif' ? 'timelapse' : 'photo'}-${Date.now()}.${extension}`);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 60000);
+      try {
+        const response = await fetch(JEM_UPLOAD_ENDPOINT, { method: 'POST', body: formData, signal: controller.signal });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || !result.success) throw new Error(extension === 'gif' ? 'GIF 업로드에 실패했어요. 다시 시도해 주세요.' : '사진 업로드에 실패했어요. 다시 시도해 주세요.');
+        const photoUrl = result?.data?.url || result?.data?.display_url;
+        if (!photoUrl) throw new Error('업로드 주소를 받지 못했어요.');
+        const url = new URL(photoUrl);
+        if (url.protocol !== 'https:' || !['i.ibb.co', 'i.imgbb.com'].includes(url.hostname)) throw new Error('사진 주소를 확인하지 못했어요.');
+        return url.href;
+      } catch (error) {
+        if (error.name === 'AbortError') throw new Error('전송 시간이 길어지고 있어요. 인터넷 연결을 확인하고 다시 시도해 주세요.');
+        throw error;
+      } finally { clearTimeout(timeout); }
+    }
 
-      const response = await fetch('https://api.imgbb.com/1/upload?key=288c01c85aa450435234c88f3926e7e6', {
-        method: 'POST',
-        body: formData
-      });
-
-      const result = await response.json().catch(() => ({}));
-
-      if (!response.ok || !result.success) {
-        const apiMessage = result?.error?.message;
-        throw new Error(apiMessage || '사진 업로드에 실패했어요. 잠시 후 다시 시도해 주세요.');
+    function makeReceiveLink(photoUrl, gifUrl, mode, count = selectedShots.length) {
+      const url = new URL(window.location.href);
+      if (url.protocol !== 'https:' || /^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(url.hostname)) {
+        throw new Error('휴대폰 저장 화면은 웹에 올린 사이트에서 열 수 있어요. 이 HTML을 GitHub Pages 또는 Vercel에 올린 뒤 그 사이트에서 QR을 만들어 주세요.');
       }
-
-      const photoUrl = result?.data?.url || result?.data?.display_url;
-      if (!photoUrl) {
-        throw new Error('업로드 주소를 받지 못했어요.');
-      }
-
-      return photoUrl;
+      url.hash = 'jem=' + encodeURIComponent(JSON.stringify({ v: 1, p: photoUrl, g: gifUrl || '', m: mode, n: count }));
+      return url.href;
     }
 
     async function generatePhotoQR(mode = 'view', reuseSnapshot = false) {
       if (qrBusy) return;
-
-      if (shotCount < N) {
-        alert('사진 2장을 먼저 촬영해 주세요.');
-        return;
-      }
-
+      if (!captureFinished || !selectedShots.length) { alert('촬영을 마친 뒤 저장할 사진을 골라 주세요.'); return; }
       qrBusy = true;
       qrMode = mode === 'print' ? 'print' : 'view';
-      if (!reuseSnapshot) {
-        qrPhotoData = { view: '', print: '' };
-        qrPhotoUrls = { view: '', print: '' };
+      if (!reuseSnapshot || !qrSession) {
+        qrSession = { data: null, urls: { view: '', print: '' }, gifBlob: null, gifUrl: '',
+          clip: { frames: timelapseFrames.slice(), color: bPx > 0 ? getBorderColor() : '#ffffff', label: document.getElementById('labelInput').value } };
       }
-
+      const session = qrSession;
       const modal = document.getElementById('qrModal');
       const status = document.getElementById('qrStatus');
       const result = document.getElementById('qrResult');
       const retry = document.getElementById('qrRetry');
+      const gifRetry = document.getElementById('qrGifRetry');
+      const mediaNote = document.getElementById('qrMediaNote');
       const qrBox = document.getElementById('qrCode');
       const mainBtn = document.getElementById('qrMainBtn');
       const viewBtn = document.getElementById('qrViewMode');
@@ -3320,53 +4982,56 @@
       viewBtn.setAttribute('aria-pressed', String(!printMode));
       printBtn.setAttribute('aria-pressed', String(printMode));
       viewBtn.disabled = printBtn.disabled = true;
-
       modal.classList.add('open');
       modal.setAttribute('aria-hidden', 'false');
       status.classList.remove('error');
       status.textContent = '프레임을 포함한 완성 사진을 만들고 있어요…';
       result.hidden = true;
-      retry.hidden = true;
+      retry.hidden = gifRetry.hidden = true;
+      mediaNote.textContent = '';
       qrBox.innerHTML = '';
       mainBtn.disabled = true;
       mainBtn.textContent = 'QR 만드는 중…';
-
       try {
-        if (window.location.protocol === 'file:') {
-          throw new Error('QR 전송은 HTML 파일을 직접 열지 말고 VS Code Live Server 또는 GitHub Pages에서 실행해 주세요.');
+        makeReceiveLink('', '', qrMode); // Fail before uploading if the phone cannot open this HTML.
+        if (!session.data) session.data = await saveStrip({ storeRecord: false, showConfirmation: false, returnBundle: true });
+        // Reuse the finished photo's actual background, including birthstone-frame tones.
+        session.clip.color = session.data.frameColor || session.clip.color;
+        session.clip.labelColor = session.data.labelColor || getLabelColor();
+        if (!session.urls[qrMode]) {
+          status.textContent = `${printMode ? '인쇄용' : '보관용'} 사진을 전송하고 있어요…`;
+          session.urls[qrMode] = await uploadFinalPhoto(session.data[qrMode]);
         }
-
-        if (!qrPhotoData.view || !qrPhotoData.print) {
-          // Freeze both versions from the same photo session. Switching QR
-          // purpose reuses these images, even if the editor later changes.
-          qrPhotoData.view = await saveStrip({ storeRecord: false, showConfirmation: false });
-          qrPhotoData.print = await saveStrip({ storeRecord: false, showConfirmation: false, forPrint: true });
+        let gifWarning = '';
+        if (!session.gifUrl) {
+          try {
+            if (!session.gifBlob) session.gifBlob = await makeTimelapseGif(session.clip, progress => {
+              status.textContent = `촬영 타임랩스 GIF를 만들고 있어요… ${progress}%`;
+            });
+            status.textContent = '타임랩스 GIF를 전송하고 있어요…';
+            session.gifUrl = await uploadFinalPhoto(session.gifBlob, 'gif');
+          } catch (error) {
+            gifWarning = error.message || 'GIF를 준비하지 못했어요.';
+          }
         }
-        status.textContent = `${printMode ? '인쇄용' : '보관용'} 사진을 준비하고 있어요…`;
-
-        let photoUrl = qrPhotoUrls[qrMode];
-        if (!photoUrl) {
-          photoUrl = await uploadFinalPhoto(qrPhotoData[qrMode]);
-          qrPhotoUrls[qrMode] = photoUrl;
-        }
+        const receiveUrl = makeReceiveLink(session.urls[qrMode], session.gifUrl, qrMode, session.data.layoutCount);
         await ensureQrLibrary();
-
-        new QRCode(qrBox, {
-          text: photoUrl,
-          width: 240,
-          height: 240,
-          colorDark: '#3D2A4E',
-          colorLight: '#ffffff',
-          correctLevel: QRCode.CorrectLevel.M
-        });
-
+        new QRCode(qrBox, { text: receiveUrl, width: 280, height: 280, colorDark: '#3D2A4E', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
         const photoLink = document.getElementById('qrPhotoLink');
-        photoLink.href = photoUrl;
-        photoLink.textContent = printMode ? '인쇄용 사진 직접 열기' : '보관용 사진 직접 열기';
+        photoLink.href = receiveUrl;
+        photoLink.textContent = '휴대폰 저장 화면 직접 열기';
         document.getElementById('qrGuide').innerHTML = printMode
-          ? 'QR을 스캔하고 열린 사진을 저장한 뒤 캐논 앱에서 인쇄해 주세요.<br>별자리 프레임은 인쇄 위치를 맞추기 위해 왼쪽 0.35mm 보정돼 있어요.<br>화면에서 볼 사진은 ‘휴대폰 보관용’을 선택해 주세요.'
-          : 'QR을 스캔하고 열린 사진을 길게 눌러 저장해 주세요.<br>보관용 사진은 좌우가 중앙에 맞춰져 있어요.<br>인쇄하려면 ‘CP1300 인쇄용’을 선택해 주세요.';
-        status.textContent = `${printMode ? '인쇄용' : '보관용'} QR 생성 완료!`;
+          ? 'QR을 스캔하고 ‘사진 저장하기’를 눌러 주세요.<br>사진 저장·Wi-Fi 연결 후 사진 앱에서 프린트를 진행해 주세요.<br>아이폰: 저장한 사진 → 공유 → 프린트<br>JEM 프레임은 왼쪽 0.35mm 인쇄 보정이 적용돼 있어요.'
+          : 'QR을 스캔하면 사진과 GIF 저장 버튼이 나와요.<br>아이폰은 공유창에서 ‘이미지 저장’을 선택해 주세요.<br>인쇄하려면 위의 ‘CP1300 인쇄용’을 선택해 주세요.';
+        if (session.gifUrl) {
+          status.textContent = '사진 + 타임랩스 GIF 저장 QR 완성!';
+          mediaNote.textContent = '휴대폰에서 사진과 GIF를 각각 또는 함께 저장할 수 있어요.';
+        } else {
+          status.textContent = '사진 저장 QR 완성 · GIF는 포함되지 않았어요';
+          mediaNote.textContent = gifWarning;
+          gifRetry.hidden = session.clip.frames.length < 2;
+          document.getElementById('qrGuide').textContent = '이 QR에서는 사진만 저장할 수 있어요. 아이폰은 저장 버튼을 누른 뒤 공유창에서 ‘이미지 저장’을 선택해 주세요.';
+        }
         result.hidden = false;
       } catch (error) {
         console.error(error);
@@ -3434,7 +5099,7 @@
       document.getElementById('recCnt').textContent = records.length + '건';
 
       if (!records.length) {
-        el.innerHTML = '<div class="rec-empty">아직 저장된 두컷이 없어요<br />촬영 후 저장해보세요</div>';
+        el.innerHTML = '<div class="rec-empty">아직 저장한 사진이 없어요<br />촬영 후 저장해보세요</div>';
         return;
       }
 
@@ -3579,7 +5244,13 @@
     applyBorder();
     selectFrame(0);
     setTool('pen');
+    // Async declarations in a conditional block need explicit globals for HTML handlers.
+    Object.assign(window, { startCam, checkCamera, saveToSite, saveStrip, ensureQrLibrary,
+      uploadFinalPhoto, generatePhotoQR, makeTimelapseGif });
+    setupCaptureGuide();
+    refreshCaptureUi();
     startCam();
+    } // Studio only: the QR receiver never requests camera access.
   </script>
 </body>
 </html>
