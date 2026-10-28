@@ -4715,12 +4715,13 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
       const selectedZodiacSnapshot = selectedZodiacIndex;
       const layout = getLayoutGeometry(chosenIndices.length, !!frameImg);
       const W = layout.width, H = layout.height, FOOT = layout.foot, PAD_X = layout.padX;
-      // Preserve the tested phone-keepsake image: 100 x 148 mm at 300 dpi,
-      // with the same 42 px safe area. QR downloads and site records use
-      // this one centred image for every layout, without a printer offset.
+      // One shared image: 100 x 148 mm at 300 dpi, with the same 42 px
+      // safe area. Shift JEM frames, photos and labels together to the left
+      // by 0.35 mm for every layout; keep basic frames centred.
       const OUTPUT_W = 1181;
       const OUTPUT_H = 1748;
       const OUTPUT_SAFE = 42;
+      const JEM_SHIFT_X_MM = -0.35;
 
       const oc = document.createElement('canvas');
       oc.width = W;
@@ -4796,7 +4797,8 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         );
         const outputStripW = Math.round(W * outputScale);
         const outputStripH = Math.round(H * outputScale);
-        const outputX = Math.round((OUTPUT_W - outputStripW) / 2);
+        const shiftX = frameImg ? JEM_SHIFT_X_MM * OUTPUT_W / 100 : 0;
+        const outputX = Math.round((OUTPUT_W - outputStripW) / 2) + shiftX;
         const outputY = Math.round((OUTPUT_H - outputStripH) / 2);
   
         photoCtx.drawImage(oc, outputX, outputY, outputStripW, outputStripH);
